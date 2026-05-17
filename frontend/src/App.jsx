@@ -1,5 +1,7 @@
+import ClienteHome from "./pages/ClienteHome";
+
 function App() {
-  return <div className="bg-primary text-white p-8">Tailwind funciona</div>;
+  return <ClienteHome />;
 }
 
 export default App;
