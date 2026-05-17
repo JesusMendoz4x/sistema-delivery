@@ -3,11 +3,11 @@ function Descripcion() {
     <section id="info" className="py-32 px-16 max-w-5xl mx-auto">
       {/* Separador */}
       <div className="flex items-center gap-6 mb-16">
-        <div className="h-px flex-grow bg-[#D4AF6A]/20" />
-        <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.4em]">
+        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
+        <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.4em]">
           Nuestra Historia
         </span>
-        <div className="h-px flex-grow bg-[#D4AF6A]/20" />
+        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
       </div>
 
       <div className="grid grid-cols-2 gap-24 items-center">
@@ -35,22 +35,35 @@ function Descripcion() {
           </p>
         </div>
 
-        {/* Datos rápidos */}
-        <div className="flex flex-col gap-8 border-l border-[#D4AF6A]/15 pl-24">
-          {[
-            { numero: "40+", label: "Años de experiencia" },
-            { numero: "12", label: "Chefs especializados" },
-            { numero: "60+", label: "Platillos en carta" },
-          ].map((item) => (
-            <div key={item.label}>
-              <span className="font-['EB_Garamond'] text-[56px] text-[#D4AF6A] leading-none">
-                {item.numero}
-              </span>
-              <p className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/40 uppercase tracking-widest mt-1">
-                {item.label}
-              </p>
-            </div>
-          ))}
+        {/* Datos rápidos con barra vertical y puntos */}
+        <div className="relative">
+          {/* barra vertical */}
+          <div className="absolute left-3 top-0 bottom-0 w-px bg-[#D4AF6A]/10" />
+
+          <div className="flex flex-col gap-8">
+            {[
+              { numero: "40+", label: "Años de experiencia" },
+              { numero: "12", label: "Chefs especializados" },
+              { numero: "60+", label: "Platillos en carta" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="grid grid-cols-[24px_1fr] items-center gap-6"
+              >
+                <div className="flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-[#D4AF6A]" />
+                </div>
+                <div>
+                  <span className="font-['EB_Garamond'] text-[56px] text-[#D4AF6A] leading-none">
+                    {item.numero}
+                  </span>
+                  <p className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/40 uppercase tracking-widest mt-1">
+                    {item.label}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

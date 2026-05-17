@@ -1,5 +1,6 @@
 import React from "react";
 import logo from "../assets/logo.png";
+import comida from "../assets/comida.png";
 
 function Hero({ onVerMenu, heroProgress = 0 }) {
   const subtleScale = 1 + Math.min(heroProgress * 0.02, 0.04);
@@ -9,6 +10,35 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
       id="hero"
       className="relative w-full h-screen flex flex-col items-center justify-center overflow-visible"
     >
+      {/* Fondo con imagen y degradados (no afecta al contenido) */}
+      <div
+        id="hero-bg"
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(16,16,16,0.45) 0%, rgba(16,16,16,0.06) 45%, rgba(16,16,16,0.75) 100%), url(${comida})`,
+          backgroundBlendMode: "overlay",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center center",
+          filter: "brightness(0.88) contrast(1.08) saturate(0.9) blur(4px)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Overlay para oscurecer progresivamente con el scroll */}
+      <div
+        id="hero-dark-overlay"
+        className="absolute inset-0 z-5"
+        style={{
+          background: "rgba(0,0,0,1)",
+          opacity: 0,
+          pointerEvents: "none",
+          transition: "opacity 220ms linear",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Degradado inferior eliminado para evitar cortar el fondo artístico */}
       {/* Línea decorativa top */}
       <div className="absolute top-32 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-transparent to-[#D4AF6A]/30 z-10" />
 

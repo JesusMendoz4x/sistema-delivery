@@ -6,18 +6,18 @@ function Ubicacion() {
     >
       {/* Separador */}
       <div className="flex items-center gap-6 mb-16">
-        <div className="h-px flex-grow bg-[#D4AF6A]/20" />
-        <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.4em]">
+        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
+        <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.4em]">
           Encuéntranos
         </span>
-        <div className="h-px flex-grow bg-[#D4AF6A]/20" />
+        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
       </div>
 
       <div className="grid grid-cols-2 gap-24 max-w-5xl mx-auto">
         {/* Dirección y horarios */}
         <div className="flex flex-col gap-12">
           <div>
-            <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.3em] mb-4">
+            <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.3em] mb-4">
               Dirección
             </p>
             <p className="font-['EB_Garamond'] text-[22px] text-[#F2EDE4] leading-relaxed">
@@ -86,6 +86,23 @@ function Ubicacion() {
           />
         </div>
       </div>
+      {/* Indicador sutil de scroll: elipse roja tenue centrada abajo */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+          bottom: 16,
+          width: 56,
+          height: 28,
+          borderRadius: 9999,
+          background: "rgba(212,175,106,0.08)",
+          border: "1px solid rgba(212,175,106,0.16)",
+          pointerEvents: "none",
+          zIndex: 20,
+        }}
+      />
     </section>
   );
 }

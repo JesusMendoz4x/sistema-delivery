@@ -16,6 +16,24 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Static hero background to avoid scroll-driven animations -->
+    <script>
+      (function () {
+        function onReady() {
+          const heroFade = document.querySelector('.hero-bottom-fade');
+          const heroBg = document.getElementById('hero-bg');
+          const heroDark = document.getElementById('hero-dark-overlay');
+          if (heroFade) heroFade.style.opacity = '1';
+          if (heroBg) {
+            heroBg.style.backgroundPosition = 'center 0px';
+            heroBg.style.filter = 'brightness(1) contrast(1.08) saturate(0.9) blur(4px)';
+          }
+          if (heroDark) heroDark.style.opacity = '0';
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady);
+        else onReady();
+      })();
+    </script>
   </body>
 
 </html>
