@@ -3,15 +3,15 @@
 @theme {
   --color-primary: #7a0520;
   --color-secondary: #775a1d;
-  --color-background: #fef9f0;
-  --color-surface: #fef9f0;
-  --color-on-surface: #1d1c16;
-  --color-on-background: #1d1c16;
-  --color-on-surface-variant: #584142;
-  --color-surface-container: #f2ede4;
-  --color-surface-container-low: #f8f3ea;
-  --color-surface-container-high: #ece8df;
-  --color-surface-container-highest: #e7e2d9;
+  --color-background: rgb(16, 16, 16);
+  --color-surface: rgb(16, 16, 16);
+  --color-on-surface: #e7e2da;
+  --color-on-background: #e7e2da;
+  --color-on-surface-variant: #bfb3a8;
+  --color-surface-container: #1f1b1a;
+  --color-surface-container-low: #171616;
+  --color-surface-container-high: #262221;
+  --color-surface-container-highest: #2b2827;
   --color-primary-container: #9b2335;
   --color-secondary-container: #fcd58c;
   --color-outline-variant: #dfbfbf;

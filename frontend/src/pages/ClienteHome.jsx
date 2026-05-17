@@ -12,31 +12,34 @@ function ClienteHome() {
   const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
-  const [bgColor, setBgColor] = useState("rgb(16, 16, 16)");
+  const [heroProgress, setHeroProgress] = useState(0);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
   useEffect(() => {
     const handleScroll = () => {
+      // Only update the hero color while the menu is hidden
+      if (mostrarMenu) return;
+
+      const heroEl = document.getElementById("hero");
+      const heroHeight = (heroEl && heroEl.offsetHeight) || window.innerHeight;
       const scrollY = window.scrollY;
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
 
-      // Normaliza entre 0 y 1
-      const progress = Math.min(scrollY / maxScroll, 1);
+      // Progress only across the hero height for smoother control
+      let progress = Math.min(Math.max(scrollY / heroHeight, 0), 1);
 
-      // Oscila entre negro y rojo oscuro
-      const cycle = Math.sin(progress * Math.PI * 3) * 0.5 + 0.5;
+      // Ease-out for smoother feel
+      const eased = 1 - Math.cos((progress * Math.PI) / 2);
 
-      const r = Math.round(16 + cycle * 106); // 16 → 122  (rojo vino)
-      const g = Math.round(16 - cycle * 11); // 16 → 5
-      const b = Math.round(16 + cycle * 16); // 16 → 32   (toque púrpura)
-
-      setBgColor(`rgb(${r}, ${g}, ${b})`);
+      // Only update heroProgress; do not change global page background
+      setHeroProgress(eased);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    // run once to set initial progress
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [mostrarMenu]);
 
   const agregarAlCarrito = (producto) => {
     setCarrito((prev) => {
@@ -77,41 +80,51 @@ function ClienteHome() {
   return (
     <div
       className="min-h-screen transition-colors duration-300"
-      style={{ backgroundColor: bgColor }}
+      style={{ backgroundColor: "rgb(16,16,16)" }}
     >
-      <Navbar
-        categoriaActiva={categoriaActiva}
-        onCategoriaClick={(cat) => {
-          setCategoriaActiva(cat);
-          setMostrarMenu(true);
-        }}
-        totalItems={totalItems}
-        onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
-      />
+      <div style={{ position: "relative", zIndex: 10 }}>
+        <Navbar
+          categoriaActiva={categoriaActiva}
+          onCategoriaClick={(cat) => {
+            if (cat === "Inicio") {
+              setMostrarMenu(false);
+              setCategoriaActiva("Inicio");
+              return;
+            }
+            setCategoriaActiva(cat);
+            setMostrarMenu(true);
+          }}
+          totalItems={totalItems}
+          onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
+        />
 
-      {!mostrarMenu ? (
-        <>
-          <Hero onVerMenu={() => setMostrarMenu(true)} />
-          <Descripcion />
-          <Ubicacion />
-          <Footer />
-        </>
-      ) : (
-        <div className="pt-20 flex">
-          <MenuGrid
-            categoriaActiva={categoriaActiva}
-            onAgregar={agregarAlCarrito}
-          />
-          {mostrarCarrito && (
-            <CartPanel
-              items={carrito}
-              onIncrementar={incrementar}
-              onDecrementar={decrementar}
-              onConfirmar={confirmarPedido}
+        {!mostrarMenu ? (
+          <>
+            <Hero
+              heroProgress={heroProgress}
+              onVerMenu={() => setMostrarMenu(true)}
             />
-          )}
-        </div>
-      )}
+            <Descripcion heroProgress={heroProgress} />
+            <Ubicacion heroProgress={heroProgress} />
+            <Footer heroProgress={heroProgress} />
+          </>
+        ) : (
+          <div className="pt-20 flex">
+            <MenuGrid
+              categoriaActiva={categoriaActiva}
+              onAgregar={agregarAlCarrito}
+            />
+            {mostrarCarrito && (
+              <CartPanel
+                items={carrito}
+                onIncrementar={incrementar}
+                onDecrementar={decrementar}
+                onConfirmar={confirmarPedido}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import logo from "../assets/logo.png";
 
-const categorias = ["Entradas", "Ramen", "Sushi", "Postres", "Bebidas"];
+const categorias = ["Inicio", "Entradas", "Pedidos", "Nuestras Sucursales"];
 
 function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
   return (
@@ -58,7 +58,7 @@ function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
           )}
         </div>
         <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
-          Orden
+          Carrito
         </span>
       </div>
     </nav>
