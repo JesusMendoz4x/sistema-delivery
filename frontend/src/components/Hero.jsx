@@ -58,18 +58,17 @@ function Hero({ onVerMenu }) {
           >
             Ver Menú
           </button>
-          <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/40 uppercase tracking-widest">
-            Mesa 12
-          </span>
+          <button
+            onClick={() =>
+              document
+                .getElementById("info")
+                .scrollIntoView({ behavior: "smooth" })
+            }
+            className="px-10 py-4 border border-[#D4AF6A]/30 font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-[#D4AF6A]/70 hover:border-[#D4AF6A] hover:text-[#D4AF6A] transition-all"
+          >
+            Más Información
+          </button>
         </div>
-      </div>
-
-      {/* Línea decorativa bottom */}
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-        <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/30 uppercase tracking-widest">
-          Scroll
-        </span>
-        <div className="w-px h-10 bg-gradient-to-b from-[#D4AF6A]/30 to-transparent" />
       </div>
     </section>
   );
