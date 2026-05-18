@@ -1,8 +1,21 @@
-//Importamos el módulo app que contiene la configuración de Express
+require('dotenv').config();
+
 const app = require('./app');
-//Definimos el puerto en el que se ejecutará el servidor
+const { connectDB } = require('./config/database');
+
 const PORT = process.env.PORT || 3001;
-//Iniciamos el servidor y escuchamos en el puerto definido
-app.listen(PORT, () => {
-    console.log(`Servidor de sucursales escuchando en el puerto ${PORT}`);
-});
+
+async function startServer() {
+    try {
+        await connectDB(process.env.MONGODB_URI);
+    } catch (error) {
+        console.warn('No se pudo conectar a MongoDB. El servidor continuará levantado para desarrollo.');
+        console.warn(error.message);
+    }
+
+    app.listen(PORT, () => {
+        console.log(`Servidor de inventario escuchando en el puerto ${PORT}`);
+    });
+}
+
+startServer();

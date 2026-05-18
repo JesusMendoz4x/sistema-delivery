@@ -1,6 +1,7 @@
-# backend/.gitignore
-node_modules/
-.env
+# Ignore dependencies and local env files everywhere in the repo
+**/node_modules/
+**/.env
+**/.env.*
 *.log
 dist/
 .DS_Store
