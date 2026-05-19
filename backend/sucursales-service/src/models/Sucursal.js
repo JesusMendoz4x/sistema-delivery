@@ -21,6 +21,10 @@ const SucursalSchema = new mongoose.Schema({
         required: [true, 'La capacidad operativa de la sucursal es obligatoria'],
         min: [1, 'La capacidad operativa debe ser al menos 1'],
     },
+    estado: {
+        type: Boolean,
+        default: true, // true = activa, false = inactiva
+    }
 }, {
     timestamps: true,
 });
