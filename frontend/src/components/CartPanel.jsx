@@ -49,7 +49,7 @@ function CartItem({
   );
 }
 
-function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
+function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }) {
   const subtotal = items.reduce(
     (acc, item) => acc + parseFloat(item.precio) * item.cantidad,
     0,
@@ -58,23 +58,33 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
   const total = subtotal + servicio;
 
   return (
-    <aside className="fixed right-0 top-0 h-full w-[350px] bg-background border-l border-secondary/25 flex flex-col z-50">
+    <aside className="fixed right-0 top-0 h-full w-[350px] bg-[#F2E6D8] text-[#2f251d] border-l border-black/10 flex flex-col z-50">
       {/* Header */}
-      <div className="p-8 border-b border-secondary/10">
+      <div className="p-8 border-b border-black/10">
         <div className="flex justify-between items-center">
           <h2 className="font-['EB_Garamond'] text-2xl uppercase tracking-tighter">
             Tu Orden
           </h2>
-          <span className="material-symbols-outlined text-secondary">
-            shopping_bag
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[#9B2335]">
+              shopping_bag
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Cerrar carrito"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 text-[#5a4636] transition-colors hover:border-black/20 hover:text-[#2f251d]"
+            >
+              &times;
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Items */}
       <div className="flex-grow overflow-y-auto p-8 space-y-6">
         {items.length === 0 ? (
-          <p className="font-['DM_Sans'] text-sm text-on-surface-variant text-center mt-8">
+          <p className="font-['DM_Sans'] text-sm text-[#5a4636] text-center mt-8">
             Tu orden está vacía
           </p>
         ) : (
@@ -87,9 +97,9 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
                 onDecrementar={() => onDecrementar(item.id)}
               />
             ))}
-            <div className="pt-6 mt-6 border-t border-secondary/10">
+            <div className="pt-6 mt-6 border-t border-black/10">
               <div className="flex justify-between items-center mb-2">
-                <span className="font-['JetBrains_Mono'] text-[10px] text-on-surface-variant uppercase tracking-widest">
+                <span className="font-['JetBrains_Mono'] text-[10px] text-[#5a4636] uppercase tracking-widest">
                   Subtotal
                 </span>
                 <span className="font-['JetBrains_Mono'] text-[11px]">
@@ -97,7 +107,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
                 </span>
               </div>
               <div className="flex justify-between items-center mb-2">
-                <span className="font-['JetBrains_Mono'] text-[10px] text-on-surface-variant uppercase tracking-widest">
+                <span className="font-['JetBrains_Mono'] text-[10px] text-[#5a4636] uppercase tracking-widest">
                   Servicio (10%)
                 </span>
                 <span className="font-['JetBrains_Mono'] text-[11px]">
@@ -110,7 +120,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
       </div>
 
       {/* Footer */}
-      <div className="p-8 bg-surface-container-low border-t border-secondary/25">
+      <div className="p-8 bg-[#EAD9C6] border-t border-black/10">
         <div className="flex justify-between items-baseline mb-6">
           <span className="font-['JetBrains_Mono'] text-xs uppercase tracking-[0.2em]">
             Total
@@ -125,7 +135,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar }) {
         >
           Confirmar Pedido
         </button>
-        <p className="mt-4 text-[10px] font-['JetBrains_Mono'] text-center text-on-surface-variant/60 uppercase tracking-widest">
+        <p className="mt-4 text-[10px] font-['JetBrains_Mono'] text-center text-[#5a4636]/70 uppercase tracking-widest">
           Precio incluye impuestos locales
         </p>
       </div>

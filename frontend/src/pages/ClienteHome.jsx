@@ -129,6 +129,7 @@ function ClienteHome() {
                 onIncrementar={incrementar}
                 onDecrementar={decrementar}
                 onConfirmar={confirmarPedido}
+                onClose={() => setMostrarCarrito(false)}
               />
             )}
           </div>
