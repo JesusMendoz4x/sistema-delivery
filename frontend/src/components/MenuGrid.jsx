@@ -52,7 +52,7 @@ const productos = [
       "Cortes finos de Hamachi con rodajas de jalapeño y salsa ponzu cítrica.",
     precio: "34.00",
     imagen:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBZHZg86BygqPbvrmMQ3U4MqJ1G5KZ7aR-bt4flVJVmZ24qdGYy4VSKdnXfy0WIdft_EL18IZpijWdPs2kT6D0SrjtjADStgxsg8ayAxxgmrtKLHlXeSJg4ZF2flmhdGrjBEZX5DX-LhZE7aR232ORYuf7eW_WsKyKCirZw3GLg4EonwMPt10_pHmyCYOkZ5cTxWvmW79eWd9dnANG70A5gO4U5Al95veimuP0TBgBJZOJJy2e-RMM",
+      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=400&fit=crop",
   },
   {
     id: 6,
@@ -75,7 +75,7 @@ const productos = [
     precio: "38.00",
     badge: "Chef's Pick",
     imagen:
-      "https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1559410545-0bdcd187e0a6?w=400&h=400&fit=crop",
   },
   {
     id: 8,
@@ -173,7 +173,7 @@ const productos = [
     precio: "58.00",
     badge: "Chef's Pick",
     imagen:
-      "https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop",
   },
 
   // POSTRES
@@ -196,7 +196,7 @@ const productos = [
       "Helado artesanal de té tostado con caramelo de piloncillo y galleta de sésamo.",
     precio: "14.00",
     imagen:
-      "https://images.unsplash.com/photo-1516559228935-0f9d2b7e3b77?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop",
   },
   {
     id: 19,
@@ -260,7 +260,7 @@ const productos = [
     precio: "55.00",
     badge: "Chef's Pick",
     imagen:
-      "https://images.unsplash.com/photo-1617196034096-a93f8b6db541?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
   },
   {
     id: 25,
@@ -337,7 +337,7 @@ const productos = [
     precio: "72.00",
     badge: "Chef's Pick",
     imagen:
-      "https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop",
   },
 
   // POSTRES — nuevos
@@ -370,7 +370,7 @@ const productos = [
     precio: "20.00",
     badge: "Signature",
     imagen:
-      "https://images.unsplash.com/photo-1516559228935-0f9d2b7e3b77?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=400&fit=crop",
   },
 ];
 
@@ -388,10 +388,20 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
 
   const handleScroll = (dir) => {
     if (!carruselRef.current) return;
-    carruselRef.current.scrollBy({
-      left: dir * cardStep,
-      behavior: "smooth",
-    });
+    const { scrollLeft, scrollWidth, clientWidth } = carruselRef.current;
+    const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
+
+    if (dir > 0 && scrollLeft + clientWidth + 2 >= scrollWidth) {
+      carruselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (dir < 0 && scrollLeft <= 2) {
+      carruselRef.current.scrollTo({ left: maxScrollLeft, behavior: "smooth" });
+      return;
+    }
+
+    carruselRef.current.scrollBy({ left: dir * cardStep, behavior: "smooth" });
   };
 
   return (
@@ -423,14 +433,14 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
 
       {/* Carrusel con flechas */}
       <div
-        className="relative"
+        className="relative overflow-visible"
         style={{ maxWidth: "1120px", margin: "0 auto" }}
       >
         <button
           type="button"
           aria-label="Anterior"
           onClick={() => handleScroll(-1)}
-          className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
         >
           &#8592;
         </button>
@@ -438,14 +448,14 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
           type="button"
           aria-label="Siguiente"
           onClick={() => handleScroll(1)}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
         >
           &#8594;
         </button>
 
         <div
           ref={carruselRef}
-          className="carrusel flex flex-nowrap gap-5 overflow-x-auto overflow-y-hidden pb-4"
+          className="carrusel flex flex-nowrap gap-5 overflow-x-auto overflow-y-visible py-3"
           style={{
             WebkitOverflowScrolling: "touch",
             scrollSnapType: "x mandatory",
