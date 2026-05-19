@@ -29,4 +29,4 @@ const SucursalSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-module.exports = { Sucursal: mongoose.model('Sucursal', SucursalSchema) };
+module.exports = mongoose.model('Sucursal', SucursalSchema);
