@@ -1,8 +1,19 @@
-//Importamos el módulo app que contiene la configuración de Express
+
+require('dotenv').config();
+
 const app = require('./app');
-//Definimos el puerto en el que se ejecutará el servidor
+const conectarDB = require('./config/database');
+
 const PORT = process.env.PORT || 3004;
-//Iniciamos el servidor y escuchamos en el puerto definido
-app.listen(PORT, () => {
-    console.log(`Servidor de repartidores escuchando en el puerto ${PORT}`);
+
+conectarDB();
+
+const server = app.listen(PORT, () => {
+    console.log(`Servicio de Repartidores ejecutándose en el puerto ${PORT}`);
+    console.log(`Ambiente de ejecución: ${process.env.NODE_ENV || 'desarrollo'}`);
+});
+
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error crítico: ${err.message}`);
+    server.close(() => process.exit(1));
 });
