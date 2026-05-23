@@ -1,32 +1,94 @@
 function Ubicacion() {
+  const sucursales = [
+    {
+      nombre: "Reforma / Antigua Aeropuerto",
+      direccion: "Av. Fuerza Aérea Mexicana 900, esquina con calle Azucenas",
+    },
+    {
+      nombre: "Plaza Monte Albán",
+      direccion: "Carretera a Monte Albán 600, Montoya — Área de comida",
+    },
+    {
+      nombre: "Macroplaza",
+      direccion: "Zona comercial del norte, Oaxaca de Juárez",
+    },
+    {
+      nombre: "Centro",
+      direccion: "Calle Luis Jiménez Figueroa, 68070 Oaxaca de Juárez",
+    },
+  ];
+
   return (
     <section
       className="py-32 px-16"
       style={{ borderTop: "1px solid rgba(212, 175, 106, 0.1)" }}
     >
       {/* Separador */}
-      <div className="flex items-center gap-6 mb-16">
-        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
-        <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.4em]">
-          Encuéntranos
-        </span>
-        <div className="h-px flex-grow bg-[#D4AF6A]/10" />
+      <div className="mb-16">
+        <div className="flex items-center gap-6 mb-4">
+          <div
+            className="h-px flex-grow"
+            style={{ background: "rgba(212, 175, 106, 0.15)" }}
+          />
+          <span
+            className="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.4em]"
+            style={{
+              color: "#D4AF6A",
+              border: "1px solid rgba(212, 175, 106, 0.4)",
+              padding: "6px 20px",
+              textShadow:
+                "0 0 12px rgba(212,175,106,0.6), 0 0 24px rgba(212,175,106,0.3)",
+            }}
+          >
+            Encuéntranos
+          </span>
+          <div
+            className="h-px flex-grow"
+            style={{ background: "rgba(212, 175, 106, 0.15)" }}
+          />
+        </div>
+        <div className="flex items-stretch gap-5">
+          <div className="w-[3px] bg-[#9B2335] rounded-sm flex-shrink-0" />
+          <div className="flex flex-col gap-2">
+            <p className="font-['EB_Garamond'] text-[40px] text-[#F2EDE4] font-normal m-0 cursor-default transition-all duration-300 hover:text-[#D4AF6A] hover:tracking-wide">
+              Visitanos
+            </p>
+            <span className="font-['DM_Sans'] text-[13px] text-[#F2EDE4]/40">
+              en cualquiera de nuestras 4 ubicaciones en Oaxaca
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-24 max-w-5xl mx-auto">
-        {/* Dirección y horarios */}
+        {/* Sucursales y horarios */}
         <div className="flex flex-col gap-12">
+          {/* 4 sucursales */}
           <div>
-            <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.3em] mb-4">
-              Dirección
+            <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/40 uppercase tracking-[0.3em] mb-6">
+              Nuestras Sucursales
             </p>
-            <p className="font-['EB_Garamond'] text-[22px] text-[#F2EDE4] leading-relaxed">
-              Circuito Sur 113, La Cascada,
-              <br />
-              68050 Oaxaca de Juárez, Oax.
-            </p>
+            <div className="flex flex-col gap-6">
+              {sucursales.map((s) => (
+                <div
+                  key={s.nombre}
+                  className="pb-6"
+                  style={{
+                    borderBottom: "1px solid rgba(212, 175, 106, 0.08)",
+                  }}
+                >
+                  <p className="font-['EB_Garamond'] text-[18px] text-[#D4AF6A] mb-1">
+                    {s.nombre}
+                  </p>
+                  <p className="font-['DM_Sans'] text-[13px] text-[#F2EDE4]/50 leading-relaxed">
+                    {s.direccion}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {/* Horarios */}
           <div>
             <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.3em] mb-4">
               Horarios
@@ -51,6 +113,7 @@ function Ubicacion() {
             </div>
           </div>
 
+          {/* Contacto */}
           <div>
             <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.3em] mb-4">
               Contacto
@@ -78,6 +141,50 @@ function Ubicacion() {
             allowFullScreen=""
             loading="lazy"
           />
+
+          {/* Punto rojo de ubicación exacta */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <div
+              className="absolute rounded-full animate-ping"
+              style={{
+                width: "28px",
+                height: "28px",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                background: "rgba(155, 35, 53, 0.35)",
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: "20px",
+                height: "20px",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                background: "rgba(155, 35, 53, 0.2)",
+                border: "1px solid rgba(155, 35, 53, 0.5)",
+              }}
+            />
+            <div
+              className="relative rounded-full"
+              style={{
+                width: "10px",
+                height: "10px",
+                background: "#9B2335",
+                boxShadow: "0 0 0 2px rgba(242, 237, 228, 0.9)",
+              }}
+            />
+          </div>
+
           <div
             className="absolute bottom-0 left-0 right-0 h-12"
             style={{
@@ -86,7 +193,7 @@ function Ubicacion() {
           />
         </div>
       </div>
-      {/* Indicador sutil de scroll: elipse roja tenue centrada abajo */}
+
       <div
         aria-hidden="true"
         style={{
