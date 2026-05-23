@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 import { AuthProvider, useAuth } from "../context/AuthContext";
+import LoginModal from "../components/LoginModal";
 
 // Componente interno separado para poder consumir useAuth
 // dentro del árbol del AuthProvider
@@ -139,6 +140,9 @@ function ClienteHomeInner() {
           </div>
         )}
       </div>
+
+      {/* Modal de login — se activa desde MenuCard cuando no hay sesión */}
+      <LoginModal />
 
       {/* Botones mock — eliminar cuando el backend de auth esté listo */}
       <div className="fixed bottom-4 right-4 z-50 flex gap-2">
