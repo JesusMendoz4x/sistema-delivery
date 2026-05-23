@@ -2,7 +2,13 @@ import logo from "../assets/logo.png";
 
 const categorias = ["Inicio", "Entradas", "Pedidos", "Nuestras Sucursales"];
 
-function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
+function Navbar({
+  categoriaActiva,
+  onCategoriaClick,
+  totalItems,
+  onCarritoClick,
+  isLoggedIn,
+}) {
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-16 py-5"
@@ -45,22 +51,30 @@ function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
         })}
       </ul>
 
-      {/* Carrito */}
-      <div className="flex items-center gap-2 cursor-pointer group">
-        <div className="relative">
-          <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
-            shopping_bag
-          </span>
-          {totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-full flex items-center justify-center font-['JetBrains_Mono'] text-[9px] text-white">
-              {totalItems}
+      {/* Carrito — solo visible si hay sesión activa */}
+      {isLoggedIn ? (
+        <div
+          onClick={onCarritoClick}
+          className="flex items-center gap-2 cursor-pointer group"
+        >
+          <div className="relative">
+            <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
+              shopping_bag
             </span>
-          )}
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#9B2335] rounded-full flex items-center justify-center font-['JetBrains_Mono'] text-[9px] text-white">
+                {totalItems}
+              </span>
+            )}
+          </div>
+          <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
+            Carrito
+          </span>
         </div>
-        <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
-          Carrito
-        </span>
-      </div>
+      ) : (
+        // Placeholder para mantener el layout del justify-between
+        <div className="w-[80px]" />
+      )}
     </nav>
   );
 }
