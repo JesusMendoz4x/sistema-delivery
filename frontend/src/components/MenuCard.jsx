@@ -1,4 +1,16 @@
-function MenuCard({ nombre, descripcion, precio, imagen, badge }) {
+import { useAuth } from "../context/AuthContext";
+
+function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
+  const { isLoggedIn, openLoginModal } = useAuth();
+
+  const handleAgregar = () => {
+    if (!isLoggedIn) {
+      openLoginModal();
+      return;
+    }
+    onAgregar();
+  };
+
   return (
     <div
       className="bg-surface-container p-4 hover:bg-surface-container-high transition-all duration-300 group"
@@ -32,7 +44,10 @@ function MenuCard({ nombre, descripcion, precio, imagen, badge }) {
           <span className="font-['JetBrains_Mono'] text-secondary font-bold">
             ${precio}
           </span>
-          <button className="bg-primary px-4 py-1.5 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 text-surface">
+          <button
+            onClick={handleAgregar}
+            className="bg-primary px-4 py-1.5 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 text-surface"
+          >
             Agregar
           </button>
         </div>
