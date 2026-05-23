@@ -19,10 +19,7 @@ function Ubicacion() {
   ];
 
   return (
-    <section
-      className="py-32 px-16"
-      style={{ borderTop: "1px solid rgba(212, 175, 106, 0.1)" }}
-    >
+    <section className="py-32 px-16">
       {/* Separador */}
       <div className="mb-16">
         <div className="flex items-center gap-6 mb-4">
