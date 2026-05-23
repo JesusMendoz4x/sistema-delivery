@@ -8,11 +8,10 @@ import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
+import AuthWall from "../components/AuthWall";
 
-// Componente interno separado para poder consumir useAuth
-// dentro del árbol del AuthProvider
 function ClienteHomeInner() {
-  const { isLoggedIn, login, logout } = useAuth();
+  const { isLoggedIn, login, logout, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
@@ -55,6 +54,21 @@ function ClienteHomeInner() {
 
   const confirmarPedido = () => {
     alert("Pedido confirmado");
+  };
+
+  const handleCategoriaClick = (cat) => {
+    // "Pedidos" sin sesión → AuthWall
+    if (cat === "Pedidos" && !isLoggedIn) {
+      openAuthWall("pedidos");
+      return;
+    }
+    if (cat === "Inicio") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Inicio");
+      return;
+    }
+    setCategoriaActiva(cat);
+    setMostrarMenu(true);
   };
 
   return (
@@ -102,15 +116,7 @@ function ClienteHomeInner() {
       <div style={{ position: "relative", zIndex: 10 }}>
         <Navbar
           categoriaActiva={categoriaActiva}
-          onCategoriaClick={(cat) => {
-            if (cat === "Inicio") {
-              setMostrarMenu(false);
-              setCategoriaActiva("Inicio");
-              return;
-            }
-            setCategoriaActiva(cat);
-            setMostrarMenu(true);
-          }}
+          onCategoriaClick={handleCategoriaClick}
           totalItems={totalItems}
           onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
           isLoggedIn={isLoggedIn}
@@ -141,7 +147,8 @@ function ClienteHomeInner() {
         )}
       </div>
 
-      {/* Modal de login — se activa desde MenuCard cuando no hay sesión */}
+      {/* Modales — montados via portal, fuera del stacking context */}
+      <AuthWall />
       <LoginModal />
 
       {/* Botones mock — eliminar cuando el backend de auth esté listo */}
@@ -163,7 +170,6 @@ function ClienteHomeInner() {
   );
 }
 
-// Wrapper que provee el contexto
 function ClienteHome() {
   return (
     <AuthProvider>
