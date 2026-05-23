@@ -1,11 +1,11 @@
 import { useAuth } from "../context/AuthContext";
 
 function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
-  const { isLoggedIn, openLoginModal } = useAuth();
+  const { isLoggedIn, openAuthWall } = useAuth();
 
   const handleAgregar = () => {
     if (!isLoggedIn) {
-      openLoginModal();
+      openAuthWall("agregar");
       return;
     }
     onAgregar();
