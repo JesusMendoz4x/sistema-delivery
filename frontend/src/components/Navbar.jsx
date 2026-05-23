@@ -1,6 +1,8 @@
 import logo from "../assets/logo.png";
 
-const categorias = ["Inicio", "Entradas", "Pedidos", "Nuestras Sucursales"];
+// "Pedidos" se inserta condicionalmente antes de "Nuestras Sucursales"
+const CATEGORIAS_BASE = ["Inicio", "Entradas"];
+const CATEGORIAS_FINAL = ["Nuestras Sucursales"];
 
 function Navbar({
   categoriaActiva,
@@ -9,6 +11,10 @@ function Navbar({
   onCarritoClick,
   isLoggedIn,
 }) {
+  const categorias = isLoggedIn
+    ? [...CATEGORIAS_BASE, "Pedidos", ...CATEGORIAS_FINAL]
+    : [...CATEGORIAS_BASE, ...CATEGORIAS_FINAL];
+
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-16 py-5"
@@ -51,7 +57,7 @@ function Navbar({
         })}
       </ul>
 
-      {/* Carrito — solo visible si hay sesión activa */}
+      {/* Carrito — solo visible si hay sesión */}
       {isLoggedIn ? (
         <div
           onClick={onCarritoClick}
@@ -72,7 +78,6 @@ function Navbar({
           </span>
         </div>
       ) : (
-        // Placeholder para mantener el layout del justify-between
         <div className="w-[80px]" />
       )}
     </nav>
