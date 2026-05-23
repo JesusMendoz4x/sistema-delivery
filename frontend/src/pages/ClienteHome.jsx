@@ -6,8 +6,13 @@ import Ubicacion from "../components/Ubicacion";
 import Footer from "../components/Footer";
 import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 
-function ClienteHome() {
+// Componente interno separado para poder consumir useAuth
+// dentro del árbol del AuthProvider
+function ClienteHomeInner() {
+  const { isLoggedIn, login, logout } = useAuth();
+
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
@@ -60,7 +65,7 @@ function ClienteHome() {
         overflow: "hidden",
       }}
     >
-      {/* Single dark red ellipse that moves with scroll */}
+      {/* Ellipse de fondo */}
       <div
         aria-hidden
         style={{
@@ -107,6 +112,7 @@ function ClienteHome() {
           }}
           totalItems={totalItems}
           onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
+          isLoggedIn={isLoggedIn}
         />
 
         {!mostrarMenu ? (
@@ -133,7 +139,32 @@ function ClienteHome() {
           </div>
         )}
       </div>
+
+      {/* Botones mock — eliminar cuando el backend de auth esté listo */}
+      <div className="fixed bottom-4 right-4 z-50 flex gap-2">
+        <button
+          onClick={() => login({ nombre: "Cliente" })}
+          className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
+        >
+          Login mock
+        </button>
+        <button
+          onClick={logout}
+          className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
+        >
+          Logout mock
+        </button>
+      </div>
     </div>
+  );
+}
+
+// Wrapper que provee el contexto
+function ClienteHome() {
+  return (
+    <AuthProvider>
+      <ClienteHomeInner />
+    </AuthProvider>
   );
 }
 
