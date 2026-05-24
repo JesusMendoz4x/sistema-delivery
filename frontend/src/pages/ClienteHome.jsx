@@ -6,6 +6,7 @@ import Ubicacion from "../components/Ubicacion";
 import Footer from "../components/Footer";
 import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
+import Sucursales from "../components/Sucursales";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
@@ -67,6 +68,11 @@ function ClienteHomeInner() {
       setCategoriaActiva("Inicio");
       return;
     }
+    if (cat === "Nuestras Sucursales") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Nuestras Sucursales");
+      return;
+    }
     setCategoriaActiva(cat);
     setMostrarMenu(true);
   };
@@ -125,10 +131,16 @@ function ClienteHomeInner() {
 
         {!mostrarMenu ? (
           <>
-            <Hero heroProgress={0} onVerMenu={() => setMostrarMenu(true)} />
-            <Descripcion heroProgress={0} />
-            <Ubicacion heroProgress={0} />
-            <Footer heroProgress={0} />
+            {categoriaActiva === "Nuestras Sucursales" ? (
+              <Sucursales />
+            ) : (
+              <>
+                <Hero heroProgress={0} onVerMenu={() => setMostrarMenu(true)} />
+                <Descripcion heroProgress={0} />
+                <Ubicacion heroProgress={0} />
+                <Footer heroProgress={0} />
+              </>
+            )}
           </>
         ) : (
           <div className="pt-20 flex">
