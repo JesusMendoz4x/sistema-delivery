@@ -2,7 +2,12 @@ import logo from "../assets/logo.png";
 
 const categorias = ["Inicio", "Entradas", "Pedidos", "Nuestras Sucursales"];
 
-function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
+function Navbar({
+  categoriaActiva,
+  onCategoriaClick,
+  totalItems,
+  onCarritoClick,
+}) {
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-16 py-5"
@@ -46,7 +51,10 @@ function Navbar({ categoriaActiva, onCategoriaClick, totalItems }) {
       </ul>
 
       {/* Carrito */}
-      <div className="flex items-center gap-2 cursor-pointer group">
+      <div
+        className="flex items-center gap-2 cursor-pointer group"
+        onClick={onCarritoClick}
+      >
         <div className="relative">
           <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
             shopping_bag
