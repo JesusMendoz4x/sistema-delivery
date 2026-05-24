@@ -1,9 +1,45 @@
+import { useEffect, useRef, useState } from "react";
+
+function useInView(threshold = 0.2) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return [ref, inView];
+}
+
 function Footer() {
+  const [footerRef, inView] = useInView(0.3);
+
   return (
-    <footer className="py-12 px-16 border-t border-[#D4AF6A]/10">
+    <footer
+      ref={footerRef}
+      className="py-12 px-16 border-t border-[#D4AF6A]/10"
+    >
       <div className="max-w-5xl mx-auto flex justify-between items-center">
-        {/* Logo y nombre */}
-        <div className="flex flex-col">
+        {/* Logo — slide desde izquierda */}
+        <div
+          className="flex flex-col"
+          style={{
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(20px)",
+            transition:
+              "opacity 0.6s ease-out 0.1s, transform 0.6s ease-out 0.1s",
+          }}
+        >
           <span className="font-['EB_Garamond'] text-[16px] tracking-widest uppercase text-[#D4AF6A]">
             Casablanca
           </span>
@@ -12,15 +48,31 @@ function Footer() {
           </span>
         </div>
 
-        {/* Centro */}
-        <div className="flex flex-col items-center gap-1">
+        {/* Centro — fade in */}
+        <div
+          className="flex flex-col items-center gap-1"
+          style={{
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(20px)",
+            transition:
+              "opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s",
+          }}
+        >
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/20 uppercase tracking-widest">
             © 2025 Casablanca. Todos los derechos reservados.
           </span>
         </div>
 
-        {/* Desarrollador */}
-        <div className="flex flex-col items-end">
+        {/* Desarrollador — slide desde derecha */}
+        <div
+          className="flex flex-col items-end"
+          style={{
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateY(0)" : "translateY(20px)",
+            transition:
+              "opacity 0.6s ease-out 0.5s, transform 0.6s ease-out 0.5s",
+          }}
+        >
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/30 uppercase tracking-widest">
             Desarrollado por
           </span>
