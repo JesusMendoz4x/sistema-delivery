@@ -8,7 +8,7 @@ import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 
 function ClienteHome() {
-  const [categoriaActiva, setCategoriaActiva] = useState("Entradas");
+  const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
