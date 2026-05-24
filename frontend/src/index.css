@@ -39,3 +39,77 @@
   --font-family-body: "DM Sans", sans-serif;
   --font-family-mono: "JetBrains Mono", monospace;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeFromBlack {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes expandLine {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes caidaCuerda {
+  0% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+
+  60% {
+    transform: rotateX(10deg);
+    opacity: 1;
+  }
+
+  80% {
+    transform: rotateX(-5deg);
+  }
+
+  100% {
+    transform: rotateX(0deg);
+  }
+}
