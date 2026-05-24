@@ -1,4 +1,16 @@
+import { useAuth } from "../context/AuthContext";
+
 function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
+  const { isLoggedIn, openAuthWall } = useAuth();
+
+  const handleAgregar = () => {
+    if (!isLoggedIn) {
+      openAuthWall("agregar");
+      return;
+    }
+    onAgregar();
+  };
+
   return (
     <div className="group relative z-10">
       <div
@@ -36,67 +48,24 @@ function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
           </div>
         )}
 
-        {/* Imagen circular */}
-        <div
-          className="mb-5 overflow-hidden flex-shrink-0"
-          style={{
-            width: "160px",
-            height: "160px",
-            borderRadius: "50%",
-            border: "2px solid rgba(212, 175, 106, 0.3)",
-          }}
-        >
-          <img
-            src={imagen}
-            alt={nombre}
-            className="w-full h-full object-cover transition-all duration-500 grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105"
-          />
-        </div>
-
-        {/* Info */}
-        <div className="flex flex-col items-center w-full flex-grow">
-          <h3
-            className="font-['EB_Garamond'] text-[18px] text-center mb-2 line-clamp-1 min-h-[24px]"
-            style={{ color: "#F2EDE4", fontWeight: 400 }}
+      {/* Info */}
+      <div className="flex flex-col text-center">
+        <h3 className="font-['EB_Garamond'] text-xl mb-1 text-on-background">
+          {nombre}
+        </h3>
+        <p className="font-['DM_Sans'] text-sm text-on-surface-variant mb-4 line-clamp-2">
+          {descripcion}
+        </p>
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-secondary/10">
+          <span className="font-['JetBrains_Mono'] text-secondary font-bold">
+            ${precio}
+          </span>
+          <button
+            onClick={handleAgregar}
+            className="bg-primary px-4 py-1.5 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 text-surface"
           >
-            {nombre}
-          </h3>
-          <p
-            className="font-['DM_Sans'] text-[12px] text-center leading-relaxed line-clamp-2 mb-4"
-            style={{ color: "rgba(242, 237, 228, 0.45)" }}
-          >
-            {descripcion}
-          </p>
-
-          {/* Footer */}
-          <div
-            className="flex justify-between items-center w-full mt-auto pt-4"
-            style={{ borderTop: "1px solid rgba(212, 175, 106, 0.1)" }}
-          >
-            <span
-              className="font-['JetBrains_Mono'] text-[14px]"
-              style={{ color: "#D4AF6A" }}
-            >
-              ${precio}
-            </span>
-            <button
-              onClick={onAgregar}
-              className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest px-4 py-2 transition-colors duration-200 active:scale-95"
-              style={{
-                background: "#9B2335",
-                color: "#F2EDE4",
-                border: "none",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#7a1c1c")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "#9B2335")
-              }
-            >
-              Agregar
-            </button>
-          </div>
+            Agregar
+          </button>
         </div>
       </div>
     </div>
