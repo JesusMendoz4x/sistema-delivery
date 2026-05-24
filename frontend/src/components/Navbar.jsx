@@ -1,6 +1,5 @@
 import logo from "../assets/logo.png";
 
-// "Pedidos" se inserta condicionalmente antes de "Nuestras Sucursales"
 const CATEGORIAS_BASE = ["Inicio", "Entradas"];
 const CATEGORIAS_FINAL = ["Nuestras Sucursales"];
 
@@ -21,10 +20,18 @@ function Navbar({
       style={{
         backgroundColor: "rgba(26, 26, 26, 0.95)",
         backdropFilter: "blur(12px)",
+        opacity: 0,
+        animation: "slideUp 0.6s ease-out 0.3s forwards",
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3">
+      <div
+        className="flex items-center gap-3"
+        style={{
+          opacity: 0,
+          animation: "fadeIn 0.5s ease-out 0.6s forwards",
+        }}
+      >
         <img src={logo} alt="Casablanca" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
           <span className="font-['EB_Garamond'] text-[18px] tracking-widest uppercase text-[#D4AF6A]">
@@ -36,9 +43,9 @@ function Navbar({
         </div>
       </div>
 
-      {/* Categorías */}
+      {/* Categorías — cada item con delay escalonado */}
       <ul className="flex items-center gap-8">
-        {categorias.map((cat) => {
+        {categorias.map((cat, i) => {
           const activa = cat === categoriaActiva;
           return (
             <li
@@ -50,6 +57,10 @@ function Navbar({
                     ? "text-[#D4AF6A] border-b border-[#D4AF6A]"
                     : "text-[#F2EDE4]/70 hover:text-[#D4AF6A]"
                 }`}
+              style={{
+                opacity: 0,
+                animation: `fadeIn 0.4s ease-out ${0.7 + i * 0.1}s forwards`,
+              }}
             >
               {cat}
             </li>
@@ -57,11 +68,15 @@ function Navbar({
         })}
       </ul>
 
-      {/* Carrito — solo visible si hay sesión */}
+      {/* Carrito */}
       {isLoggedIn ? (
         <div
           onClick={onCarritoClick}
           className="flex items-center gap-2 cursor-pointer group"
+          style={{
+            opacity: 0,
+            animation: "fadeIn 0.5s ease-out 1.1s forwards",
+          }}
         >
           <div className="relative">
             <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
