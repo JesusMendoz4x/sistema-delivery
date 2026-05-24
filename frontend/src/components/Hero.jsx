@@ -9,31 +9,43 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
   return (
     <section
       id="hero"
-      className="relative w-full h-screen flex flex-col items-center justify-center overflow-visible"
+      className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Fade desde negro al cargar */}
+      {/* Fade desde negro */}
       <div
         className="absolute inset-0 z-20 bg-black pointer-events-none"
-        style={{
-          animation: "fadeFromBlack 1.2s ease-out forwards",
-        }}
+        style={{ animation: "fadeFromBlack 3s ease-in-out 0.3s forwards" }}
         aria-hidden="true"
       />
 
-      {/* Fondo */}
+      {/* Imagen de fondo — Ken Burns en su propio layer */}
       <div
-        id="hero-bg"
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(16,16,16,0.45) 0%, rgba(16,16,16,0.06) 45%, rgba(16,16,16,0.75) 100%), url(${comida})`,
-          backgroundBlendMode: "overlay",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
-          filter: "brightness(0.88) contrast(1.08) saturate(0.9) blur(4px)",
-        }}
+        className="absolute inset-0 z-0"
+        style={{ overflow: "hidden" }}
         aria-hidden="true"
-      />
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: "-4%", // margen para que el scale no deje bordes blancos
+            backgroundImage: `url(${comida})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
+            filter: "brightness(0.88) contrast(1.08) saturate(0.9) blur(4px)",
+            animation: "kenBurns 14s ease-in-out forwards",
+            willChange: "transform",
+          }}
+        />
+        {/* Gradiente encima de la imagen, separado para no escalar */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(16,16,16,0.45) 0%, rgba(16,16,16,0.06) 45%, rgba(16,16,16,0.75) 100%)",
+          }}
+        />
+      </div>
 
       {/* Overlay scroll */}
       <div
@@ -64,7 +76,7 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
           style={{
             mixBlendMode: "multiply",
             opacity: 0,
-            animation: "fadeIn 0.8s ease-out 0.3s forwards",
+            animation: "fadeIn 0.8s ease-out 1.6s forwards",
           }}
         />
 
@@ -73,7 +85,7 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
           className="font-['JetBrains_Mono'] text-[11px] tracking-[0.4em] text-[#D4AF6A]/70 uppercase mb-4"
           style={{
             opacity: 0,
-            animation: "fadeIn 0.6s ease-out 0.8s forwards",
+            animation: "fadeIn 0.6s ease-out 2.1s forwards",
           }}
         >
           EST. 1981 · OAXACA, MÉXICO
@@ -90,7 +102,7 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
               style={{
                 opacity: 0,
                 display: "inline-block",
-                animation: `slideUp 0.4s ease-out ${1 + i * 0.06}s forwards`,
+                animation: `slideUp 0.4s ease-out ${2.4 + i * 0.06}s forwards`,
               }}
             >
               {letra}
@@ -103,20 +115,20 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
           className="font-['EB_Garamond'] text-[22px] text-[#F2EDE4]/50 italic mb-12 tracking-wide"
           style={{
             opacity: 0,
-            animation: "fadeIn 0.6s ease-out 1.8s forwards",
+            animation: "fadeIn 0.6s ease-out 3.2s forwards",
           }}
         >
           Una experiencia gastronómica sin igual
         </p>
 
-        {/* Botones con delay entre ellos */}
+        {/* Botones */}
         <div className="flex items-center gap-6">
           <button
             onClick={onVerMenu}
             className="px-10 py-4 bg-primary font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-white hover:bg-primary-container transition-all active:scale-[0.98]"
             style={{
               opacity: 0,
-              animation: "slideUp 0.5s ease-out 2s forwards",
+              animation: "slideUp 0.5s ease-out 3.4s forwards",
             }}
           >
             Ver Menú
@@ -131,7 +143,7 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
             className="px-10 py-4 border border-[#D4AF6A]/30 font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-[#D4AF6A]/70 hover:border-[#D4AF6A] hover:text-[#D4AF6A] transition-all"
             style={{
               opacity: 0,
-              animation: "slideUp 0.5s ease-out 2.2s forwards",
+              animation: "slideUp 0.5s ease-out 3.6s forwards",
             }}
           >
             Más Información
