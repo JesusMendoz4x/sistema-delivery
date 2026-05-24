@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -18,6 +18,48 @@ function ClienteHomeInner() {
   const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
+  const blobRef = useRef(null);
+  const rafRef = useRef(null);
+  const scrollY = useRef(0);
+
+  useEffect(() => {
+    if (mostrarMenu) return;
+
+    const handleScroll = () => {
+      scrollY.current = window.scrollY;
+      if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(() => {
+          const y = scrollY.current;
+          const maxScroll = document.body.scrollHeight - window.innerHeight;
+          const progress = Math.min(y / maxScroll, 1); // 0 a 1
+
+          if (blobRef.current) {
+            // Opacidad — alta al inicio, baja a mitad, sube al final
+            const opacity = 0.95 - Math.sin(progress * Math.PI) * 0.6;
+
+            // Forma — cambia de círculo a elipse alargada según scroll
+            const rx1 = 50 + progress * 20; // 50% → 70%
+            const ry1 = 50 - progress * 25; // 50% → 25%
+            const rx2 = 50 - progress * 20; // 50% → 30%
+            const ry2 = 50 + progress * 25; // 50% → 75%
+            const borderRadius = `${rx1}% ${rx2}% ${rx2}% ${rx1}% / ${ry1}% ${ry1}% ${ry2}% ${ry2}%`;
+
+            blobRef.current.style.opacity = opacity;
+            blobRef.current.style.borderRadius = borderRadius;
+          }
+
+          rafRef.current = null;
+        });
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [mostrarMenu]);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
@@ -58,7 +100,6 @@ function ClienteHomeInner() {
   };
 
   const handleCategoriaClick = (cat) => {
-    // "Pedidos" sin sesión → AuthWall
     if (cat === "Pedidos" && !isLoggedIn) {
       openAuthWall("pedidos");
       return;
@@ -79,7 +120,7 @@ function ClienteHomeInner() {
 
   return (
     <div
-      className="min-h-screen transition-colors duration-300"
+      className="min-h-screen"
       style={{
         backgroundColor: "rgb(10,10,10)",
         position: "relative",
@@ -87,7 +128,7 @@ function ClienteHomeInner() {
         overflowY: "auto",
       }}
     >
-      {/* Ellipse de fondo */}
+      {/* Blob de fondo reactivo al scroll */}
       <div
         aria-hidden
         style={{
@@ -102,6 +143,7 @@ function ClienteHomeInner() {
         }}
       >
         <div
+          ref={blobRef}
           style={{
             position: "absolute",
             left: "50%",
@@ -115,7 +157,8 @@ function ClienteHomeInner() {
               "radial-gradient(circle at 50% 50%, rgba(140, 0, 0, 0.42) 0%, rgba(95, 0, 0, 0.2) 32%, rgba(30, 0, 0, 0.1) 55%, rgba(10, 10, 10, 0) 72%)",
             filter: "blur(54px)",
             opacity: 0.95,
-            willChange: "transform",
+            willChange: "opacity, border-radius",
+            transition: "border-radius 0.3s ease-out, opacity 0.3s ease-out",
           }}
         />
       </div>
@@ -161,7 +204,6 @@ function ClienteHomeInner() {
         )}
       </div>
 
-      {/* Modales — montados via portal, fuera del stacking context */}
       <AuthWall />
       <LoginModal />
 
