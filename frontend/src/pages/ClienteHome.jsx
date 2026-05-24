@@ -57,7 +57,8 @@ function ClienteHome() {
       style={{
         backgroundColor: "rgb(10,10,10)",
         position: "relative",
-        overflow: "hidden",
+        overflowX: "hidden",
+        overflowY: "auto",
       }}
     >
       {/* Single dark red ellipse that moves with scroll */}

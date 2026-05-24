@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+.carrusel {
+  scrollbar-width: none;
+}
+
+.carrusel::-webkit-scrollbar {
+  display: none;
+}
+
+
 @theme {
   --color-primary: #7a0520;
   --color-secondary: #775a1d;
