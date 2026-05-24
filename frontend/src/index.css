@@ -113,3 +113,17 @@
     transform: rotateX(0deg);
   }
 }
+
+@keyframes morphBlob {
+  0% {
+    border-radius: 50%;
+  }
+
+  50% {
+    border-radius: 60% 40% 70% 30% / 50% 60% 40% 70%;
+  }
+
+  100% {
+    border-radius: 50%;
+  }
+}
