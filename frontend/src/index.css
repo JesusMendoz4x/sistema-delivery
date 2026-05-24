@@ -127,3 +127,13 @@
     border-radius: 50%;
   }
 }
+
+@keyframes kenBurns {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
