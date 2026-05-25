@@ -6,6 +6,8 @@ import AdminUsuarios from "./pages/admin/AdminUsuarios";
 import AdminPedidos from "./pages/admin/AdminPedidos";
 import AdminProductos from "./pages/admin/AdminProductos";
 import AdminLogin from "./pages/admin/AdminLogin";
+import AdminInventario from "./pages/admin/AdminInventario";
+import AdminRepartidores from "./pages/admin/AdminRepartidores";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -27,6 +29,8 @@ function App() {
               <Route path="usuarios" element={<AdminUsuarios />} />
               <Route path="pedidos" element={<AdminPedidos />} />
               <Route path="productos" element={<AdminProductos />} />
+              <Route path="inventario" element={<AdminInventario />} />
+              <Route path="repartidores" element={<AdminRepartidores />} />
             </Route>
           </Route>
         </Routes>
