@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -12,7 +13,13 @@ import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
 
 function ClienteHomeInner() {
-  const { isLoggedIn, login, logout, openAuthWall } = useAuth();
+  const { isLoggedIn, login, loginAdmin, logout, openAuthWall } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLoginAdmin = () => {
+    loginAdmin();
+    navigate("/admin");
+  };
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
@@ -165,31 +172,26 @@ function ClienteHomeInner() {
       <AuthWall />
       <LoginModal />
 
-      {/* Botones mock — eliminar cuando el backend de auth esté listo */}
+      {/* Controles temporales de pruebas */}
       <div className="fixed bottom-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => login({ nombre: "Cliente" })}
-          className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
-        >
-          Login mock
-        </button>
-        <button
-          onClick={logout}
-          className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
-        >
-          Logout mock
-        </button>
+        {!isLoggedIn ? (
+          <button
+            onClick={() => login({ nombre: "Cliente", rol: "cliente" })}
+            className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['Nunito'] hover:opacity-80 transition-opacity shadow-lg"
+          >
+            Mock Login Cliente
+          </button>
+        ) : (
+          <button
+            onClick={logout}
+            className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['Nunito'] hover:opacity-80 transition-opacity shadow-lg"
+          >
+            Logout mock
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-function ClienteHome() {
-  return (
-    <AuthProvider>
-      <ClienteHomeInner />
-    </AuthProvider>
-  );
-}
-
-export default ClienteHome;
+export default ClienteHomeInner;

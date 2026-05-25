@@ -87,7 +87,7 @@ function AuthWall() {
           </p>
           <p
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontSize: "13px",
               color: "rgba(242, 237, 228, 0.65)",
               lineHeight: "1.6",

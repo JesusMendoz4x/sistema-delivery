@@ -58,13 +58,13 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
         </p>
 
         <h1
-          className="font-['EB_Garamond'] text-[72px] leading-none tracking-tight text-[#F2EDE4] mb-4"
+          className="font-['Outfit'] text-[72px] leading-none tracking-tight text-[#F2EDE4] mb-4"
           style={{ fontWeight: 600 }}
         >
           Casablanca
         </h1>
 
-        <p className="font-['EB_Garamond'] text-[22px] text-[#F2EDE4]/50 italic mb-12 tracking-wide">
+        <p className="font-['Outfit'] text-[22px] text-[#F2EDE4]/50 italic mb-12 tracking-wide">
           Una experiencia gastronómica sin igual
         </p>
 
