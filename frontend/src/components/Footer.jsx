@@ -4,7 +4,7 @@ function Footer() {
       <div className="max-w-5xl mx-auto flex justify-between items-center">
         {/* Logo y nombre */}
         <div className="flex flex-col">
-          <span className="font-['Outfit'] text-[16px] tracking-widest uppercase text-[#D4AF6A]">
+          <span className="font-['EB_Garamond'] text-[16px] tracking-widest uppercase text-[#D4AF6A]">
             Casablanca
           </span>
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/30 tracking-widest mt-1">
@@ -24,7 +24,7 @@ function Footer() {
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/30 uppercase tracking-widest">
             Desarrollado por
           </span>
-          <span className="font-['Outfit'] text-[14px] text-[#D4AF6A]/70 mt-1">
+          <span className="font-['EB_Garamond'] text-[14px] text-[#D4AF6A]/70 mt-1">
             Equipo Casablanca Dev
           </span>
         </div>

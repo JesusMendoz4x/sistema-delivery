@@ -48,26 +48,26 @@ function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
           </div>
         )}
 
-        {/* Info */}
-        <div className="flex flex-col text-center">
-          <h3 className="font-['Outfit'] text-xl mb-1 text-on-background">
-            {nombre}
-          </h3>
-          <p className="font-['Nunito'] text-sm text-on-surface-variant mb-4 line-clamp-2">
-            {descripcion}
-          </p>
-          <div className="flex justify-between items-center mt-auto pt-4 border-t border-secondary/10">
-            <span className="font-['JetBrains_Mono'] text-secondary font-bold">
-              ${precio}
-            </span>
-            <button
-              onClick={handleAgregar}
-              className="bg-primary px-4 py-1.5 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 text-surface"
-            >
-              Agregar
-            </button>
-          </div>
+      {/* Info */}
+      <div className="flex flex-col text-center">
+        <h3 className="font-['EB_Garamond'] text-xl mb-1 text-on-background">
+          {nombre}
+        </h3>
+        <p className="font-['DM_Sans'] text-sm text-on-surface-variant mb-4 line-clamp-2">
+          {descripcion}
+        </p>
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-secondary/10">
+          <span className="font-['JetBrains_Mono'] text-secondary font-bold">
+            ${precio}
+          </span>
+          <button
+            onClick={handleAgregar}
+            className="bg-primary px-4 py-1.5 font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest hover:bg-primary-container transition-colors active:scale-95 text-surface"
+          >
+            Agregar
+          </button>
         </div>
+      </div>
       </div>
     </div>
   );

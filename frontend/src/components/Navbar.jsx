@@ -1,5 +1,4 @@
 import logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
 
 // "Pedidos" se inserta condicionalmente antes de "Nuestras Sucursales"
 const CATEGORIAS_BASE = ["Inicio", "Entradas"];
@@ -28,7 +27,7 @@ function Navbar({
       <div className="flex items-center gap-3">
         <img src={logo} alt="Casablanca" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
-          <span className="font-['Outfit'] text-[18px] tracking-widest uppercase text-[#D4AF6A]">
+          <span className="font-['EB_Garamond'] text-[18px] tracking-widest uppercase text-[#D4AF6A]">
             Casablanca
           </span>
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/50 tracking-widest">
@@ -45,7 +44,7 @@ function Navbar({
             <li
               key={cat}
               onClick={() => onCategoriaClick(cat)}
-              className={`font-['Nunito'] text-[12px] uppercase tracking-widest cursor-pointer transition-colors pb-1
+              className={`font-['DM_Sans'] text-[12px] uppercase tracking-widest cursor-pointer transition-colors pb-1
                 ${
                   activa
                     ? "text-[#D4AF6A] border-b border-[#D4AF6A]"
@@ -58,40 +57,29 @@ function Navbar({
         })}
       </ul>
 
-      {/* Controles Derecho (Carrito y Admin) */}
-      <div className="flex items-center gap-8">
-        {isLoggedIn ? (
-          <div
-            onClick={onCarritoClick}
-            className="flex items-center gap-2 cursor-pointer group"
-          >
-            <div className="relative">
-              <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
-                shopping_bag
-              </span>
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#9B2335] rounded-full flex items-center justify-center font-['JetBrains_Mono'] text-[9px] text-white">
-                  {totalItems}
-                </span>
-              )}
-            </div>
-            <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
-              Carrito
+      {/* Carrito — solo visible si hay sesión */}
+      {isLoggedIn ? (
+        <div
+          onClick={onCarritoClick}
+          className="flex items-center gap-2 cursor-pointer group"
+        >
+          <div className="relative">
+            <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
+              shopping_bag
             </span>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#9B2335] rounded-full flex items-center justify-center font-['JetBrains_Mono'] text-[9px] text-white">
+                {totalItems}
+              </span>
+            )}
           </div>
-        ) : (
-          <div className="w-[80px]" />
-        )}
-
-        <Link to="/login" className="flex items-center gap-2 group border-l border-[#D4AF6A]/20 pl-8">
-          <span className="material-symbols-outlined text-[#D4AF6A]/50 group-hover:text-[#D4AF6A] transition-colors text-[20px]">
-            admin_panel_settings
+          <span className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
+            Carrito
           </span>
-          <span className="font-['JetBrains_Mono'] text-[10px] text-[#F2EDE4]/50 group-hover:text-[#D4AF6A] transition-colors uppercase tracking-widest">
-            Admin
-          </span>
-        </Link>
-      </div>
+        </div>
+      ) : (
+        <div className="w-[80px]" />
+      )}
     </nav>
   );
 }
