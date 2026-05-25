@@ -425,7 +425,7 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
       </div>
 
       <h2
-        className="font-['Outfit'] text-[32px] mb-6"
+        className="font-['EB_Garamond'] text-[32px] mb-6"
         style={{ color: "#F2EDE4", fontWeight: 400 }}
       >
         {categoria}
@@ -508,7 +508,7 @@ function MenuGrid({ categoriaActiva, onAgregar }) {
       <header className="mb-12">
         <div className="flex justify-between items-end mb-4">
           <h1
-            className="font-['Outfit'] text-[40px] uppercase leading-tight"
+            className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
             style={{ color: "#9B2335", fontWeight: 600 }}
           >
             {categoriaActiva}

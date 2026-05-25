@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -13,13 +12,7 @@ import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
 
 function ClienteHomeInner() {
-  const { isLoggedIn, login, loginAdmin, logout, openAuthWall } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLoginAdmin = () => {
-    loginAdmin();
-    navigate("/admin");
-  };
+  const { isLoggedIn, login, logout, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
@@ -177,14 +170,14 @@ function ClienteHomeInner() {
         {!isLoggedIn ? (
           <button
             onClick={() => login({ nombre: "Cliente", rol: "cliente" })}
-            className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['Nunito'] hover:opacity-80 transition-opacity shadow-lg"
+            className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
           >
             Mock Login Cliente
           </button>
         ) : (
           <button
             onClick={logout}
-            className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['Nunito'] hover:opacity-80 transition-opacity shadow-lg"
+            className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
           >
             Logout mock
           </button>

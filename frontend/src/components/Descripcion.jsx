@@ -30,7 +30,7 @@ function Descripcion() {
         <div className="grid grid-cols-2 gap-24 items-center">
           <div>
             <h2
-              className="font-['Outfit'] text-[52px] leading-tight text-[#F2EDE4] mb-8"
+              className="font-['EB_Garamond'] text-[52px] leading-tight text-[#F2EDE4] mb-8"
               style={{ fontWeight: 400 }}
             >
               Donde Japón
@@ -39,14 +39,14 @@ function Descripcion() {
               <br />
               con Oaxaca
             </h2>
-            <p className="font-['Nunito'] text-[15px] text-[#F2EDE4]/50 leading-relaxed mb-6">
+            <p className="font-['DM_Sans'] text-[15px] text-[#F2EDE4]/50 leading-relaxed mb-6">
               Desde 1981, Casablanca ha fusionado la precisión y delicadeza de
               la cocina japonesa con los sabores profundos y auténticos de
               Oaxaca. Cada platillo es una conversación entre dos culturas,
               elaborado con ingredientes de temporada y técnicas heredadas de
               generaciones.
             </p>
-            <p className="font-['Nunito'] text-[15px] text-[#F2EDE4]/50 leading-relaxed">
+            <p className="font-['DM_Sans'] text-[15px] text-[#F2EDE4]/50 leading-relaxed">
               Nuestro equipo de chefs viaja anualmente a Japón para traer de
               vuelta técnicas, ingredientes y una filosofía que se refleja en
               cada corte, cada caldo y cada presentación que llega a tu mesa.
@@ -72,7 +72,7 @@ function Descripcion() {
                     <span className="w-3 h-3 rounded-full bg-[#D4AF6A]" />
                   </div>
                   <div>
-                    <span className="font-['Outfit'] text-[56px] text-[#D4AF6A] leading-none">
+                    <span className="font-['EB_Garamond'] text-[56px] text-[#D4AF6A] leading-none">
                       {item.numero}
                     </span>
                     <p className="font-['JetBrains_Mono'] text-[11px] text-[#F2EDE4]/40 uppercase tracking-widest mt-1">
