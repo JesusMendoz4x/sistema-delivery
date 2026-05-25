@@ -27,7 +27,7 @@ function Navbar({
       <div className="flex items-center gap-3">
         <img src={logo} alt="Casablanca" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
-          <span className="font-['EB_Garamond'] text-[18px] tracking-widest uppercase text-[#D4AF6A]">
+          <span className="font-['Outfit'] text-[18px] tracking-widest uppercase text-[#D4AF6A]">
             Casablanca
           </span>
           <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/50 tracking-widest">
@@ -44,7 +44,7 @@ function Navbar({
             <li
               key={cat}
               onClick={() => onCategoriaClick(cat)}
-              className={`font-['DM_Sans'] text-[12px] uppercase tracking-widest cursor-pointer transition-colors pb-1
+              className={`font-['Nunito'] text-[12px] uppercase tracking-widest cursor-pointer transition-colors pb-1
                 ${
                   activa
                     ? "text-[#D4AF6A] border-b border-[#D4AF6A]"

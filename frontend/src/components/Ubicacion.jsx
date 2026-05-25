@@ -47,10 +47,10 @@ function Ubicacion() {
         <div className="flex items-stretch gap-5">
           <div className="w-[3px] bg-[#9B2335] rounded-sm flex-shrink-0" />
           <div className="flex flex-col gap-2">
-            <p className="font-['EB_Garamond'] text-[40px] text-[#F2EDE4] font-normal m-0 cursor-default transition-all duration-300 hover:text-[#D4AF6A] hover:tracking-wide">
+            <p className="font-['Outfit'] text-[40px] text-[#F2EDE4] font-normal m-0 cursor-default transition-all duration-300 hover:text-[#D4AF6A] hover:tracking-wide">
               Visitanos
             </p>
-            <span className="font-['DM_Sans'] text-[13px] text-[#F2EDE4]/40">
+            <span className="font-['Nunito'] text-[13px] text-[#F2EDE4]/40">
               en cualquiera de nuestras 4 ubicaciones en Oaxaca
             </span>
           </div>
@@ -74,10 +74,10 @@ function Ubicacion() {
                     borderBottom: "1px solid rgba(212, 175, 106, 0.08)",
                   }}
                 >
-                  <p className="font-['EB_Garamond'] text-[18px] text-[#D4AF6A] mb-1">
+                  <p className="font-['Outfit'] text-[18px] text-[#D4AF6A] mb-1">
                     {s.nombre}
                   </p>
-                  <p className="font-['DM_Sans'] text-[13px] text-[#F2EDE4]/50 leading-relaxed">
+                  <p className="font-['Nunito'] text-[13px] text-[#F2EDE4]/50 leading-relaxed">
                     {s.direccion}
                   </p>
                 </div>
@@ -99,7 +99,7 @@ function Ubicacion() {
                   key={h.dia}
                   className="flex justify-between items-center border-b border-[#D4AF6A]/10 pb-3"
                 >
-                  <span className="font-['DM_Sans'] text-[14px] text-[#F2EDE4]/60">
+                  <span className="font-['Nunito'] text-[14px] text-[#F2EDE4]/60">
                     {h.dia}
                   </span>
                   <span className="font-['JetBrains_Mono'] text-[12px] text-[#D4AF6A]">
@@ -115,7 +115,7 @@ function Ubicacion() {
             <p className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A]/60 uppercase tracking-[0.3em] mb-4">
               Contacto
             </p>
-            <p className="font-['DM_Sans'] text-[14px] text-[#F2EDE4]/60">
+            <p className="font-['Nunito'] text-[14px] text-[#F2EDE4]/60">
               reservaciones@casablanca.mx
             </p>
           </div>

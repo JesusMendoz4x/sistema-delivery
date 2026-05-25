@@ -20,7 +20,7 @@ function CartItem({
       </div>
       <div className="flex-grow">
         <div className="flex justify-between items-start">
-          <h4 className="font-['DM_Sans'] text-sm font-semibold uppercase tracking-wide">
+          <h4 className="font-['Nunito'] text-sm font-semibold uppercase tracking-wide">
             {nombre}
           </h4>
           <span className="font-['JetBrains_Mono'] text-secondary text-[11px]">
@@ -62,7 +62,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
       {/* Header */}
       <div className="p-8 border-b border-black/10">
         <div className="flex justify-between items-center">
-          <h2 className="font-['EB_Garamond'] text-2xl uppercase tracking-tighter">
+          <h2 className="font-['Outfit'] text-2xl uppercase tracking-tighter">
             Tu Orden
           </h2>
           <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
       {/* Items */}
       <div className="flex-grow overflow-y-auto p-8 space-y-6">
         {items.length === 0 ? (
-          <p className="font-['DM_Sans'] text-sm text-[#5a4636] text-center mt-8">
+          <p className="font-['Nunito'] text-sm text-[#5a4636] text-center mt-8">
             Tu orden está vacía
           </p>
         ) : (
@@ -125,7 +125,7 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
           <span className="font-['JetBrains_Mono'] text-xs uppercase tracking-[0.2em]">
             Total
           </span>
-          <span className="font-['EB_Garamond'] text-3xl text-primary">
+          <span className="font-['Outfit'] text-3xl text-primary">
             ${total.toFixed(2)}
           </span>
         </div>

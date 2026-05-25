@@ -204,7 +204,7 @@ function Sucursales() {
           >
             <h1
               style={{
-                fontFamily: "'EB Garamond', serif",
+                fontFamily: "'Outfit', serif",
                 fontSize: "clamp(28px, 4vw, 48px)",
                 color: "#F2EDE4",
                 fontWeight: 400,
@@ -345,7 +345,7 @@ function Sucursales() {
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <div
                 style={{
-                  fontFamily: "'EB Garamond', serif",
+                  fontFamily: "'Outfit', serif",
                   fontSize: "90px",
                   color: "#F2EDE4",
                   lineHeight: 1,
@@ -360,7 +360,7 @@ function Sucursales() {
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <h2
                   style={{
-                    fontFamily: "'EB Garamond', serif",
+                    fontFamily: "'Outfit', serif",
                     fontSize: "32px",
                     color: "#F2EDE4",
                     fontWeight: 400,
@@ -387,7 +387,7 @@ function Sucursales() {
 
             <p
               style={{
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Nunito', sans-serif",
                 fontSize: "14px",
                 color: "rgba(242,237,228,0.72)",
                 lineHeight: "1.7",
@@ -422,7 +422,7 @@ function Sucursales() {
                 </p>
                 <p
                   style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "'Nunito', sans-serif",
                     fontSize: "13px",
                     color: "rgba(242,237,228,0.78)",
                     lineHeight: "1.5",
@@ -447,7 +447,7 @@ function Sucursales() {
                 </p>
                 <p
                   style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "'Nunito', sans-serif",
                     fontSize: "13px",
                     color: "rgba(242,237,228,0.78)",
                     margin: 0,
@@ -508,7 +508,7 @@ function Sucursales() {
                     />
                     <span
                       style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: "'Nunito', sans-serif",
                         fontSize: "12px",
                         color: "rgba(242,237,228,0.6)",
                       }}

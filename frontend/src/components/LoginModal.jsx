@@ -73,7 +73,7 @@ function LoginModal() {
           </p>
           <h2
             style={{
-              fontFamily: "'EB Garamond', serif",
+              fontFamily: "'Outfit', serif",
               fontSize: "24px",
               color: "#F2EDE4",
               letterSpacing: "0.05em",
@@ -84,7 +84,7 @@ function LoginModal() {
           </h2>
           <p
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Nunito', sans-serif",
               fontSize: "12px",
               color: "rgba(242, 237, 228, 0.45)",
               marginTop: "6px",
@@ -124,7 +124,7 @@ function LoginModal() {
               style={{
                 width: "100%",
                 padding: "8px 12px",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Nunito', sans-serif",
                 fontSize: "13px",
                 color: "#F2EDE4",
                 backgroundColor: "#3D3530",
@@ -162,7 +162,7 @@ function LoginModal() {
               style={{
                 width: "100%",
                 padding: "8px 12px",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "'Nunito', sans-serif",
                 fontSize: "13px",
                 color: "#F2EDE4",
                 backgroundColor: "#3D3530",
