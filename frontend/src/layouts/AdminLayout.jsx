@@ -6,6 +6,8 @@ function AdminLayout() {
     { to: "/admin/productos", label: "Catálogo", icon: "restaurant_menu" },
     { to: "/admin/pedidos", label: "Órdenes", icon: "receipt_long" },
     { to: "/admin/usuarios", label: "Equipo", icon: "group" },
+    { to: "/admin/inventario", label: "Inventario", icon: "inventory_2" },
+    { to: "/admin/repartidores", label: "Flotilla", icon: "two_wheeler" },
   ];
 
   return (
