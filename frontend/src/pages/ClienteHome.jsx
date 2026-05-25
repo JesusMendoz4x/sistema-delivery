@@ -165,31 +165,26 @@ function ClienteHomeInner() {
       <AuthWall />
       <LoginModal />
 
-      {/* Botones mock — eliminar cuando el backend de auth esté listo */}
+      {/* Controles temporales de pruebas */}
       <div className="fixed bottom-4 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => login({ nombre: "Cliente" })}
-          className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
-        >
-          Login mock
-        </button>
-        <button
-          onClick={logout}
-          className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity"
-        >
-          Logout mock
-        </button>
+        {!isLoggedIn ? (
+          <button
+            onClick={() => login({ nombre: "Cliente", rol: "cliente" })}
+            className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
+          >
+            Mock Login Cliente
+          </button>
+        ) : (
+          <button
+            onClick={logout}
+            className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
+          >
+            Logout mock
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-function ClienteHome() {
-  return (
-    <AuthProvider>
-      <ClienteHomeInner />
-    </AuthProvider>
-  );
-}
-
-export default ClienteHome;
+export default ClienteHomeInner;

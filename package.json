@@ -1,0 +1,23 @@
+{
+  "name": "sistema-delivery",
+  "version": "1.0.0",
+  "description": "Sistema delivery multisucursales",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && for dir in */ ; do cd \"$dir\" && npm install && cd .. ; done",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:api-gateway\" \"npm run start:enrutamiento\" \"npm run start:inventario\" \"npm run start:pedidos\" \"npm run start:repartidores\" \"npm run start:sucursales\" \"npm run start:usuario\"",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:api-gateway": "cd backend/api-gateway && npm start",
+    "start:enrutamiento": "cd backend/enrutamiento-service && npm start",
+    "start:inventario": "cd backend/inventario-service && npm start",
+    "start:pedidos": "cd backend/pedidos-service && npm start",
+    "start:repartidores": "cd backend/repartidores-service && npm start",
+    "start:sucursales": "cd backend/sucursales-service && npm start",
+    "start:usuario": "cd backend/usuario-service && npm start"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

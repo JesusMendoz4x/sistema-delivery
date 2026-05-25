@@ -10,11 +10,16 @@ export function AuthProvider({ children }) {
   const [showAuthWall, setShowAuthWall] = useState(false);
   const [authWallMotivo, setAuthWallMotivo] = useState(null);
 
-  const login = (userData = { nombre: "Cliente" }) => {
+  const login = (userData = { nombre: "Cliente", rol: "cliente" }) => {
     setUser(userData);
     setIsLoggedIn(true);
     setShowLoginModal(false);
     setShowAuthWall(false);
+  };
+
+  const loginAdmin = () => {
+    setUser({ nombre: "Administrador", rol: "admin", email: "admin@sistema.com" });
+    setIsLoggedIn(true);
   };
 
   const logout = () => {
@@ -46,6 +51,7 @@ export function AuthProvider({ children }) {
         isLoggedIn,
         user,
         login,
+        loginAdmin,
         logout,
         showLoginModal,
         closeLoginModal,
