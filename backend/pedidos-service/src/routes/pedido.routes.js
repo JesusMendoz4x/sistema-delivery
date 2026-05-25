@@ -1,11 +1,18 @@
 const express = require('express');
-const router = express.Router();
-const pedidoController = require('../controllers/pedido.controller');
+const {
+    listarPedidos,
+    obtenerPedidoPorId,
+    crearPedido,
+    actualizarEstadoPedido,
+    asignarRepartidor
+} = require('../controllers/pedido.controller');
 
-// Rutas de la API de Pedidos
-router.post('/', pedidoController.crearPedido);
-router.get('/', pedidoController.listarPedidos);
-router.get('/:id', pedidoController.obtenerPedidoPorId);
-router.put('/:id/estado', pedidoController.actualizarEstadoPedido);
+const router = express.Router();
+
+router.get('/', listarPedidos);
+router.get('/:id', obtenerPedidoPorId);
+router.post('/', crearPedido);
+router.put('/:id/estado', actualizarEstadoPedido);
+router.put('/:id/repartidor', asignarRepartidor);
 
 module.exports = router;

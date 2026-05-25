@@ -32,8 +32,12 @@ if (!global.crypto.randomUUID) {
 require('dotenv').config();
 
 const app = require('./app');
+const conectarDB = require('./config/database');
 
 const PORT = process.env.PORT || 3006;
+
+// Conectar a la base de datos para la gestión de rutas
+conectarDB();
 
 // Iniciar el servidor
 const server = app.listen(PORT, () => {
@@ -41,7 +45,6 @@ const server = app.listen(PORT, () => {
     console.log(`Ambiente de ejecución: ${process.env.NODE_ENV || 'desarrollo'}`);
 });
 
-// Manejo de errores catastróficos
 process.on('unhandledRejection', (err, promise) => {
     console.error(`Error crítico en enrutamiento-service: ${err.message}`);
     server.close(() => process.exit(1));

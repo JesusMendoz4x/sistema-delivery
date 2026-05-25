@@ -36,17 +36,14 @@ const conectarDB = require('./config/database');
 
 const PORT = process.env.PORT || 3003;
 
-// Conectar a la base de datos
 conectarDB();
 
-// Iniciar el servidor
 const server = app.listen(PORT, () => {
     console.log(`Servicio de Pedidos ejecutándose en el puerto ${PORT}`);
     console.log(`Ambiente de ejecución: ${process.env.NODE_ENV || 'desarrollo'}`);
 });
 
-// Manejo de errores catastróficos
 process.on('unhandledRejection', (err, promise) => {
-    console.error(`Error crítico en pedidos-service: ${err.message}`);
+    console.log(`Error crítico: ${err.message}`);
     server.close(() => process.exit(1));
 });

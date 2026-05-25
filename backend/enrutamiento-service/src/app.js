@@ -1,19 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const enrutamientoRoutes = require('./routes/enrutamiento.routes');
+const rutaRoutes = require('./routes/ruta.routes');
 
 const app = express();
 
-// Middlewares globales
 app.use(cors());
 app.use(express.json());
 
-// Registro de rutas
-app.use('/api/enrutamiento', enrutamientoRoutes);
-
-// Endpoint de Healthcheck
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ estado: 'ok', servicio: 'enrutamiento-service' });
+app.get('/health', (req, res) => {
+    res.json({
+        ok: true,
+        service: 'enrutamiento-service',
+        status: 'running'
+    });
 });
+
+app.use('/api/enrutamiento', enrutamientoRoutes);
+app.use('/api/rutas', rutaRoutes);
 
 module.exports = app;

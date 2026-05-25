@@ -1,27 +1,20 @@
 const mongoose = require('mongoose');
 
-const PedidoSchema = new mongoose.Schema({
-    cliente: {
-        nombre: {
-            type: String,
-            required: [true, 'El nombre del cliente es obligatorio'],
-            trim: true
-        },
-        direccion: {
-            type: String,
-            required: [true, 'La dirección de entrega es obligatoria'],
-            trim: true
-        },
-        ubicacion: {
-            latitud: {
-                type: Number,
-                required: [true, 'La latitud del cliente es obligatoria']
-            },
-            longitud: {
-                type: Number,
-                required: [true, 'La longitud del cliente es obligatoria']
-            }
-        }
+const pedidoSchema = new mongoose.Schema({
+    clienteId: {
+        type: String,
+        required: [true, 'El ID del cliente es obligatorio'],
+        trim: true,
+    },
+    repartidorId: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    sucursalId: {
+        type: String,
+        required: [true, 'El ID de la sucursal es obligatorio'],
+        trim: true,
     },
     productos: [
         {
@@ -33,55 +26,43 @@ const PedidoSchema = new mongoose.Schema({
                 type: String,
                 required: [true, 'El nombre del producto es obligatorio']
             },
+            precioUnitario: {
+                type: Number,
+                required: [true, 'El precio unitario es obligatorio'],
+                min: 0
+            },
             cantidad: {
                 type: Number,
                 required: [true, 'La cantidad es obligatoria'],
-                min: [1, 'La cantidad mínima es 1']
-            },
-            precio: {
-                type: Number,
-                required: [true, 'El precio del producto es obligatorio'],
-                min: [0, 'El precio no puede ser negativo']
+                min: [1, 'La cantidad debe ser al menos 1']
             }
         }
     ],
     total: {
         type: Number,
-        required: [true, 'El monto total del pedido es obligatorio'],
-        min: [0, 'El total no puede ser negativo']
+        required: [true, 'El total del pedido es obligatorio'],
+        min: 0
+    },
+    direccionEntrega: {
+        type: String,
+        required: [true, 'La dirección de entrega es obligatoria'],
+        trim: true
     },
     estado: {
         type: String,
         enum: {
-            values: ['PENDIENTE', 'PREPARANDO', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'],
-            message: '{VALUE} no es un estado válido (PENDIENTE, PREPARANDO, EN_CAMINO, ENTREGADO, CANCELADO)'
+            values: ['pendiente', 'preparando', 'en_camino', 'entregado', 'cancelado'],
+            message: '{VALUE} no es un estado válido (pendiente, preparando, en_camino, entregado, cancelado)'
         },
-        default: 'PENDIENTE'
+        default: 'pendiente'
     },
-    historialEstados: [
-        {
-            estado: {
-                type: String,
-                required: true
-            },
-            fecha: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ]
-}, {
-    timestamps: true
-});
-
-// Middleware pre-save para inicializar el historial de estados al crearse el pedido
-PedidoSchema.pre('save', function () {
-    if (this.isNew) {
-        this.historialEstados.push({
-            estado: this.estado,
-            fecha: new Date()
-        });
+    metodoPago: {
+        type: String,
+        default: 'efectivo',
+        trim: true
     }
+}, {
+    timestamps: true,
 });
 
-module.exports = mongoose.model('Pedido', PedidoSchema);
+module.exports = mongoose.model('Pedido', pedidoSchema);
