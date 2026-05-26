@@ -161,9 +161,11 @@ function MenuCard({
               ${precio}
             </span>
             <button
-              onClick={handleAgregar}
-              onMouseDown={(event) => event.stopPropagation()}
-              onClickCapture={(event) => event.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAgregar();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
               className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest px-4 py-2 transition-colors duration-200 active:scale-95"
               style={{
                 background: "#9B2335",
