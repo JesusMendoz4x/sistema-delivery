@@ -1,4 +1,4 @@
-# backend/api-gateway/Dockerfile
+# backend/usuario-service/Dockerfile
 FROM node:18-alpine
 
 WORKDIR /app
@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE 3005
 
 CMD ["npm", "start"]
