@@ -14,8 +14,8 @@ const server = app.listen(PORT, () => {
 server.on('error', (err) => {
     console.error(`\n[Error de Servidor en API Gateway]:`);
     if (err.code === 'EADDRINUSE') {
-        console.error(`❌ El puerto ${PORT} ya está siendo utilizado por otro proceso.`);
-        console.error(`💡 Tip en macOS: El puerto 5000 suele estar reservado por "AirPlay Receiver".`);
+        console.error(` El puerto ${PORT} ya está siendo utilizado por otro proceso.`);
+        console.error(` Tip en macOS: El puerto 5000 suele estar reservado por "AirPlay Receiver".`);
         console.error(`   Puedes desactivarlo en: Ajustes del Sistema -> General -> AirDrop y Handoff -> Receptor de AirPlay.`);
     } else {
         console.error(err.message);
