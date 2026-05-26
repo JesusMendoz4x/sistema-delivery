@@ -1,0 +1,856 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sistema de Delivery - API Gateway",
+    "description": "Documentación centralizada de todos los microservicios que componen el Sistema de Delivery. A través de esta interfaz unificada se puede interactuar y probar los endpoints de cada servicio.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "API Gateway Local"
+    }
+  ],
+  "paths": {
+    "/api/usuarios": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Listar todos los usuarios",
+        "responses": {
+          "200": {
+            "description": "Lista de usuarios obtenida exitosamente"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Usuarios"],
+        "summary": "Crear un nuevo usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "email": { "type": "string" },
+                  "telefono": { "type": "string" },
+                  "rol": { "type": "string", "enum": ["cliente", "administrador", "soporte"] }
+                },
+                "required": ["nombre", "email", "telefono"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente"
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}": {
+      "get": {
+        "tags": ["Usuarios"],
+        "summary": "Obtener usuario por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del usuario"
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Actualizar usuario por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "email": { "type": "string" },
+                  "telefono": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario actualizado exitosamente"
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}/desactivar": {
+      "delete": {
+        "tags": ["Usuarios"],
+        "summary": "Desactivar un usuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario desactivado exitosamente"
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}/activar": {
+      "put": {
+        "tags": ["Usuarios"],
+        "summary": "Activar un usuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario activado exitosamente"
+          }
+        }
+      }
+    },
+    "/api/sucursales": {
+      "get": {
+        "tags": ["Sucursales"],
+        "summary": "Listar todas las sucursales",
+        "responses": {
+          "200": {
+            "description": "Lista de sucursales"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Sucursales"],
+        "summary": "Crear una nueva sucursal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "direccion": { "type": "string" },
+                  "latitud": { "type": "number" },
+                  "longitud": { "type": "number" }
+                },
+                "required": ["nombre", "direccion", "latitud", "longitud"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sucursal creada con éxito"
+          }
+        }
+      }
+    },
+    "/api/sucursales/{id}": {
+      "get": {
+        "tags": ["Sucursales"],
+        "summary": "Obtener sucursal por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles de la sucursal"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Sucursales"],
+        "summary": "Actualizar sucursal por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "direccion": { "type": "string" },
+                  "latitud": { "type": "number" },
+                  "longitud": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucursal actualizada con éxito"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Sucursales"],
+        "summary": "Desactivar sucursal por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucursal desactivada con éxito"
+          }
+        }
+      }
+    },
+    "/api/inventario": {
+      "get": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Listar todos los productos",
+        "responses": {
+          "200": {
+            "description": "Lista de productos"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Crear un producto en el catálogo maestro",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "descripcion": { "type": "string" },
+                  "precio": { "type": "number" },
+                  "categoria": { "type": "string" }
+                },
+                "required": ["nombre", "precio"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado con éxito"
+          }
+        }
+      }
+    },
+    "/api/inventario/{id}": {
+      "get": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Obtener producto por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del producto"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Actualizar producto por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "descripcion": { "type": "string" },
+                  "precio": { "type": "number" },
+                  "categoria": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado con éxito"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Eliminar producto por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado con éxito"
+          }
+        }
+      }
+    },
+    "/api/inventario/sucursal/{sucursalId}": {
+      "get": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Obtener inventario físico por sucursal",
+        "parameters": [
+          {
+            "name": "sucursalId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventario de la sucursal"
+          }
+        }
+      }
+    },
+    "/api/inventario/stock": {
+      "post": {
+        "tags": ["Inventario / Productos"],
+        "summary": "Actualizar el stock de un producto en una sucursal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sucursalId": { "type": "string" },
+                  "productoId": { "type": "string" },
+                  "stock": { "type": "number" }
+                },
+                "required": ["sucursalId", "productoId", "stock"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stock actualizado con éxito"
+          }
+        }
+      }
+    },
+    "/api/pedidos": {
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Listar todos los pedidos",
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Pedidos"],
+        "summary": "Crear un nuevo pedido",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clienteId": { "type": "string" },
+                  "sucursalId": { "type": "string" },
+                  "productos": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "productoId": { "type": "string" },
+                        "cantidad": { "type": "number" },
+                        "precioUnitario": { "type": "number" }
+                      }
+                    }
+                  },
+                  "total": { "type": "number" },
+                  "direccionEntrega": { "type": "string" },
+                  "metodoPago": { "type": "string", "enum": ["efectivo", "tarjeta", "transferencia"] }
+                },
+                "required": ["clienteId", "sucursalId", "productos", "total", "direccionEntrega"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pedido creado con éxito"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}": {
+      "get": {
+        "tags": ["Pedidos"],
+        "summary": "Obtener pedido por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del pedido"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/estado": {
+      "put": {
+        "tags": ["Pedidos"],
+        "summary": "Actualizar estado de un pedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": { "type": "string", "enum": ["pendiente", "preparando", "listo", "en_camino", "entregado", "cancelado"] }
+                },
+                "required": ["estado"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado actualizado con éxito"
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/repartidor": {
+      "put": {
+        "tags": ["Pedidos"],
+        "summary": "Asignar un repartidor y calcular ruta (Resiliente)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "repartidorId": { "type": "string" }
+                },
+                "required": ["repartidorId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Repartidor asignado y ruta generada"
+          }
+        }
+      }
+    },
+    "/api/repartidores": {
+      "get": {
+        "tags": ["Repartidores"],
+        "summary": "Listar todos los repartidores",
+        "responses": {
+          "200": {
+            "description": "Lista de repartidores"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Repartidores"],
+        "summary": "Crear un nuevo repartidor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "telefono": { "type": "string" },
+                  "vehiculo": { "type": "string" },
+                  "estado": { "type": "string", "enum": ["activo", "inactivo", "en_entrega"] }
+                },
+                "required": ["nombre", "telefono", "vehiculo"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Repartidor creado con éxito"
+          }
+        }
+      }
+    },
+    "/api/repartidores/{id}": {
+      "get": {
+        "tags": ["Repartidores"],
+        "summary": "Obtener repartidor por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del repartidor"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Repartidores"],
+        "summary": "Actualizar repartidor por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": { "type": "string" },
+                  "telefono": { "type": "string" },
+                  "vehiculo": { "type": "string" },
+                  "estado": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Repartidor actualizado con éxito"
+          }
+        }
+      }
+    },
+    "/api/repartidores/{id}/desactivar": {
+      "delete": {
+        "tags": ["Repartidores"],
+        "summary": "Desactivar un repartidor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repartidor desactivado con éxito"
+          }
+        }
+      }
+    },
+    "/api/repartidores/{id}/activar": {
+      "put": {
+        "tags": ["Repartidores"],
+        "summary": "Activar un repartidor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repartidor activado con éxito"
+          }
+        }
+      }
+    },
+    "/api/enrutamiento/calcular-cercana": {
+      "post": {
+        "tags": ["Enrutamiento"],
+        "summary": "Calcular la sucursal más cercana para una dirección dada",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitud": { "type": "number" },
+                  "longitud": { "type": "number" }
+                },
+                "required": ["latitud", "longitud"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucursal más cercana calculada"
+          }
+        }
+      }
+    },
+    "/api/rutas": {
+      "get": {
+        "tags": ["Enrutamiento"],
+        "summary": "Listar todas las rutas",
+        "parameters": [
+          {
+            "name": "repartidorId",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de rutas"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Enrutamiento"],
+        "summary": "Crear una nueva ruta",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "repartidorId": { "type": "string" },
+                  "pedidos": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "distanciaEstimadaKm": { "type": "number" },
+                  "tiempoEstimadoMinutos": { "type": "number" }
+                },
+                "required": ["repartidorId", "pedidos"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ruta creada con éxito"
+          }
+        }
+      }
+    },
+    "/api/rutas/{id}": {
+      "get": {
+        "tags": ["Enrutamiento"],
+        "summary": "Obtener ruta por ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles de la ruta"
+          }
+        }
+      }
+    },
+    "/api/rutas/{id}/estado": {
+      "put": {
+        "tags": ["Enrutamiento"],
+        "summary": "Actualizar el estado de una ruta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": { "type": "string", "enum": ["asignada", "en_curso", "completada", "cancelada"] }
+                },
+                "required": ["estado"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado de ruta actualizado con éxito"
+          }
+        }
+      }
+    },
+    "/api/rutas/{id}/ubicacion": {
+      "put": {
+        "tags": ["Enrutamiento"],
+        "summary": "Actualizar la ubicación geográfica en tiempo real de la ruta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitud": { "type": "number" },
+                  "longitud": { "type": "number" }
+                },
+                "required": ["latitud", "longitud"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ubicación actualizada con éxito"
+          }
+        }
+      }
+    },
+    "/api/healthz": {
+      "get": {
+        "tags": ["Monitoreo / Salud"],
+        "summary": "Obtener estado de salud consolidado de todos los microservicios",
+        "description": "Consulta en paralelo el endpoint `/health` (o equivalente) de cada microservicio y consolida los estados en un mapa detallado.",
+        "responses": {
+          "200": {
+            "description": "Dashboard de salud general del sistema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "services": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

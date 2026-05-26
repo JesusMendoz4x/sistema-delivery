@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swagger.json');
+const axios = require('axios');
 
 const app = express();
 
@@ -29,6 +32,70 @@ app.get('/health', (req, res) => {
         service: 'api-gateway',
         status: 'running',
         timestamp: new Date()
+    });
+});
+
+// 3.5. Configuración de Swagger UI centralizado para OpenAPI/Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// 3.6. Endpoint unificado de salud del sistema (Health Dashboard)
+app.get('/api/healthz', async (req, res) => {
+    const services = {
+        'inventario-service': process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
+        'sucursales-service': process.env.SUCURSALES_SERVICE_URL || 'http://localhost:3002',
+        'pedidos-service': process.env.PEDIDOS_SERVICE_URL || 'http://localhost:3003',
+        'repartidores-service': process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004',
+        'usuario-service': process.env.USUARIO_SERVICE_URL || 'http://localhost:3005',
+        'enrutamiento-service': process.env.ENRUTAMIENTO_SERVICE_URL || 'http://localhost:3006'
+    };
+
+    const healthStatus = {};
+    let systemOverallStatus = 'online';
+
+    // Generar promesas de salud para cada microservicio en paralelo
+    const promises = Object.entries(services).map(async ([name, baseUrl]) => {
+        // sucursales-service expone /api/health, los demás /health
+        const healthUrl = name === 'sucursales-service' 
+            ? `${baseUrl}/api/health` 
+            : `${baseUrl}/health`;
+
+        try {
+            const start = Date.now();
+            const response = await axios.get(healthUrl, { timeout: 1500 });
+            const responseTime = Date.now() - start;
+
+            healthStatus[name] = {
+                status: 'online',
+                responseTimeMs: responseTime,
+                url: healthUrl,
+                details: response.data
+            };
+        } catch (error) {
+            healthStatus[name] = {
+                status: 'offline',
+                url: healthUrl,
+                error: error.message
+            };
+            systemOverallStatus = 'degraded';
+        }
+    });
+
+    await Promise.allSettled(promises);
+
+    // Si todos los microservicios están caídos, marcamos como offline global
+    const allOffline = Object.values(healthStatus).every(s => s.status === 'offline');
+    if (allOffline && Object.keys(services).length > 0) {
+        systemOverallStatus = 'offline';
+    }
+
+    res.json({
+        status: systemOverallStatus,
+        timestamp: new Date(),
+        gateway: {
+            status: 'online',
+            service: 'api-gateway'
+        },
+        services: healthStatus
     });
 });
 
