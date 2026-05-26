@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import MenuCard from "./MenuCard";
+import { useAuth } from "../context/AuthContext";
 
 const productos = [
   // ENTRADAS
@@ -393,7 +395,7 @@ function useInView(threshold = 0.15) {
 }
 
 // ─── Carrusel genérico (Entradas, Sushi, Dumplings) ──────────────────────────
-function CarruselSeccion({ categoria, items, onAgregar }) {
+function CarruselSeccion({ categoria, items, onAgregar, onOpen, variant }) {
   const carruselRef = useRef(null);
   const [seccionRef, inView] = useInView(0.1);
   const cardStep = 280;
@@ -449,7 +451,6 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
         className="font-['EB_Garamond'] text-[32px] mb-6"
         style={{
           color: "#F2EDE4",
-          fontWeight: 400,
           opacity: inView ? 1 : 0,
           transform: inView ? "translateX(0)" : "translateX(-40px)",
           transition:
@@ -500,7 +501,12 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
                 transition: `opacity 0.5s ease-out ${0.3 + i * 0.07}s, transform 0.5s ease-out ${0.3 + i * 0.07}s`,
               }}
             >
-              <MenuCard {...producto} onAgregar={() => onAgregar(producto)} />
+              <MenuCard
+                {...producto}
+                onAgregar={() => onAgregar(producto)}
+                onOpen={() => onOpen(producto)}
+                variant={variant}
+              />
             </div>
           ))}
           <div className="flex-shrink-0" style={{ width: "1px" }} />
@@ -524,7 +530,7 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
 }
 
 // ─── Especialidades: carrusel con wrapper editorial dorado ────────────────────
-function EspecialidadesSeccion({ items, onAgregar }) {
+function EspecialidadesSeccion({ items, onAgregar, onOpen }) {
   const carruselRef = useRef(null);
   const [seccionRef, inView] = useInView(0.1);
   const cardStep = 280;
@@ -713,6 +719,7 @@ function EspecialidadesSeccion({ items, onAgregar }) {
                   <MenuCard
                     {...producto}
                     onAgregar={() => onAgregar(producto)}
+                    onOpen={() => onOpen(producto)}
                   />
                 </div>
               </div>
@@ -741,294 +748,269 @@ function EspecialidadesSeccion({ items, onAgregar }) {
   );
 }
 
-// ─── Postres: carrusel con imagen circular ────────────────────────────────────
-function PostresSeccion({ items, onAgregar }) {
-  const carruselRef = useRef(null);
-  const [seccionRef, inView] = useInView(0.1);
-  const cardStep = 216;
+function ProductModal({ item, onClose, onAgregar, variant = "gold" }) {
+  const { isLoggedIn, openAuthWall } = useAuth();
 
-  const handleScroll = (dir) => {
-    if (!carruselRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = carruselRef.current;
-    if (dir > 0 && scrollLeft + clientWidth + 2 >= scrollWidth) {
-      carruselRef.current.scrollTo({ left: 0, behavior: "smooth" });
-      return;
-    }
-    if (dir < 0 && scrollLeft <= 2) {
-      carruselRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
-      return;
-    }
-    carruselRef.current.scrollBy({ left: dir * cardStep, behavior: "smooth" });
+  if (!item) return null;
+  if (typeof document === "undefined") return null;
+
+  const paletteByVariant = {
+    gold: {
+      accent: "#D4AF6A",
+      accentSoft: "rgba(212, 175, 106, 0.25)",
+      eyebrow: "rgba(212, 175, 106, 0.6)",
+      background:
+        "linear-gradient(155deg, rgba(70, 52, 24, 0.98) 0%, rgba(32, 24, 18, 0.98) 45%, rgba(12, 12, 12, 0.98) 100%)",
+      badgeText: "#1a1a1a",
+    },
+    red: {
+      accent: "#C24B45",
+      accentSoft: "rgba(194, 75, 69, 0.3)",
+      eyebrow: "rgba(194, 75, 69, 0.7)",
+      background:
+        "linear-gradient(155deg, rgba(46, 16, 18, 0.98) 0%, rgba(26, 10, 12, 0.98) 50%, rgba(14, 8, 10, 0.98) 100%)",
+      badgeText: "#1a1a1a",
+    },
+    rose: {
+      accent: "#E77B9B",
+      accentSoft: "rgba(231, 123, 155, 0.32)",
+      eyebrow: "rgba(231, 123, 155, 0.7)",
+      background:
+        "linear-gradient(155deg, rgba(58, 16, 28, 0.98) 0%, rgba(32, 10, 20, 0.98) 50%, rgba(16, 8, 12, 0.98) 100%)",
+      badgeText: "#1a1a1a",
+    },
   };
 
-  return (
-    <div className="mb-16" ref={seccionRef}>
-      <div className="flex items-center gap-6 mb-4">
-        <div
-          className="h-px flex-grow"
-          style={{
-            background: "rgba(212, 175, 106, 0.15)",
-            transform: inView ? "scaleX(1)" : "scaleX(0)",
-            transformOrigin: "right",
-            transition: "transform 0.7s ease-out 0.1s",
-          }}
-        />
-        <span
-          className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.3em]"
-          style={{
-            color: "rgba(212, 175, 106, 0.5)",
-            opacity: inView ? 1 : 0,
-            transition: "opacity 0.5s ease-out 0.3s",
-          }}
-        >
-          {items.length} platillos
-        </span>
-        <div
-          className="h-px flex-grow"
-          style={{
-            background: "rgba(212, 175, 106, 0.15)",
-            transform: inView ? "scaleX(1)" : "scaleX(0)",
-            transformOrigin: "left",
-            transition: "transform 0.7s ease-out 0.1s",
-          }}
-        />
-      </div>
+  const palette = paletteByVariant[variant] ?? paletteByVariant.gold;
 
-      <h2
-        className="font-['EB_Garamond'] text-[32px] mb-6"
-        style={{
-          color: "#F2EDE4",
-          fontWeight: 400,
-          opacity: inView ? 1 : 0,
-          transform: inView ? "translateX(0)" : "translateX(-40px)",
-          transition:
-            "opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s",
-        }}
-      >
-        Postres
-      </h2>
+  const handleAgregar = () => {
+    if (!isLoggedIn) {
+      openAuthWall("agregar");
+      return;
+    }
+    onAgregar(item);
+    onClose();
+  };
 
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center px-4"
+      style={{
+        background: "rgba(0, 0, 0, 0.7)",
+        animation: "fadeIn 0.2s ease-out",
+      }}
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
       <div
-        className="relative overflow-visible"
-        style={{ maxWidth: "1120px", margin: "0 auto" }}
+        className="w-full max-w-[560px] rounded-[18px] p-6"
+        style={{
+          background: palette.background,
+          border: `1px solid ${palette.accentSoft}`,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
+          animation: "cardLift 0.35s ease-out",
+          transformOrigin: "center",
+        }}
+        onClick={(event) => event.stopPropagation()}
       >
-        <button
-          type="button"
-          aria-label="Anterior"
-          onClick={() => handleScroll(-1)}
-          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
-        >
-          &#8592;
-        </button>
-        <button
-          type="button"
-          aria-label="Siguiente"
-          onClick={() => handleScroll(1)}
-          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
-        >
-          &#8594;
-        </button>
-
-        <div
-          ref={carruselRef}
-          className="flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible py-3"
-          style={{
-            WebkitOverflowScrolling: "touch",
-            scrollSnapType: "x mandatory",
-          }}
-        >
-          {items.map((producto, i) => (
-            <div
-              key={producto.id}
-              className="flex-shrink-0"
-              style={{
-                width: "200px",
-                scrollSnapAlign: "start",
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateX(0)" : "translateX(60px)",
-                transition: `opacity 0.5s ease-out ${0.3 + i * 0.07}s, transform 0.5s ease-out ${0.3 + i * 0.07}s`,
-              }}
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <p
+              className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.3em] mb-2"
+              style={{ color: palette.eyebrow }}
             >
-              {/* Tarjeta postre con imagen circular */}
-              <div
+              {item.categoria}
+            </p>
+            <h3
+              className="font-['EB_Garamond'] text-[28px] leading-tight"
+              style={{ color: "#F2EDE4", fontWeight: 400 }}
+            >
+              {item.nombre}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 w-9 rounded-full border text-xs"
+            style={{
+              borderColor: palette.accentSoft,
+              color: "#F2EDE4",
+              background: "rgba(0,0,0,0.4)",
+            }}
+            aria-label="Cerrar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5 md:flex-row">
+          <div
+            className="w-full md:w-[220px] shrink-0 overflow-hidden rounded-[14px]"
+            style={{ border: `1px solid ${palette.accentSoft}` }}
+          >
+            <img
+              src={item.imagen}
+              alt={item.nombre}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          <div className="flex flex-col flex-1">
+            {item.badge && (
+              <span
+                className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.25em] mb-3 inline-block"
                 style={{
-                  background: "#1a1a1a",
-                  border: "1px solid rgba(212,175,106,0.15)",
-                  borderRadius: "4px",
-                  padding: "16px 14px 14px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  textAlign: "center",
-                  height: "100%",
-                  boxSizing: "border-box",
+                  color: palette.badgeText,
+                  background: palette.accent,
+                  padding: "4px 10px",
+                  alignSelf: "flex-start",
                 }}
               >
-                {/* Imagen circular */}
-                <div
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    border: "2px solid rgba(212,175,106,0.3)",
-                    marginBottom: "12px",
-                    flexShrink: 0,
-                  }}
-                >
-                  <img
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      filter: "grayscale(0.2)",
-                    }}
-                  />
-                </div>
+                {item.badge}
+              </span>
+            )}
 
-                {producto.badge && (
-                  <span
-                    className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-[0.15em] mb-2 inline-block"
-                    style={{
-                      color: "#D4AF6A",
-                      background: "rgba(212,175,106,0.1)",
-                      border: "1px solid rgba(212,175,106,0.25)",
-                      padding: "2px 8px",
-                    }}
-                  >
-                    {producto.badge}
-                  </span>
-                )}
+            <p
+              className="font-['DM_Sans'] text-[14px] leading-relaxed"
+              style={{ color: "rgba(242, 237, 228, 0.75)" }}
+            >
+              {item.descripcion}
+            </p>
 
-                <p
-                  className="font-['EB_Garamond'] text-[16px] font-normal mb-1 mt-0"
-                  style={{ color: "#F2EDE4" }}
-                >
-                  {producto.nombre}
-                </p>
-                <p
-                  className="font-['DM_Sans'] text-[11px] leading-relaxed line-clamp-2 mb-3 mt-0"
-                  style={{
-                    color: "rgba(242,237,228,0.45)",
-                    flexGrow: 1,
-                  }}
-                >
-                  {producto.descripcion}
-                </p>
-
-                <div
-                  className="flex justify-between items-center w-full"
-                  style={{ marginTop: "auto" }}
-                >
-                  <span
-                    className="font-['JetBrains_Mono'] text-[13px]"
-                    style={{ color: "#D4AF6A" }}
-                  >
-                    ${producto.precio}
-                  </span>
-                  <button
-                    onClick={() => onAgregar(producto)}
-                    className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-widest px-3 py-2 transition-colors duration-200 active:scale-95"
-                    style={{
-                      background: "#9B2335",
-                      color: "#F2EDE4",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#7a1c1c")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "#9B2335")
-                    }
-                  >
-                    Agregar
-                  </button>
-                </div>
-              </div>
+            <div
+              className="mt-6 flex items-center justify-between"
+              style={{
+                borderTop: `1px solid ${palette.accentSoft}`,
+                paddingTop: "16px",
+              }}
+            >
+              <span
+                className="font-['JetBrains_Mono'] text-[16px]"
+                style={{ color: palette.accent }}
+              >
+                ${item.precio}
+              </span>
+              <button
+                type="button"
+                className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest px-4 py-2 transition-colors duration-200 active:scale-95"
+                style={{
+                  background: "#9B2335",
+                  color: "#F2EDE4",
+                  border: "none",
+                }}
+                onClick={handleAgregar}
+              >
+                Agregar
+              </button>
             </div>
-          ))}
-          <div className="flex-shrink-0" style={{ width: "1px" }} />
+          </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
 // ─── MenuGrid principal ───────────────────────────────────────────────────────
 function MenuGrid({ categoriaActiva, onAgregar }) {
+  const [detalleActivo, setDetalleActivo] = useState(null);
+
+  const getVariantByCategory = (categoria) => {
+    if (categoria === "Especialidades") return "gold";
+    if (categoria === "Postres") return "rose";
+    return "red";
+  };
+
+  useEffect(() => {
+    if (!detalleActivo) return undefined;
+    const handleKey = (event) => {
+      if (event.key === "Escape") setDetalleActivo(null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [detalleActivo]);
+
   return (
-    <main
-      className="flex-grow min-h-screen px-[clamp(16px,4vw,40px)] py-[40px]"
-      style={{ background: "rgb(16,16,16)" }}
-    >
-      <header className="mb-12">
-        <div className="flex justify-between items-end mb-4">
-          <h1
-            className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
+    <>
+      <main
+        className="flex-grow min-h-screen px-[clamp(16px,4vw,40px)] py-[40px]"
+        style={{ background: "rgb(16,16,16)" }}
+      >
+        <header className="mb-12">
+          <div className="flex justify-between items-end mb-4">
+            <h1
+              className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
+              style={{
+                color: "#9B2335",
+                fontWeight: 600,
+                opacity: 0,
+                animation: "slideFromLeft 0.6s ease-out 0.1s forwards",
+              }}
+            >
+              {categoriaActiva}
+            </h1>
+            <span
+              className="font-['JetBrains_Mono'] text-[12px] tracking-widest"
+              style={{
+                color: "rgba(212, 175, 106, 0.5)",
+                opacity: 0,
+                animation: "fadeIn 0.6s ease-out 0.3s forwards",
+              }}
+            >
+              FILTRAR POR PREFERENCIA
+            </span>
+          </div>
+          <div
+            className="h-px w-full"
             style={{
-              color: "#9B2335",
-              fontWeight: 600,
-              opacity: 0,
-              animation: "slideFromLeft 0.6s ease-out 0.1s forwards",
+              background: "rgba(212, 175, 106, 0.15)",
+              transform: "scaleX(0)",
+              transformOrigin: "left",
+              animation: "expandLine 0.7s ease-out 0.2s forwards",
             }}
-          >
-            {categoriaActiva}
-          </h1>
-          <span
-            className="font-['JetBrains_Mono'] text-[12px] tracking-widest"
-            style={{
-              color: "rgba(212, 175, 106, 0.5)",
-              opacity: 0,
-              animation: "fadeIn 0.6s ease-out 0.3s forwards",
-            }}
-          >
-            FILTRAR POR PREFERENCIA
-          </span>
-        </div>
-        <div
-          className="h-px w-full"
-          style={{
-            background: "rgba(212, 175, 106, 0.15)",
-            transform: "scaleX(0)",
-            transformOrigin: "left",
-            animation: "expandLine 0.7s ease-out 0.2s forwards",
-          }}
-        />
-      </header>
+          />
+        </header>
 
-      {categorias.map((cat) => {
-        const items = productos.filter((p) => p.categoria === cat);
-        if (items.length === 0) return null;
+        {categorias.map((cat) => {
+          const items = productos.filter((p) => p.categoria === cat);
+          if (items.length === 0) return null;
 
-        if (cat === "Postres") {
+          if (cat === "Especialidades") {
+            return (
+              <EspecialidadesSeccion
+                key={cat}
+                items={items}
+                onAgregar={onAgregar}
+                onOpen={setDetalleActivo}
+              />
+            );
+          }
+
+          const variant = getVariantByCategory(cat);
+
           return (
-            <PostresSeccion key={cat} items={items} onAgregar={onAgregar} />
-          );
-        }
-
-        if (cat === "Especialidades") {
-          return (
-            <EspecialidadesSeccion
+            <CarruselSeccion
               key={cat}
+              categoria={cat}
               items={items}
               onAgregar={onAgregar}
+              onOpen={setDetalleActivo}
+              variant={variant}
             />
           );
-        }
+        })}
+      </main>
 
-        return (
-          <CarruselSeccion
-            key={cat}
-            categoria={cat}
-            items={items}
-            onAgregar={onAgregar}
-          />
-        );
-      })}
-    </main>
+      <ProductModal
+        item={detalleActivo}
+        onClose={() => setDetalleActivo(null)}
+        onAgregar={onAgregar}
+        variant={
+          detalleActivo ? getVariantByCategory(detalleActivo.categoria) : "gold"
+        }
+      />
+    </>
   );
 }
 
