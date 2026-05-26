@@ -111,7 +111,6 @@ function MenuCard({ nombre, descripcion, precio, imagen, badge, onAgregar }) {
           </div>
         </div>
       </div>
-      </div>
     </div>
   );
 }
