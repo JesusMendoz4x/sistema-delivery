@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import MenuCard from "./MenuCard";
 import { useAuth } from "../context/AuthContext";
+import fondoMenu from "../assets/fondoMenu.png";
 
 const productos = [
   // ENTRADAS
@@ -935,71 +936,99 @@ function MenuGrid({ categoriaActiva, onAgregar }) {
     <>
       <main
         className="flex-grow min-h-screen px-[clamp(16px,4vw,40px)] py-[40px]"
-        style={{ background: "rgb(16,16,16)" }}
+        style={{
+          background: "rgb(16,16,16)",
+          position: "relative",
+          overflow: "hidden",
+        }}
       >
-        <header className="mb-12">
-          <div className="flex justify-between items-end mb-4">
-            <h1
-              className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
-              style={{
-                color: "#9B2335",
-                fontWeight: 600,
-                opacity: 0,
-                animation: "slideFromLeft 0.6s ease-out 0.1s forwards",
-              }}
-            >
-              {categoriaActiva}
-            </h1>
-            <span
-              className="font-['JetBrains_Mono'] text-[12px] tracking-widest"
-              style={{
-                color: "rgba(212, 175, 106, 0.5)",
-                opacity: 0,
-                animation: "fadeIn 0.6s ease-out 0.3s forwards",
-              }}
-            >
-              FILTRAR POR PREFERENCIA
-            </span>
-          </div>
-          <div
-            className="h-px w-full"
-            style={{
-              background: "rgba(212, 175, 106, 0.15)",
-              transform: "scaleX(0)",
-              transformOrigin: "left",
-              animation: "expandLine 0.7s ease-out 0.2s forwards",
-            }}
-          />
-        </header>
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${fondoMenu})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.22,
+            filter: "grayscale(0.15) contrast(1.05)",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.7) 40%, rgba(10,10,10,0.95) 100%)",
+          }}
+        />
 
-        {categorias.map((cat) => {
-          const items = productos.filter((p) => p.categoria === cat);
-          if (items.length === 0) return null;
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <header className="mb-12">
+            <div className="flex justify-between items-end mb-4">
+              <h1
+                className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
+                style={{
+                  color: "#9B2335",
+                  fontWeight: 600,
+                  opacity: 0,
+                  animation: "slideFromLeft 0.6s ease-out 0.1s forwards",
+                }}
+              >
+                {categoriaActiva}
+              </h1>
+              <span
+                className="font-['JetBrains_Mono'] text-[12px] tracking-widest"
+                style={{
+                  color: "rgba(212, 175, 106, 0.5)",
+                  opacity: 0,
+                  animation: "fadeIn 0.6s ease-out 0.3s forwards",
+                }}
+              >
+                FILTRAR POR PREFERENCIA
+              </span>
+            </div>
+            <div
+              className="h-px w-full"
+              style={{
+                background: "rgba(212, 175, 106, 0.15)",
+                transform: "scaleX(0)",
+                transformOrigin: "left",
+                animation: "expandLine 0.7s ease-out 0.2s forwards",
+              }}
+            />
+          </header>
 
-          if (cat === "Especialidades") {
+          {categorias.map((cat) => {
+            const items = productos.filter((p) => p.categoria === cat);
+            if (items.length === 0) return null;
+
+            if (cat === "Especialidades") {
+              return (
+                <EspecialidadesSeccion
+                  key={cat}
+                  items={items}
+                  onAgregar={onAgregar}
+                  onOpen={setDetalleActivo}
+                />
+              );
+            }
+
+            const variant = getVariantByCategory(cat);
+
             return (
-              <EspecialidadesSeccion
+              <CarruselSeccion
                 key={cat}
+                categoria={cat}
                 items={items}
                 onAgregar={onAgregar}
                 onOpen={setDetalleActivo}
+                variant={variant}
               />
             );
-          }
-
-          const variant = getVariantByCategory(cat);
-
-          return (
-            <CarruselSeccion
-              key={cat}
-              categoria={cat}
-              items={items}
-              onAgregar={onAgregar}
-              onOpen={setDetalleActivo}
-              variant={variant}
-            />
-          );
-        })}
+          })}
+        </div>
       </main>
 
       <ProductModal
