@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 function CartItem({
   nombre,
   precio,
@@ -49,7 +51,15 @@ function CartItem({
   );
 }
 
-function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }) {
+function CartPanel({
+  items,
+  onIncrementar,
+  onDecrementar,
+  onConfirmar,
+  onClose,
+}) {
+  if (typeof document === "undefined") return null;
+
   const subtotal = items.reduce(
     (acc, item) => acc + parseFloat(item.precio) * item.cantidad,
     0,
@@ -57,10 +67,13 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
   const servicio = subtotal * 0.1;
   const total = subtotal + servicio;
 
-  return (
-    <aside className="fixed right-0 top-0 h-full w-[350px] bg-[#F2E6D8] text-[#2f251d] border-l border-black/10 flex flex-col z-50">
-      {/* Header */}
-      <div className="p-8 border-b border-black/10">
+  return createPortal(
+    <aside
+      className="fixed right-0 top-0 w-[350px] bg-[#F2E6D8] text-[#2f251d] border-l border-black/10 flex flex-col z-40"
+      style={{ height: "100vh", overscrollBehavior: "contain" }}
+    >
+      {/* Header — siempre visible */}
+      <div className="p-8 border-b border-black/10 flex-shrink-0">
         <div className="flex justify-between items-center">
           <h2 className="font-['EB_Garamond'] text-2xl uppercase tracking-tighter">
             Tu Orden
@@ -81,8 +94,11 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
         </div>
       </div>
 
-      {/* Items */}
-      <div className="flex-grow overflow-y-auto p-8 space-y-6">
+      {/* Items — único área con scroll propio, aislado de la página */}
+      <div
+        className="flex-grow overflow-y-auto p-8 space-y-6"
+        style={{ overscrollBehavior: "contain" }}
+      >
         {items.length === 0 ? (
           <p className="font-['DM_Sans'] text-sm text-[#5a4636] text-center mt-8">
             Tu orden está vacía
@@ -119,8 +135,8 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
         )}
       </div>
 
-      {/* Footer */}
-      <div className="p-8 bg-[#EAD9C6] border-t border-black/10">
+      {/* Footer — siempre visible al fondo */}
+      <div className="p-8 bg-[#EAD9C6] border-t border-black/10 flex-shrink-0">
         <div className="flex justify-between items-baseline mb-6">
           <span className="font-['JetBrains_Mono'] text-xs uppercase tracking-[0.2em]">
             Total
@@ -139,7 +155,8 @@ function CartPanel({ items, onIncrementar, onDecrementar, onConfirmar, onClose }
           Precio incluye impuestos locales
         </p>
       </div>
-    </aside>
+    </aside>,
+    document.body,
   );
 }
 

@@ -196,46 +196,46 @@ function ClienteHomeInner() {
         />
 
         {/* Contenedor de vista con clases de animación */}
-        <div
-          key={categoriaActiva} // fuerza re-mount y reinicia la animación de entrada
-          className={saliendo ? "seccion-saliendo" : "seccion-entrando"}
-        >
-          {!mostrarMenu ? (
-            <>
-              {categoriaActiva === "Nuestras Sucursales" ? (
-                <Sucursales />
-              ) : (
-                <>
-                  <Hero
-                    heroProgress={0}
-                    onVerMenu={() => handleCategoriaClick("Entradas")}
-                  />
-                  <Descripcion heroProgress={0} />
-                  <Ubicacion heroProgress={0} />
-                  <Footer heroProgress={0} />
-                </>
-              )}
-            </>
-          ) : (
-            <div className="pt-20 flex">
-              <MenuGrid
-                categoriaActiva={categoriaActiva}
-                onAgregar={agregarAlCarrito}
-              />
-              {mostrarCarrito && (
-                <CartPanel
-                  items={carrito}
-                  onIncrementar={incrementar}
-                  onDecrementar={decrementar}
-                  onConfirmar={confirmarPedido}
-                  onClose={() => setMostrarCarrito(false)}
-                />
-              )}
-            </div>
-          )}
-        </div>
       </div>
 
+      <div
+        key={categoriaActiva} // fuerza re-mount y reinicia la animación de entrada
+        className={saliendo ? "seccion-saliendo" : "seccion-entrando"}
+      >
+        {!mostrarMenu ? (
+          <>
+            {categoriaActiva === "Nuestras Sucursales" ? (
+              <Sucursales />
+            ) : (
+              <>
+                <Hero
+                  heroProgress={0}
+                  onVerMenu={() => handleCategoriaClick("Entradas")}
+                />
+                <Descripcion heroProgress={0} />
+                <Ubicacion heroProgress={0} />
+                <Footer heroProgress={0} />
+              </>
+            )}
+          </>
+        ) : (
+          <div className="pt-20 flex">
+            <MenuGrid
+              categoriaActiva={categoriaActiva}
+              onAgregar={agregarAlCarrito}
+            />
+            {mostrarCarrito && (
+              <CartPanel
+                items={carrito}
+                onIncrementar={incrementar}
+                onDecrementar={decrementar}
+                onConfirmar={confirmarPedido}
+                onClose={() => setMostrarCarrito(false)}
+              />
+            )}
+          </div>
+        )}
+      </div>
       <AuthWall />
       <LoginModal />
 
