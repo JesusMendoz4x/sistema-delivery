@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -10,14 +10,22 @@ import Sucursales from "../components/Sucursales";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
+import "../transitions.css";
+// Duración de la animación de salida en ms — debe coincidir con transitions.css
+const SALIDA_MS = 220;
 
 function ClienteHomeInner() {
   const { isLoggedIn, login, logout, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
-  const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
+  const [carrito, setCarrito] = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
+
+  // "saliendo" dispara la animación de salida antes de cambiar la vista
+  const [saliendo, setSaliendo] = useState(false);
+  // Cola: guardamos el destino mientras se anima la salida
+  const pendienteRef = useRef(null);
 
   const blobRef = useRef(null);
   const rafRef = useRef(null);
@@ -32,19 +40,15 @@ function ClienteHomeInner() {
         rafRef.current = requestAnimationFrame(() => {
           const y = scrollY.current;
           const maxScroll = document.body.scrollHeight - window.innerHeight;
-          const progress = Math.min(y / maxScroll, 1); // 0 a 1
+          const progress = Math.min(y / maxScroll, 1);
 
           if (blobRef.current) {
-            // Opacidad — alta al inicio, baja a mitad, sube al final
             const opacity = 0.95 - Math.sin(progress * Math.PI) * 0.6;
-
-            // Forma — cambia de círculo a elipse alargada según scroll
-            const rx1 = 50 + progress * 20; // 50% → 70%
-            const ry1 = 50 - progress * 25; // 50% → 25%
-            const rx2 = 50 - progress * 20; // 50% → 30%
-            const ry2 = 50 + progress * 25; // 50% → 75%
+            const rx1 = 50 + progress * 20;
+            const ry1 = 50 - progress * 25;
+            const rx2 = 50 - progress * 20;
+            const ry2 = 50 + progress * 25;
             const borderRadius = `${rx1}% ${rx2}% ${rx2}% ${rx1}% / ${ry1}% ${ry1}% ${ry2}% ${ry2}%`;
-
             blobRef.current.style.opacity = opacity;
             blobRef.current.style.borderRadius = borderRadius;
           }
@@ -60,6 +64,44 @@ function ClienteHomeInner() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [mostrarMenu]);
+
+  // Aplica el cambio de vista pendiente una vez termina la animación de salida
+  useEffect(() => {
+    if (!saliendo) return;
+
+    const timer = setTimeout(() => {
+      const { cat, menu } = pendienteRef.current;
+      setCategoriaActiva(cat);
+      setMostrarMenu(menu);
+      setSaliendo(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, SALIDA_MS);
+
+    return () => clearTimeout(timer);
+  }, [saliendo]);
+
+  // Navegación con transición
+  const handleCategoriaClick = useCallback(
+    (cat) => {
+      if (cat === "Pedidos" && !isLoggedIn) {
+        openAuthWall("pedidos");
+        return;
+      }
+
+      // Si ya estamos en esa categoría, no hacemos nada
+      if (cat === categoriaActiva && cat !== "Inicio") return;
+
+      let nuevaMostrarMenu = true;
+      if (cat === "Inicio" || cat === "Nuestras Sucursales") {
+        nuevaMostrarMenu = false;
+      }
+
+      // Guardar destino y arrancar animación de salida
+      pendienteRef.current = { cat, menu: nuevaMostrarMenu };
+      setSaliendo(true);
+    },
+    [categoriaActiva, isLoggedIn, openAuthWall],
+  );
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
@@ -97,25 +139,6 @@ function ClienteHomeInner() {
 
   const confirmarPedido = () => {
     alert("Pedido confirmado");
-  };
-
-  const handleCategoriaClick = (cat) => {
-    if (cat === "Pedidos" && !isLoggedIn) {
-      openAuthWall("pedidos");
-      return;
-    }
-    if (cat === "Inicio") {
-      setMostrarMenu(false);
-      setCategoriaActiva("Inicio");
-      return;
-    }
-    if (cat === "Nuestras Sucursales") {
-      setMostrarMenu(false);
-      setCategoriaActiva("Nuestras Sucursales");
-      return;
-    }
-    setCategoriaActiva(cat);
-    setMostrarMenu(true);
   };
 
   return (
@@ -172,36 +195,45 @@ function ClienteHomeInner() {
           isLoggedIn={isLoggedIn}
         />
 
-        {!mostrarMenu ? (
-          <>
-            {categoriaActiva === "Nuestras Sucursales" ? (
-              <Sucursales />
-            ) : (
-              <>
-                <Hero heroProgress={0} onVerMenu={() => setMostrarMenu(true)} />
-                <Descripcion heroProgress={0} />
-                <Ubicacion heroProgress={0} />
-                <Footer heroProgress={0} />
-              </>
-            )}
-          </>
-        ) : (
-          <div className="pt-20 flex">
-            <MenuGrid
-              categoriaActiva={categoriaActiva}
-              onAgregar={agregarAlCarrito}
-            />
-            {mostrarCarrito && (
-              <CartPanel
-                items={carrito}
-                onIncrementar={incrementar}
-                onDecrementar={decrementar}
-                onConfirmar={confirmarPedido}
-                onClose={() => setMostrarCarrito(false)}
+        {/* Contenedor de vista con clases de animación */}
+        <div
+          key={categoriaActiva} // fuerza re-mount y reinicia la animación de entrada
+          className={saliendo ? "seccion-saliendo" : "seccion-entrando"}
+        >
+          {!mostrarMenu ? (
+            <>
+              {categoriaActiva === "Nuestras Sucursales" ? (
+                <Sucursales />
+              ) : (
+                <>
+                  <Hero
+                    heroProgress={0}
+                    onVerMenu={() => handleCategoriaClick("Entradas")}
+                  />
+                  <Descripcion heroProgress={0} />
+                  <Ubicacion heroProgress={0} />
+                  <Footer heroProgress={0} />
+                </>
+              )}
+            </>
+          ) : (
+            <div className="pt-20 flex">
+              <MenuGrid
+                categoriaActiva={categoriaActiva}
+                onAgregar={agregarAlCarrito}
               />
-            )}
-          </div>
-        )}
+              {mostrarCarrito && (
+                <CartPanel
+                  items={carrito}
+                  onIncrementar={incrementar}
+                  onDecrementar={decrementar}
+                  onConfirmar={confirmarPedido}
+                  onClose={() => setMostrarCarrito(false)}
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <AuthWall />
