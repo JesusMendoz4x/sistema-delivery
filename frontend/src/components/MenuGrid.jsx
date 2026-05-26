@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import MenuCard from "./MenuCard";
 
 const productos = [
@@ -64,6 +64,36 @@ const productos = [
     imagen:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDwSd-KDmXAIreefuHCou2o6UWpcPyOoNa0_O7b5Hdm_dUloHKJQVKN3jkU4IKJN3M6DYBIHb4q9OiNhOybGuqqekfKPU_ayrb0rHTrc4bStRk5PsNw4MoWx1KvgGSxBFKHpqXHZJimU3jKqG-aC6TxAp58iR5gSEgOAXAhgIh3F2hTOEmazccmDqaADSFGpoJzGNYJlbVvExPp9BwjukWLEbsVEzQN03Nw3v1Q1b6Y33p9vMhyUuMWSbXGQJBoYHEjML5DAl-4rvQ",
   },
+  {
+    id: 20,
+    categoria: "Entradas",
+    nombre: "Tataki de Res",
+    descripcion:
+      "Lomo de res sellado al fuego, cortado fino con vinagreta de ponzu y cebolla morada encurtida.",
+    precio: "36.00",
+    imagen:
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop",
+  },
+  {
+    id: 21,
+    categoria: "Entradas",
+    nombre: "Ensalada Wakame",
+    descripcion:
+      "Alga marina marinada con aceite de sésamo, chile de árbol y ajonjolí tostado.",
+    precio: "14.00",
+    imagen:
+      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=400&fit=crop",
+  },
+  {
+    id: 22,
+    categoria: "Entradas",
+    nombre: "Karaage de Pollo",
+    descripcion:
+      "Trozos de muslo de pollo marinados en sake y jengibre, fritos en aceite de cártamo.",
+    precio: "22.00",
+    imagen:
+      "https://images.unsplash.com/photo-1562802378-063ec186a863?w=400&h=400&fit=crop",
+  },
 
   // SUSHI & SASHIMI
   {
@@ -108,6 +138,37 @@ const productos = [
     imagen:
       "https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=400&h=400&fit=crop",
   },
+  {
+    id: 23,
+    categoria: "Sushi & Sashimi",
+    nombre: "Uramaki de Salmón",
+    descripcion:
+      "Roll invertido de salmón ahumado, queso crema y pepino con cobertura de aguacate.",
+    precio: "32.00",
+    imagen:
+      "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?w=400&h=400&fit=crop",
+  },
+  {
+    id: 24,
+    categoria: "Sushi & Sashimi",
+    nombre: "Gunkan de Erizo",
+    descripcion:
+      "Barca de alga nori con erizo de mar fresco y salsa de soja reducida al mirin.",
+    precio: "55.00",
+    badge: "Chef's Pick",
+    imagen:
+      "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
+  },
+  {
+    id: 25,
+    categoria: "Sushi & Sashimi",
+    nombre: "Sashimi de Salmón Sellado",
+    descripcion:
+      "Salmón atlántico sellado con soplete, sal negra y aceite de oliva de primera extracción.",
+    precio: "42.00",
+    imagen:
+      "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
+  },
 
   // DUMPLINGS
   {
@@ -140,6 +201,37 @@ const productos = [
     precio: "28.00",
     imagen:
       "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
+  },
+  {
+    id: 26,
+    categoria: "Dumplings",
+    nombre: "Gyoza de Camarón",
+    descripcion:
+      "Dumpling frito-vapor relleno de camarón, cilantro y jengibre fresco con salsa ponzu.",
+    precio: "24.00",
+    imagen:
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&h=400&fit=crop",
+  },
+  {
+    id: 27,
+    categoria: "Dumplings",
+    nombre: "Wontons en Aceite Rojo",
+    descripcion:
+      "Wontons de cerdo y camarón en aceite de chile sichuan con ajo negro y cebollín.",
+    precio: "22.00",
+    badge: "Signature",
+    imagen:
+      "https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=400&h=400&fit=crop",
+  },
+  {
+    id: 28,
+    categoria: "Dumplings",
+    nombre: "Baozi de Pato",
+    descripcion:
+      "Pan al vapor esponjoso relleno de pato confitado, ciruela china y cebolla cambray.",
+    precio: "28.00",
+    imagen:
+      "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&h=400&fit=crop",
   },
 
   // ESPECIALIDADES
@@ -175,138 +267,6 @@ const productos = [
     imagen:
       "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop",
   },
-
-  // POSTRES
-  {
-    id: 17,
-    categoria: "Postres",
-    nombre: "Mochi de Chocolate Oaxaqueño",
-    descripcion:
-      "Mochi artesanal relleno de ganache de cacao 70% con sal de mar y polvo de matcha.",
-    precio: "16.00",
-    badge: "Signature",
-    imagen:
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop",
-  },
-  {
-    id: 18,
-    categoria: "Postres",
-    nombre: "Helado de Té Hojicha",
-    descripcion:
-      "Helado artesanal de té tostado con caramelo de piloncillo y galleta de sésamo.",
-    precio: "14.00",
-    imagen:
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop",
-  },
-  {
-    id: 19,
-    categoria: "Postres",
-    nombre: "Taiyaki de Crema",
-    descripcion:
-      "Waffle en forma de pez relleno de crema pastelera de vainilla con coulis de tamarindo.",
-    precio: "18.00",
-    imagen:
-      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=400&fit=crop",
-  },
-  // ENTRADAS — nuevos
-  {
-    id: 20,
-    categoria: "Entradas",
-    nombre: "Tataki de Res",
-    descripcion:
-      "Lomo de res sellado al fuego, cortado fino con vinagreta de ponzu y cebolla morada encurtida.",
-    precio: "36.00",
-    imagen:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop",
-  },
-  {
-    id: 21,
-    categoria: "Entradas",
-    nombre: "Ensalada Wakame",
-    descripcion:
-      "Alga marina marinada con aceite de sésamo, chile de árbol y ajonjolí tostado.",
-    precio: "14.00",
-    imagen:
-      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=400&fit=crop",
-  },
-  {
-    id: 22,
-    categoria: "Entradas",
-    nombre: "Karaage de Pollo",
-    descripcion:
-      "Trozos de muslo de pollo marinados en sake y jengibre, fritos en aceite de cártamo.",
-    precio: "22.00",
-    imagen:
-      "https://images.unsplash.com/photo-1562802378-063ec186a863?w=400&h=400&fit=crop",
-  },
-
-  // SUSHI & SASHIMI — nuevos
-  {
-    id: 23,
-    categoria: "Sushi & Sashimi",
-    nombre: "Uramaki de Salmón",
-    descripcion:
-      "Roll invertido de salmón ahumado, queso crema y pepino con cobertura de aguacate.",
-    precio: "32.00",
-    imagen:
-      "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?w=400&h=400&fit=crop",
-  },
-  {
-    id: 24,
-    categoria: "Sushi & Sashimi",
-    nombre: "Gunkan de Erizo",
-    descripcion:
-      "Barca de alga nori con erizo de mar fresco y salsa de soja reducida al mirin.",
-    precio: "55.00",
-    badge: "Chef's Pick",
-    imagen:
-      "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
-  },
-  {
-    id: 25,
-    categoria: "Sushi & Sashimi",
-    nombre: "Sashimi de Salmón Sellado",
-    descripcion:
-      "Salmón atlántico sellado con soplete, sal negra y aceite de oliva de primera extracción.",
-    precio: "42.00",
-    imagen:
-      "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&h=400&fit=crop",
-  },
-
-  // DUMPLINGS — nuevos
-  {
-    id: 26,
-    categoria: "Dumplings",
-    nombre: "Gyoza de Camarón",
-    descripcion:
-      "Dumpling frito-vapor relleno de camarón, cilantro y jengibre fresco con salsa ponzu.",
-    precio: "24.00",
-    imagen:
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&h=400&fit=crop",
-  },
-  {
-    id: 27,
-    categoria: "Dumplings",
-    nombre: "Wontons en Aceite Rojo",
-    descripcion:
-      "Wontons de cerdo y camarón en aceite de chile sichuan con ajo negro y cebollín.",
-    precio: "22.00",
-    badge: "Signature",
-    imagen:
-      "https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=400&h=400&fit=crop",
-  },
-  {
-    id: 28,
-    categoria: "Dumplings",
-    nombre: "Baozi de Pato",
-    descripcion:
-      "Pan al vapor esponjoso relleno de pato confitado, ciruela china y cebolla cambray.",
-    precio: "28.00",
-    imagen:
-      "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&h=400&fit=crop",
-  },
-
-  // ESPECIALIDADES — nuevos
   {
     id: 29,
     categoria: "Especialidades",
@@ -340,7 +300,38 @@ const productos = [
       "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop",
   },
 
-  // POSTRES — nuevos
+  // POSTRES
+  {
+    id: 17,
+    categoria: "Postres",
+    nombre: "Mochi de Chocolate Oaxaqueño",
+    descripcion:
+      "Mochi artesanal relleno de ganache de cacao 70% con sal de mar y polvo de matcha.",
+    precio: "16.00",
+    badge: "Signature",
+    imagen:
+      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop",
+  },
+  {
+    id: 18,
+    categoria: "Postres",
+    nombre: "Helado de Té Hojicha",
+    descripcion:
+      "Helado artesanal de té tostado con caramelo de piloncillo y galleta de sésamo.",
+    precio: "14.00",
+    imagen:
+      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop",
+  },
+  {
+    id: 19,
+    categoria: "Postres",
+    nombre: "Taiyaki de Crema",
+    descripcion:
+      "Waffle en forma de pez relleno de crema pastelera de vainilla con coulis de tamarindo.",
+    precio: "18.00",
+    imagen:
+      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=400&fit=crop",
+  },
   {
     id: 32,
     categoria: "Postres",
@@ -382,56 +373,92 @@ const categorias = [
   "Postres",
 ];
 
+function useInView(threshold = 0.15) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return [ref, inView];
+}
+
+// ─── Carrusel genérico (Entradas, Sushi, Dumplings) ──────────────────────────
 function CarruselSeccion({ categoria, items, onAgregar }) {
   const carruselRef = useRef(null);
+  const [seccionRef, inView] = useInView(0.1);
   const cardStep = 280;
 
   const handleScroll = (dir) => {
     if (!carruselRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = carruselRef.current;
-    const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
-
     if (dir > 0 && scrollLeft + clientWidth + 2 >= scrollWidth) {
       carruselRef.current.scrollTo({ left: 0, behavior: "smooth" });
       return;
     }
-
     if (dir < 0 && scrollLeft <= 2) {
-      carruselRef.current.scrollTo({ left: maxScrollLeft, behavior: "smooth" });
+      carruselRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
       return;
     }
-
     carruselRef.current.scrollBy({ left: dir * cardStep, behavior: "smooth" });
   };
 
   return (
-    <div className="mb-16">
-      {/* Header de sección */}
+    <div className="mb-16" ref={seccionRef}>
       <div className="flex items-center gap-6 mb-4">
         <div
           className="h-px flex-grow"
-          style={{ background: "rgba(212, 175, 106, 0.15)" }}
+          style={{
+            background: "rgba(212, 175, 106, 0.15)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "right",
+            transition: "transform 0.7s ease-out 0.1s",
+          }}
         />
         <span
           className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.3em]"
-          style={{ color: "rgba(212, 175, 106, 0.5)" }}
+          style={{
+            color: "rgba(212, 175, 106, 0.5)",
+            opacity: inView ? 1 : 0,
+            transition: "opacity 0.5s ease-out 0.3s",
+          }}
         >
           {items.length} platillos
         </span>
         <div
           className="h-px flex-grow"
-          style={{ background: "rgba(212, 175, 106, 0.15)" }}
+          style={{
+            background: "rgba(212, 175, 106, 0.15)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "left",
+            transition: "transform 0.7s ease-out 0.1s",
+          }}
         />
       </div>
 
       <h2
         className="font-['EB_Garamond'] text-[32px] mb-6"
-        style={{ color: "#F2EDE4", fontWeight: 400 }}
+        style={{
+          color: "#F2EDE4",
+          fontWeight: 400,
+          opacity: inView ? 1 : 0,
+          transform: inView ? "translateX(0)" : "translateX(-40px)",
+          transition:
+            "opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s",
+        }}
       >
         {categoria}
       </h2>
 
-      {/* Carrusel con flechas */}
       <div
         className="relative overflow-visible"
         style={{ maxWidth: "1120px", margin: "0 auto" }}
@@ -461,25 +488,25 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
             scrollSnapType: "x mandatory",
           }}
         >
-          {items.map((producto) => (
+          {items.map((producto, i) => (
             <div
               key={producto.id}
               className="flex-shrink-0"
               style={{
                 width: "260px",
                 scrollSnapAlign: "start",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateX(0)" : "translateX(60px)",
+                transition: `opacity 0.5s ease-out ${0.3 + i * 0.07}s, transform 0.5s ease-out ${0.3 + i * 0.07}s`,
               }}
             >
               <MenuCard {...producto} onAgregar={() => onAgregar(producto)} />
             </div>
           ))}
-
-          {/* Espaciado final para que la última tarjeta no quede pegada al borde */}
           <div className="flex-shrink-0" style={{ width: "1px" }} />
         </div>
       </div>
 
-      {/* Indicador de scroll */}
       <div className="flex items-center gap-2 mt-3">
         <div
           className="h-px flex-grow"
@@ -496,40 +523,502 @@ function CarruselSeccion({ categoria, items, onAgregar }) {
   );
 }
 
-function MenuGrid({ categoriaActiva, onAgregar }) {
-  const categoriasFiltradas = categorias;
+// ─── Especialidades: carrusel con wrapper editorial dorado ────────────────────
+function EspecialidadesSeccion({ items, onAgregar }) {
+  const carruselRef = useRef(null);
+  const [seccionRef, inView] = useInView(0.1);
+  const cardStep = 280;
 
+  const handleScroll = (dir) => {
+    if (!carruselRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = carruselRef.current;
+    if (dir > 0 && scrollLeft + clientWidth + 2 >= scrollWidth) {
+      carruselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+    if (dir < 0 && scrollLeft <= 2) {
+      carruselRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+      return;
+    }
+    carruselRef.current.scrollBy({ left: dir * cardStep, behavior: "smooth" });
+  };
+
+  return (
+    <div
+      ref={seccionRef}
+      className="mb-16"
+      style={{
+        background: "rgba(212,175,106,0.07)",
+        borderTop: "2px solid rgba(212,175,106,0.6)",
+        borderBottom: "1px solid rgba(212,175,106,0.25)",
+        margin: "0 calc(-1 * clamp(16px, 4vw, 40px)) 64px",
+        padding: "28px clamp(16px,4vw,40px) 32px",
+        position: "relative",
+      }}
+    >
+      {/* Ornamento esquina superior izquierda */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "clamp(16px,4vw,40px)",
+          width: "24px",
+          height: "24px",
+          borderTop: "1px solid rgba(212,175,106,0.6)",
+          borderLeft: "1px solid rgba(212,175,106,0.6)",
+          opacity: inView ? 1 : 0,
+          transition: "opacity 0.4s ease-out 0.05s",
+        }}
+      />
+      {/* Ornamento esquina superior derecha */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "clamp(16px,4vw,40px)",
+          width: "24px",
+          height: "24px",
+          borderTop: "1px solid rgba(212,175,106,0.6)",
+          borderRight: "1px solid rgba(212,175,106,0.6)",
+          opacity: inView ? 1 : 0,
+          transition: "opacity 0.4s ease-out 0.05s",
+        }}
+      />
+
+      {/* Eyebrow */}
+      <p
+        className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-[0.35em] mb-1"
+        style={{
+          color: "#D4AF6A",
+          opacity: inView ? 1 : 0,
+          transition: "opacity 0.5s ease-out 0.1s",
+        }}
+      >
+        — Cocina de autor
+      </p>
+
+      {/* Título con acento dorado */}
+      <h2
+        className="font-['EB_Garamond'] text-[36px] mb-1"
+        style={{
+          color: "#D4AF6A",
+          fontWeight: 400,
+          letterSpacing: "0.02em",
+          opacity: inView ? 1 : 0,
+          transform: inView ? "translateX(0)" : "translateX(-40px)",
+          transition:
+            "opacity 0.6s ease-out 0.15s, transform 0.6s ease-out 0.15s",
+        }}
+      >
+        Especialidades
+      </h2>
+
+      {/* Divisor dorado con conteo */}
+      <div className="flex items-center gap-6 mb-6">
+        <div
+          style={{
+            height: "1px",
+            flexGrow: 1,
+            background: "rgba(212, 175, 106, 0.4)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "left",
+            transition: "transform 0.7s ease-out 0.25s",
+          }}
+        />
+        <span
+          className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.3em]"
+          style={{
+            color: "rgba(212, 175, 106, 0.8)",
+            opacity: inView ? 1 : 0,
+            transition: "opacity 0.5s ease-out 0.4s",
+          }}
+        >
+          ✦ {items.length} platillos ✦
+        </span>
+        <div
+          style={{
+            height: "1px",
+            flexGrow: 1,
+            background: "rgba(212, 175, 106, 0.4)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "right",
+            transition: "transform 0.7s ease-out 0.25s",
+          }}
+        />
+      </div>
+
+      {/* Carrusel */}
+      <div
+        className="relative overflow-visible"
+        style={{ maxWidth: "1120px", margin: "0 auto" }}
+      >
+        <button
+          type="button"
+          aria-label="Anterior"
+          onClick={() => handleScroll(-1)}
+          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:bg-[#251e00]"
+          style={{ border: "1px solid rgba(212,175,106,0.6)" }}
+        >
+          &#8592;
+        </button>
+        <button
+          type="button"
+          aria-label="Siguiente"
+          onClick={() => handleScroll(1)}
+          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:bg-[#251e00]"
+          style={{ border: "1px solid rgba(212,175,106,0.6)" }}
+        >
+          &#8594;
+        </button>
+
+        <div
+          ref={carruselRef}
+          className="carrusel flex flex-nowrap gap-5 overflow-x-auto overflow-y-visible py-3"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            scrollSnapType: "x mandatory",
+          }}
+        >
+          {items.map((producto, i) => (
+            <div
+              key={producto.id}
+              className="flex-shrink-0"
+              style={{
+                width: "260px",
+                scrollSnapAlign: "start",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateX(0)" : "translateX(60px)",
+                transition: `opacity 0.5s ease-out ${0.3 + i * 0.07}s, transform 0.5s ease-out ${0.3 + i * 0.07}s`,
+              }}
+            >
+              {/* Tarjeta con fondo dorado tenue y borde marcado */}
+              <div
+                style={{
+                  background: "rgba(212,175,106,0.06)",
+                  border: "1px solid rgba(212,175,106,0.4)",
+                  borderRadius: "3px",
+                  overflow: "hidden",
+                  height: "100%",
+                }}
+              >
+                {/* Línea dorada top más gruesa */}
+                <div
+                  style={{
+                    height: "3px",
+                    background: "#D4AF6A",
+                    opacity: 0.85,
+                  }}
+                />
+                <div style={{ padding: "0" }}>
+                  <MenuCard
+                    {...producto}
+                    onAgregar={() => onAgregar(producto)}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="flex-shrink-0" style={{ width: "1px" }} />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mt-4">
+        <div
+          style={{
+            height: "1px",
+            flexGrow: 1,
+            background: "rgba(212, 175, 106, 0.2)",
+          }}
+        />
+        <span
+          className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-widest"
+          style={{ color: "rgba(212, 175, 106, 0.5)" }}
+        >
+          desliza →
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Postres: carrusel con imagen circular ────────────────────────────────────
+function PostresSeccion({ items, onAgregar }) {
+  const carruselRef = useRef(null);
+  const [seccionRef, inView] = useInView(0.1);
+  const cardStep = 216;
+
+  const handleScroll = (dir) => {
+    if (!carruselRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = carruselRef.current;
+    if (dir > 0 && scrollLeft + clientWidth + 2 >= scrollWidth) {
+      carruselRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+    if (dir < 0 && scrollLeft <= 2) {
+      carruselRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+      return;
+    }
+    carruselRef.current.scrollBy({ left: dir * cardStep, behavior: "smooth" });
+  };
+
+  return (
+    <div className="mb-16" ref={seccionRef}>
+      <div className="flex items-center gap-6 mb-4">
+        <div
+          className="h-px flex-grow"
+          style={{
+            background: "rgba(212, 175, 106, 0.15)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "right",
+            transition: "transform 0.7s ease-out 0.1s",
+          }}
+        />
+        <span
+          className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.3em]"
+          style={{
+            color: "rgba(212, 175, 106, 0.5)",
+            opacity: inView ? 1 : 0,
+            transition: "opacity 0.5s ease-out 0.3s",
+          }}
+        >
+          {items.length} platillos
+        </span>
+        <div
+          className="h-px flex-grow"
+          style={{
+            background: "rgba(212, 175, 106, 0.15)",
+            transform: inView ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "left",
+            transition: "transform 0.7s ease-out 0.1s",
+          }}
+        />
+      </div>
+
+      <h2
+        className="font-['EB_Garamond'] text-[32px] mb-6"
+        style={{
+          color: "#F2EDE4",
+          fontWeight: 400,
+          opacity: inView ? 1 : 0,
+          transform: inView ? "translateX(0)" : "translateX(-40px)",
+          transition:
+            "opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s",
+        }}
+      >
+        Postres
+      </h2>
+
+      <div
+        className="relative overflow-visible"
+        style={{ maxWidth: "1120px", margin: "0 auto" }}
+      >
+        <button
+          type="button"
+          aria-label="Anterior"
+          onClick={() => handleScroll(-1)}
+          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+        >
+          &#8592;
+        </button>
+        <button
+          type="button"
+          aria-label="Siguiente"
+          onClick={() => handleScroll(1)}
+          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+        >
+          &#8594;
+        </button>
+
+        <div
+          ref={carruselRef}
+          className="flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible py-3"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            scrollSnapType: "x mandatory",
+          }}
+        >
+          {items.map((producto, i) => (
+            <div
+              key={producto.id}
+              className="flex-shrink-0"
+              style={{
+                width: "200px",
+                scrollSnapAlign: "start",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateX(0)" : "translateX(60px)",
+                transition: `opacity 0.5s ease-out ${0.3 + i * 0.07}s, transform 0.5s ease-out ${0.3 + i * 0.07}s`,
+              }}
+            >
+              {/* Tarjeta postre con imagen circular */}
+              <div
+                style={{
+                  background: "#1a1a1a",
+                  border: "1px solid rgba(212,175,106,0.15)",
+                  borderRadius: "4px",
+                  padding: "16px 14px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  height: "100%",
+                  boxSizing: "border-box",
+                }}
+              >
+                {/* Imagen circular */}
+                <div
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    border: "2px solid rgba(212,175,106,0.3)",
+                    marginBottom: "12px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <img
+                    src={producto.imagen}
+                    alt={producto.nombre}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      filter: "grayscale(0.2)",
+                    }}
+                  />
+                </div>
+
+                {producto.badge && (
+                  <span
+                    className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-[0.15em] mb-2 inline-block"
+                    style={{
+                      color: "#D4AF6A",
+                      background: "rgba(212,175,106,0.1)",
+                      border: "1px solid rgba(212,175,106,0.25)",
+                      padding: "2px 8px",
+                    }}
+                  >
+                    {producto.badge}
+                  </span>
+                )}
+
+                <p
+                  className="font-['EB_Garamond'] text-[16px] font-normal mb-1 mt-0"
+                  style={{ color: "#F2EDE4" }}
+                >
+                  {producto.nombre}
+                </p>
+                <p
+                  className="font-['DM_Sans'] text-[11px] leading-relaxed line-clamp-2 mb-3 mt-0"
+                  style={{
+                    color: "rgba(242,237,228,0.45)",
+                    flexGrow: 1,
+                  }}
+                >
+                  {producto.descripcion}
+                </p>
+
+                <div
+                  className="flex justify-between items-center w-full"
+                  style={{ marginTop: "auto" }}
+                >
+                  <span
+                    className="font-['JetBrains_Mono'] text-[13px]"
+                    style={{ color: "#D4AF6A" }}
+                  >
+                    ${producto.precio}
+                  </span>
+                  <button
+                    onClick={() => onAgregar(producto)}
+                    className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-widest px-3 py-2 transition-colors duration-200 active:scale-95"
+                    style={{
+                      background: "#9B2335",
+                      color: "#F2EDE4",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = "#7a1c1c")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "#9B2335")
+                    }
+                  >
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="flex-shrink-0" style={{ width: "1px" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MenuGrid principal ───────────────────────────────────────────────────────
+function MenuGrid({ categoriaActiva, onAgregar }) {
   return (
     <main
       className="flex-grow min-h-screen px-[clamp(16px,4vw,40px)] py-[40px]"
       style={{ background: "rgb(16,16,16)" }}
     >
-      {/* Header */}
       <header className="mb-12">
         <div className="flex justify-between items-end mb-4">
           <h1
             className="font-['EB_Garamond'] text-[40px] uppercase leading-tight"
-            style={{ color: "#9B2335", fontWeight: 600 }}
+            style={{
+              color: "#9B2335",
+              fontWeight: 600,
+              opacity: 0,
+              animation: "slideFromLeft 0.6s ease-out 0.1s forwards",
+            }}
           >
             {categoriaActiva}
           </h1>
           <span
             className="font-['JetBrains_Mono'] text-[12px] tracking-widest"
-            style={{ color: "rgba(212, 175, 106, 0.5)" }}
+            style={{
+              color: "rgba(212, 175, 106, 0.5)",
+              opacity: 0,
+              animation: "fadeIn 0.6s ease-out 0.3s forwards",
+            }}
           >
             FILTRAR POR PREFERENCIA
           </span>
         </div>
         <div
           className="h-px w-full"
-          style={{ background: "rgba(212, 175, 106, 0.15)" }}
+          style={{
+            background: "rgba(212, 175, 106, 0.15)",
+            transform: "scaleX(0)",
+            transformOrigin: "left",
+            animation: "expandLine 0.7s ease-out 0.2s forwards",
+          }}
         />
       </header>
 
-      {/* Secciones con carrusel */}
-      {categoriasFiltradas.map((cat) => {
+      {categorias.map((cat) => {
         const items = productos.filter((p) => p.categoria === cat);
         if (items.length === 0) return null;
+
+        if (cat === "Postres") {
+          return (
+            <PostresSeccion key={cat} items={items} onAgregar={onAgregar} />
+          );
+        }
+
+        if (cat === "Especialidades") {
+          return (
+            <EspecialidadesSeccion
+              key={cat}
+              items={items}
+              onAgregar={onAgregar}
+            />
+          );
+        }
+
         return (
           <CarruselSeccion
             key={cat}
