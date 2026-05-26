@@ -1,4 +1,6 @@
 const Pedido = require('../models/Pedido');
+const { verificarRepartidor } = require('../services/repartidoresClient');
+const { crearRuta } = require('../services/enrutamientoClient');
 
 exports.crearPedido = async (req, res) => {
     try {
@@ -60,15 +62,34 @@ exports.actualizarEstadoPedido = async (req, res) => {
 exports.asignarRepartidor = async (req, res) => {
     try {
         const { repartidorId } = req.body;
-        const pedido = await Pedido.findByIdAndUpdate(
-            req.params.id,
-            { repartidorId, estado: 'en_camino' }, // al asignar repartidor usualmente cambia el estado
-            { new: true, runValidators: true }
-        );
-        if (!pedido) {
+
+        // Primero verificamos que el pedido exista
+        const pedidoExistente = await Pedido.findById(req.params.id);
+        if (!pedidoExistente) {
             return res.status(404).json({ message: 'Pedido no encontrado' });
         }
-        res.json(pedido);
+
+        // 1. Verificar repartidor (Resiliente, con fallback de contingencia)
+        console.log(`[Pedidos] Solicitando verificación de repartidor ${repartidorId}...`);
+        const infoRepartidor = await verificarRepartidor(repartidorId);
+
+        // 2. Calcular y registrar ruta (Resiliente, con fallback de contingencia)
+        console.log(`[Pedidos] Solicitando creación de ruta para pedido ${req.params.id} con repartidor ${repartidorId}...`);
+        const infoRuta = await crearRuta(req.params.id, repartidorId);
+
+        // 3. Actualizar el pedido localmente
+        const pedido = await Pedido.findByIdAndUpdate(
+            req.params.id,
+            { repartidorId, estado: 'en_camino' },
+            { new: true, runValidators: true }
+        );
+
+        res.json({
+            message: 'Repartidor asignado con éxito',
+            pedido,
+            repartidor: infoRepartidor,
+            ruta: infoRuta
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error al asignar repartidor', error: error.message });
     }
