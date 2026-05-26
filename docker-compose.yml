@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  # Base de Datos central de MongoDB para el ecosistema en contenedores
+  mongodb:
+    image: mongo:latest
+    container_name: delivery_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - delivery_network
+
+  # 1. API Gateway (Punto de entrada único)
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: delivery_api_gateway
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=desarrollo
+      - PORT=5000
+      - INVENTARIO_SERVICE_URL=http://inventario-service:3001
+      - SUCURSALES_SERVICE_URL=http://sucursales-service:3002
+      - PEDIDOS_SERVICE_URL=http://pedidos-service:3003
+      - REPARTIDORES_SERVICE_URL=http://repartidores-service:3004
+      - USUARIO_SERVICE_URL=http://usuario-service:3005
+      - ENRUTAMIENTO_SERVICE_URL=http://enrutamiento-service:3006
+    depends_on:
+      - inventario-service
+      - sucursales-service
+      - pedidos-service
+      - repartidores-service
+      - usuario-service
+      - enrutamiento-service
+    networks:
+      - delivery_network
+
+  # 2. Servicio de Inventario
+  inventario-service:
+    build:
+      context: ./backend/inventario-service
+      dockerfile: Dockerfile
+    container_name: delivery_inventario_service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/productosdb
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+  # 3. Servicio de Sucursales
+  sucursales-service:
+    build:
+      context: ./backend/sucursales-service
+      dockerfile: Dockerfile
+    container_name: delivery_sucursales_service
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=desarrollo
+      - PORT=3002
+      - MONGO_URI=mongodb://mongodb:27017/delivery_sucursales
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+  # 4. Servicio de Pedidos
+  pedidos-service:
+    build:
+      context: ./backend/pedidos-service
+      dockerfile: Dockerfile
+    container_name: delivery_pedidos_service
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - MONGO_URI=mongodb://mongodb:27017/pedidosdb
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+  # 5. Servicio de Repartidores
+  repartidores-service:
+    build:
+      context: ./backend/repartidores-service
+      dockerfile: Dockerfile
+    container_name: delivery_repartidores_service
+    restart: always
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - MONGO_URI=mongodb://mongodb:27017/repartidoresdb
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+  # 6. Servicio de Usuarios
+  usuario-service:
+    build:
+      context: ./backend/usuario-service
+      dockerfile: Dockerfile
+    container_name: delivery_usuario_service
+    restart: always
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - MONGO_URI=mongodb://mongodb:27017/usuariosdb
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+  # 7. Servicio de Enrutamiento
+  enrutamiento-service:
+    build:
+      context: ./backend/enrutamiento-service
+      dockerfile: Dockerfile
+    container_name: delivery_enrutamiento_service
+    restart: always
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - MONGO_URI=mongodb://mongodb:27017/enrutamientodb
+    depends_on:
+      - mongodb
+    networks:
+      - delivery_network
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  delivery_network:
+    driver: bridge

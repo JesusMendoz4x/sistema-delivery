@@ -32,22 +32,19 @@ app.get('/health', (req, res) => {
     });
 });
 
-// 4. Redireccionamiento dinámico mediante Proxy (http-proxy-middleware)
-// En la versión ^4.0.0 instalada, todas las configuraciones del proxy (incluido el filtro)
-// deben especificarse dentro de un único objeto de opciones usando la propiedad "pathFilter".
-// Esto evita que Express recorte la ruta y permite que el proxy funcione impecablemente en la raíz.
+// 4. Redireccionamiento dinámico mediante Proxy (http-proxy-middleware v2.x)
+// Pasamos el filtro de ruta como primer argumento de "createProxyMiddleware".
+// Esto evita que Express recorte el prefijo y permite la reescritura fluida de rutas de forma nativa.
 
 // Rutas de Sucursales
-app.use(createProxyMiddleware({
-    pathFilter: '/api/sucursales',
+app.use(createProxyMiddleware('/api/sucursales', {
     target: process.env.SUCURSALES_SERVICE_URL || 'http://localhost:3002',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Productos (Traduce /api/productos -> /api/inventario)
-app.use(createProxyMiddleware({
-    pathFilter: '/api/productos',
+app.use(createProxyMiddleware('/api/productos', {
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
     pathRewrite: {
@@ -57,40 +54,35 @@ app.use(createProxyMiddleware({
 }));
 
 // Rutas de Inventario
-app.use(createProxyMiddleware({
-    pathFilter: '/api/inventario',
+app.use(createProxyMiddleware('/api/inventario', {
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Pedidos
-app.use(createProxyMiddleware({
-    pathFilter: '/api/pedidos',
+app.use(createProxyMiddleware('/api/pedidos', {
     target: process.env.PEDIDOS_SERVICE_URL || 'http://localhost:3003',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Repartidores
-app.use(createProxyMiddleware({
-    pathFilter: '/api/repartidores',
+app.use(createProxyMiddleware('/api/repartidores', {
     target: process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Usuarios / Autenticación
-app.use(createProxyMiddleware({
-    pathFilter: '/api/usuarios',
+app.use(createProxyMiddleware('/api/usuarios', {
     target: process.env.USUARIO_SERVICE_URL || 'http://localhost:3005',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Enrutamiento Inteligente
-app.use(createProxyMiddleware({
-    pathFilter: '/api/enrutamiento',
+app.use(createProxyMiddleware('/api/enrutamiento', {
     target: process.env.ENRUTAMIENTO_SERVICE_URL || 'http://localhost:3006',
     changeOrigin: true,
     logLevel: 'debug'
