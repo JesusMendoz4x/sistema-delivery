@@ -4,7 +4,7 @@ const productoSchema = new mongoose.Schema(
     {
         nombre: {
             type: String,
-            required: true,
+            required: [true, 'El nombre del producto es obligatorio'],
             trim: true
         },
         descripcion: {
@@ -19,14 +19,8 @@ const productoSchema = new mongoose.Schema(
         },
         precio: {
             type: Number,
-            required: true,
-            min: 0
-        },
-        stock: {
-            type: Number,
-            required: true,
-            min: 0,
-            default: 0
+            required: [true, 'El precio es obligatorio'],
+            min: [0, 'El precio no puede ser negativo']
         },
         disponible: {
             type: Boolean,
