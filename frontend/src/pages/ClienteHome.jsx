@@ -114,6 +114,7 @@ function ClienteHomeInner() {
     }
     setCategoriaActiva(cat);
     setMostrarMenu(true);
+    setMostrarCarrito(false);
   };
 
   const ejecutarPedido = () => {
@@ -193,7 +194,11 @@ function ClienteHomeInner() {
           categoriaActiva={categoriaActiva}
           onCategoriaClick={handleCategoriaClick}
           totalItems={totalItems}
-          onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
+          onCarritoClick={() =>
+            setMostrarCarrito(
+              categoriaActiva === "Entradas" ? !mostrarCarrito : false,
+            )
+          }
           isLoggedIn={isLoggedIn}
         />
 
@@ -218,7 +223,7 @@ function ClienteHomeInner() {
               categoriaActiva={categoriaActiva}
               onAgregar={agregarAlCarrito}
             />
-            {mostrarCarrito && (
+            {categoriaActiva === "Entradas" && mostrarCarrito && (
               <CartPanel
                 items={carrito}
                 onIncrementar={incrementar}

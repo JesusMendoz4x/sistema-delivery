@@ -5,37 +5,8 @@ const SUCURSAL = {
   direccion: "Macedonio Alcalá 402, Centro Histórico",
 };
 
-export const ESTADOS = [
-  {
-    key: "pendiente",
-    label: "Pendiente",
-    color: "#C8901A",
-    bg: "rgba(200,144,26,0.12)",
-  },
-  {
-    key: "en_preparacion",
-    label: "En preparación",
-    color: "#9B2335",
-    bg: "rgba(155,35,53,0.12)",
-  },
-  {
-    key: "listo",
-    label: "Listo",
-    color: "#2D7A4F",
-    bg: "rgba(45,122,79,0.12)",
-  },
-  {
-    key: "entregado",
-    label: "Entregado",
-    color: "#7a6655",
-    bg: "rgba(122,102,85,0.12)",
-  },
-];
-
 function PedidoCard({ pedido, index = 0 }) {
   const [abierto, setAbierto] = useState(index === 0);
-  const estadoCfg = ESTADOS.find((e) => e.key === pedido.estado) ?? ESTADOS[0];
-  const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
 
   return (
     <article
@@ -62,148 +33,72 @@ function PedidoCard({ pedido, index = 0 }) {
         }
         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
       >
-        {/* Fila 1: ID + dot + chevron */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2.5">
+        {/* Fila 1: titulo + fecha + chevron */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
             <span
-              className="font-['DM_Sans'] text-[9px] tracking-[0.28em] uppercase"
-              style={{ color: "rgba(20, 18, 16, 0.55)" }}
+              className="font-['EB_Garamond'] text-[16px]"
+              style={{ color: "#2B1B12" }}
             >
-              #{String(pedido.id).slice(-4).padStart(4, "0")}
+              Pedido
             </span>
             <span
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
               style={{
-                background: estadoCfg.color,
-                boxShadow:
-                  pedido.estado !== "entregado"
-                    ? `0 0 0 3px ${estadoCfg.color}28`
-                    : "none",
-                animation:
-                  pedido.estado === "en_preparacion"
-                    ? "pulse 1.8s ease infinite"
-                    : "none",
+                background: "rgba(90, 70, 54, 0.5)",
+                boxShadow: "0 0 0 3px rgba(90, 70, 54, 0.2)",
               }}
             />
           </div>
-          <span
-            className="font-['DM_Sans'] text-[11px] transition-transform duration-300 inline-block"
-            style={{
-              color: "rgba(20, 18, 16, 0.55)",
-              transform: abierto ? "rotate(180deg)" : "rotate(0deg)",
-            }}
-          >
-            ▾
-          </span>
+          <div className="flex items-center gap-3">
+            <p
+              className="font-['DM_Sans'] text-[9px] uppercase tracking-wider"
+              style={{ color: "rgba(35, 25, 20, 0.6)" }}
+            >
+              {pedido.fecha}
+            </p>
+            <span
+              className="font-['DM_Sans'] text-[11px] transition-transform duration-300 inline-block"
+              style={{
+                color: "rgba(20, 18, 16, 0.55)",
+                transform: abierto ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            >
+              ▾
+            </span>
+          </div>
         </div>
 
-        {/* Fila 2: sucursal + fecha */}
+        {/* Fila 2: pedido # + sucursal */}
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
             <p
-              className="font-['DM_Sans'] leading-none mb-1.5 font-medium"
+              className="font-['DM_Sans'] text-[10px] uppercase tracking-[0.28em]"
+              style={{ color: "rgba(20, 18, 16, 0.55)" }}
+            >
+              Pedido #{String(pedido.id).slice(-4).padStart(4, "0")}
+            </p>
+            <p
+              className="font-['DM_Sans'] leading-none mt-2 font-medium"
               style={{
-                fontSize: "18px",
+                fontSize: "16px",
                 color: "#2B1B12",
                 letterSpacing: "-0.01em",
               }}
             >
               {SUCURSAL.nombre}
             </p>
+          </div>
+          <div className="text-right flex-shrink-0">
             <p
-              className="font-['DM_Sans'] text-[10px] truncate"
+              className="font-['DM_Sans'] text-[10px]"
               style={{ color: "rgba(35, 25, 20, 0.6)" }}
             >
               {SUCURSAL.direccion}
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
-            <p
-              className="font-['DM_Sans'] text-[9px] mt-1 uppercase tracking-wider"
-              style={{ color: "rgba(35, 25, 20, 0.6)" }}
-            >
-              {pedido.fecha}
-            </p>
-          </div>
         </div>
       </button>
-
-      {/* Separador decorativo */}
-      <div className="relative flex items-center px-5 py-0">
-        <div
-          className="flex-1 h-px"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(140,120,95,0.25) 30%, rgba(140,120,95,0.25) 70%, transparent)",
-          }}
-        />
-        <div
-          className="mx-3 flex gap-1"
-          style={{
-            color: "rgba(140,120,95,0.3)",
-            fontSize: "7px",
-            letterSpacing: "3px",
-          }}
-        >
-          ✦ ✦ ✦
-        </div>
-        <div
-          className="flex-1 h-px"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(140,120,95,0.25) 30%, rgba(140,120,95,0.25) 70%, transparent)",
-          }}
-        />
-      </div>
-
-      {/* Barra de progreso */}
-      <div className="px-5 py-3">
-        <div className="flex justify-between mb-2">
-          {ESTADOS.map((e, i) => (
-            <span
-              key={e.key}
-              className="font-['DM_Sans'] text-[8px] uppercase tracking-wide"
-              style={{ color: e.color, opacity: i <= idxActual ? 1 : 0.25 }}
-            >
-              {e.label}
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center">
-          {ESTADOS.map((e, i) => (
-            <div
-              key={e.key}
-              className="flex items-center flex-1 last:flex-none"
-            >
-              <div
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-500"
-                style={{
-                  background:
-                    i <= idxActual ? estadoCfg.color : "rgba(140,120,95,0.15)",
-                  border:
-                    i === idxActual
-                      ? `2px solid ${estadoCfg.color}`
-                      : "2px solid transparent",
-                  boxShadow:
-                    i === idxActual ? `0 0 8px ${estadoCfg.color}77` : "none",
-                  transform: i === idxActual ? "scale(1.25)" : "scale(1)",
-                }}
-              />
-              {i < ESTADOS.length - 1 && (
-                <div
-                  className="h-0.5 flex-1 transition-all duration-500 rounded-full"
-                  style={{
-                    background:
-                      i < idxActual
-                        ? `${estadoCfg.color}66`
-                        : "rgba(140,120,95,0.12)",
-                  }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Detalle colapsable */}
       <div
@@ -218,7 +113,7 @@ function PedidoCard({ pedido, index = 0 }) {
           style={{
             height: "1px",
             background:
-              "linear-gradient(90deg, transparent, rgba(140,120,95,0.2) 20%, rgba(140,120,95,0.2) 80%, transparent)",
+              "linear-gradient(90deg, transparent, rgba(110,90,70,0.45) 20%, rgba(110,90,70,0.45) 80%, transparent)",
           }}
         />
         <div className="mx-5 mb-3 flex items-center gap-3">
@@ -232,7 +127,7 @@ function PedidoCard({ pedido, index = 0 }) {
             className="flex-1 h-px"
             style={{
               background:
-                "linear-gradient(90deg, rgba(140,120,95,0.45), rgba(140,120,95,0.15) 70%, transparent)",
+                "linear-gradient(90deg, rgba(110,90,70,0.7), rgba(110,90,70,0.25) 70%, transparent)",
             }}
           />
         </div>
@@ -276,7 +171,7 @@ function PedidoCard({ pedido, index = 0 }) {
 
           <div
             className="pt-3 mt-1"
-            style={{ borderTop: "1px dashed rgba(140,120,95,0.25)" }}
+            style={{ borderTop: "1px dashed rgba(110,90,70,0.55)" }}
           >
             <div className="flex justify-between mb-1">
               <span
@@ -311,10 +206,6 @@ function PedidoCard({ pedido, index = 0 }) {
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(0.85); }
-        }
         @keyframes pedidoFadeUp {
           from { opacity: 0; transform: translateY(14px); }
           to { opacity: 1; transform: translateY(0); }

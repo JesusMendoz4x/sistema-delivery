@@ -69,7 +69,7 @@ function Navbar({
       </ul>
 
       {/* Carrito */}
-      {isLoggedIn ? (
+      {isLoggedIn && categoriaActiva === "Entradas" ? (
         <div
           onClick={onCarritoClick}
           className="flex items-center gap-2 cursor-pointer group"

@@ -336,18 +336,29 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           >
             {pedidos.length === 0 ? (
               <div
-                className="flex flex-col items-center justify-center h-full text-center px-4"
+                className="px-3"
                 style={{
                   opacity: 0,
                   animation: "pedidoFadeUp 0.5s ease 0.3s both",
                 }}
               >
-                <p className="font-['EB_Garamond'] text-2xl text-[#F2E6D8]/15 mb-2">
-                  Sin órdenes
-                </p>
-                <p className="font-['DM_Sans'] text-xs text-[#5a4636]">
-                  Confirma un pedido desde el carrito para verlo aquí
-                </p>
+                <div
+                  className="p-5"
+                  style={{
+                    background:
+                      "linear-gradient(145deg, rgba(28, 22, 18, 0.94) 0%, rgba(20, 16, 14, 0.94) 55%, rgba(14, 12, 10, 0.94) 100%)",
+                    border: "1px solid rgba(155,35,53,0.2)",
+                    borderRadius: "14px",
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.35)",
+                  }}
+                >
+                  <p className="font-['EB_Garamond'] text-xl text-[#F2E6D8] mb-2">
+                    No hay pedidos realizados hoy
+                  </p>
+                  <p className="font-['DM_Sans'] text-xs text-[#5a4636]">
+                    Confirma un pedido desde el carrito para verlo aquí.
+                  </p>
+                </div>
               </div>
             ) : (
               pedidos.map((p, i) => (
@@ -370,90 +381,92 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
         </div>
 
         {/* Panel derecho — mapa */}
-        <div
-          className="flex-1 flex flex-col relative"
-          style={{
-            background: "#0a0a0a",
-            opacity: 0,
-            animation: "mapaFadeIn 0.6s ease 0.3s both",
-          }}
-        >
-          {/* Header mapa */}
+        {pedidos.length > 0 && (
           <div
-            className="px-8 py-5 flex-shrink-0 flex items-center justify-between"
+            className="flex-1 flex flex-col relative"
             style={{
-              borderBottom: "1px solid rgba(212,175,106,0.08)",
-              background: "#290908",
+              background: "#0a0a0a",
               opacity: 0,
-              animation: "pedidoFadeUp 0.4s ease 0.4s both",
+              animation: "mapaFadeIn 0.6s ease 0.3s both",
             }}
           >
-            <div>
-              <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.25em] mb-0.5">
-                — Sucursal asignada
-              </p>
-              <p className="font-['EB_Garamond'] text-xl text-[#F2E6D8]">
-                {sucursalActiva.nombre}
-              </p>
-              <p className="font-['DM_Sans'] text-[11px] text-[#5a4636]">
-                {sucursalActiva.direccion}
-              </p>
-            </div>
-            {pedidoSeleccionado !== null && (
-              <button
-                onClick={() => setPedidoSeleccionado(null)}
-                className="font-['DM_Sans'] text-[10px] text-[#5a4636] uppercase tracking-widest hover:text-[#F2E6D8] transition-colors"
-              >
-                ✕ Cerrar
-              </button>
-            )}
-          </div>
-
-          {/* Mapa */}
-          <div className="flex-1 relative overflow-hidden">
-            <iframe
-              key={sucursalActiva.embedUrl}
-              title="Mapa sucursal"
-              src={sucursalActiva.embedUrl}
-              width="100%"
-              height="100%"
-              style={{
-                border: 0,
-                display: "block",
-                filter: "grayscale(1) contrast(0.88) sepia(0.12)",
-                pointerEvents: "none",
-              }}
-              allowFullScreen={false}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            {/* Header mapa */}
             <div
-              className="absolute inset-0"
-              style={{ pointerEvents: "all", cursor: "default" }}
-            />
-
-            {/* Pin */}
-            <div
-              className="absolute top-1/2 pointer-events-none transition-all duration-300"
+              className="px-8 py-5 flex-shrink-0 flex items-center justify-between"
               style={{
-                left: pedidoActivo ? "calc(50% - 130px)" : "50%",
-                transform: "translate(-50%, -100%)",
+                borderBottom: "1px solid rgba(212,175,106,0.08)",
+                background: "#290908",
+                opacity: 0,
+                animation: "pedidoFadeUp 0.4s ease 0.4s both",
               }}
             >
-              <div
-                className="w-5 h-5 rounded-full bg-[#9B2335] border-2 border-[#F2E6D8]"
-                style={{ boxShadow: "0 0 12px rgba(155,35,53,0.7)" }}
-              />
+              <div>
+                <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.25em] mb-0.5">
+                  — Sucursal asignada
+                </p>
+                <p className="font-['EB_Garamond'] text-xl text-[#F2E6D8]">
+                  {sucursalActiva.nombre}
+                </p>
+                <p className="font-['DM_Sans'] text-[11px] text-[#5a4636]">
+                  {sucursalActiva.direccion}
+                </p>
+              </div>
+              {pedidoSeleccionado !== null && (
+                <button
+                  onClick={() => setPedidoSeleccionado(null)}
+                  className="font-['DM_Sans'] text-[10px] text-[#5a4636] uppercase tracking-widest hover:text-[#F2E6D8] transition-colors"
+                >
+                  ✕ Cerrar
+                </button>
+              )}
             </div>
 
-            {pedidoActivo && (
-              <PanelEstado
-                pedido={pedidoActivo}
-                onCerrar={() => setPedidoSeleccionado(null)}
+            {/* Mapa */}
+            <div className="flex-1 relative overflow-hidden">
+              <iframe
+                key={sucursalActiva.embedUrl}
+                title="Mapa sucursal"
+                src={sucursalActiva.embedUrl}
+                width="100%"
+                height="100%"
+                style={{
+                  border: 0,
+                  display: "block",
+                  filter: "grayscale(1) contrast(0.88) sepia(0.12)",
+                  pointerEvents: "none",
+                }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
               />
-            )}
+              <div
+                className="absolute inset-0"
+                style={{ pointerEvents: "all", cursor: "default" }}
+              />
+
+              {/* Pin */}
+              <div
+                className="absolute top-1/2 pointer-events-none transition-all duration-300"
+                style={{
+                  left: "50%",
+                  transform: "translate(-50%, -100%)",
+                }}
+              >
+                <div
+                  className="w-5 h-5 rounded-full bg-[#9B2335] border-2 border-[#F2E6D8]"
+                  style={{ boxShadow: "0 0 12px rgba(155,35,53,0.7)" }}
+                />
+              </div>
+
+              {pedidoActivo && (
+                <PanelEstado
+                  pedido={pedidoActivo}
+                  onCerrar={() => setPedidoSeleccionado(null)}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
