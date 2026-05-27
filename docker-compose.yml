@@ -139,6 +139,7 @@ services:
     environment:
       - PORT=3006
       - MONGO_URI=mongodb://mongodb:27017/enrutamientodb
+      - SUCURSALES_SERVICE_URL=http://sucursales-service:3002
     depends_on:
       - mongodb
     networks:
