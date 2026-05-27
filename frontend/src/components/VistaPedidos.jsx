@@ -12,6 +12,38 @@ const SUCURSALES = {
 
 const SUCURSAL_DEFAULT = 1;
 
+const ESTADOS = [
+  {
+    key: "pendiente",
+    label: "Pendiente",
+    desc: "Tu pedido fue recibido y está en espera.",
+    color: "#C8901A",
+    icon: "schedule",
+  },
+  {
+    key: "en_preparacion",
+    label: "En preparación",
+    desc: "El equipo de cocina está preparando tu orden.",
+    color: "#9B2335",
+    icon: "soup_kitchen",
+  },
+  {
+    key: "listo",
+    label: "Listo",
+    desc: "Tu pedido está listo para ser recogido.",
+    color: "#2D7A4F",
+    icon: "check_circle",
+  },
+  {
+    key: "entregado",
+    label: "Entregado",
+    desc: "Orden completada. ¡Buen provecho!",
+    color: "#7a6655",
+    icon: "celebration",
+  },
+];
+
+// ── Modal confirmación ───────────────────────────────────────────────────────
 function ModalConfirmar({ onAceptar, onCancelar }) {
   const suc = SUCURSALES[SUCURSAL_DEFAULT];
   return (
@@ -56,17 +88,187 @@ function ModalConfirmar({ onAceptar, onCancelar }) {
   );
 }
 
+// ── Panel vertical de estado — flota a la derecha sobre el mapa ─────────────
+function PanelEstado({ pedido, onCerrar }) {
+  const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
+  const sucursal = SUCURSALES[pedido.sucursalId ?? SUCURSAL_DEFAULT];
+  const estadoActivo = ESTADOS[idxActual];
+
+  return (
+    <div
+      className="absolute top-4 right-4 bottom-4 z-20 flex flex-col overflow-hidden"
+      style={{
+        width: "260px",
+        background: "rgba(10,6,3,0.94)",
+        border: "1px solid rgba(212,175,106,0.14)",
+        backdropFilter: "blur(14px)",
+        animation: "panelSlideRight 0.3s ease both",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="px-5 py-4 flex items-start justify-between flex-shrink-0"
+        style={{ borderBottom: "1px solid rgba(212,175,106,0.1)" }}
+      >
+        <div>
+          <p className="font-['JetBrains_Mono'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
+            #{String(pedido.id).slice(-4).padStart(4, "0")}
+          </p>
+          <p className="font-['EB_Garamond'] text-[17px] text-[#F2E6D8] leading-tight">
+            Estado del pedido
+          </p>
+        </div>
+        <button
+          onClick={onCerrar}
+          className="w-6 h-6 flex items-center justify-center text-[#5a4636] hover:text-[#F2E6D8] transition-colors flex-shrink-0 mt-0.5"
+          style={{ border: "1px solid rgba(212,175,106,0.15)" }}
+        >
+          <span className="font-['JetBrains_Mono'] text-[10px]">✕</span>
+        </button>
+      </div>
+
+      {/* Sucursal */}
+      <div
+        className="px-5 py-4 flex-shrink-0"
+        style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
+      >
+        <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
+          Sucursal
+        </p>
+        <p className="font-['EB_Garamond'] text-[15px] text-[#F2E6D8]">
+          {sucursal.nombre}
+        </p>
+        <p className="font-['DM_Sans'] text-[10px] text-[#5a4636] mt-0.5 leading-snug">
+          {sucursal.direccion}
+        </p>
+      </div>
+
+      {/* Timeline vertical */}
+      <div
+        className="flex-1 overflow-y-auto px-5 py-4"
+        style={{ overscrollBehavior: "contain" }}
+      >
+        <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
+          Progreso
+        </p>
+        <div className="flex flex-col gap-0">
+          {ESTADOS.map((e, i) => {
+            const done = i < idxActual;
+            const activo = i === idxActual;
+            const futuro = i > idxActual;
+            return (
+              <div key={e.key} className="flex gap-3">
+                {/* Línea + dot */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0"
+                    style={{
+                      background: activo
+                        ? e.color
+                        : done
+                          ? `${e.color}22`
+                          : "rgba(20,12,6,1)",
+                      border: `1px solid ${futuro ? "rgba(90,70,54,0.2)" : e.color}`,
+                      boxShadow: activo ? `0 0 10px ${e.color}55` : "none",
+                    }}
+                  >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: "12px",
+                        color: activo
+                          ? "#fff"
+                          : done
+                            ? e.color
+                            : "rgba(90,70,54,0.35)",
+                      }}
+                    >
+                      {e.icon}
+                    </span>
+                  </div>
+                  {/* Línea vertical entre dots */}
+                  {i < ESTADOS.length - 1 && (
+                    <div
+                      className="w-px flex-1 my-1 transition-all duration-500"
+                      style={{
+                        minHeight: "28px",
+                        background: done
+                          ? `${e.color}55`
+                          : "rgba(90,70,54,0.15)",
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Texto */}
+                <div className="pb-5">
+                  <p
+                    className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-wider mb-0.5"
+                    style={{ color: futuro ? "rgba(90,70,54,0.4)" : e.color }}
+                  >
+                    {e.label}
+                  </p>
+                  {activo && (
+                    <p
+                      className="font-['DM_Sans'] text-[11px] leading-snug"
+                      style={{ color: "rgba(242,230,216,0.55)" }}
+                    >
+                      {e.desc}
+                    </p>
+                  )}
+                  {done && (
+                    <p
+                      className="font-['JetBrains_Mono'] text-[9px]"
+                      style={{ color: "rgba(90,70,54,0.5)" }}
+                    >
+                      Completado
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Footer — total */}
+      <div
+        className="px-5 py-4 flex items-center justify-between flex-shrink-0"
+        style={{
+          borderTop: "1px solid rgba(212,175,106,0.08)",
+          background: "rgba(0,0,0,0.25)",
+        }}
+      >
+        <div>
+          <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+            {pedido.items.reduce((a, i) => a + i.cantidad, 0)} productos
+          </p>
+          <p className="font-['DM_Sans'] text-[11px] text-[#F2E6D8]/50 mt-0.5">
+            {pedido.fecha}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+            Total
+          </p>
+          <p className="font-['EB_Garamond'] text-xl text-[#D4AF6A]">
+            ${pedido.total.toFixed(2)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Vista principal ──────────────────────────────────────────────────────────
 function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
 
-  const sucursalActiva =
-    pedidoSeleccionado !== null
-      ? SUCURSALES[
-          pedidos.find((p) => p.id === pedidoSeleccionado)?.sucursalId ??
-            SUCURSAL_DEFAULT
-        ]
-      : SUCURSALES[SUCURSAL_DEFAULT];
+  const pedidoActivo = pedidos.find((p) => p.id === pedidoSeleccionado) ?? null;
+  const sucursalActiva = pedidoActivo
+    ? SUCURSALES[pedidoActivo.sucursalId ?? SUCURSAL_DEFAULT]
+    : SUCURSALES[SUCURSAL_DEFAULT];
 
   const handleAceptar = () => {
     setMostrarModal(false);
@@ -87,10 +289,14 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           from { opacity: 0; transform: translateY(14px); }
           to   { opacity: 1; transform: translateY(0);    }
         }
+        @keyframes panelSlideRight {
+          from { opacity: 0; transform: translateX(16px); }
+          to   { opacity: 1; transform: translateX(0);    }
+        }
       `}</style>
 
       <div className="flex pt-20" style={{ height: "calc(100vh - 5rem)" }}>
-        {/* ── Sidebar izquierdo — fondo negro, tarjetas beige ── */}
+        {/* ── Sidebar izquierdo ── */}
         <div
           className="flex-shrink-0 flex flex-col"
           style={{
@@ -99,7 +305,6 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             borderRight: "1px solid rgba(212,175,106,0.08)",
           }}
         >
-          {/* Encabezado */}
           <div
             className="px-6 pt-7 pb-5 flex-shrink-0"
             style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
@@ -119,7 +324,6 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             </div>
           </div>
 
-          {/* Lista scrolleable */}
           <div
             className="flex-grow overflow-y-auto px-4 py-4 space-y-3"
             style={{ overscrollBehavior: "contain" }}
@@ -144,7 +348,6 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
                       pedidoSeleccionado === p.id
                         ? "2px solid rgba(155,35,53,0.55)"
                         : "2px solid transparent",
-                    outlineOffset: "0px",
                   }}
                 >
                   <PedidoCard pedido={p} index={i} />
@@ -154,14 +357,17 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           </div>
         </div>
 
-        {/* ── Panel derecho — mapa ── */}
-        <div className="flex-1 flex flex-col" style={{ background: "#0a0a0a" }}>
+        {/* ── Panel derecho — mapa + tarjeta de estado ── */}
+        <div
+          className="flex-1 flex flex-col relative"
+          style={{ background: "#0a0a0a" }}
+        >
           {/* Header mapa */}
           <div
             className="px-8 py-5 flex-shrink-0 flex items-center justify-between"
             style={{
               borderBottom: "1px solid rgba(212,175,106,0.08)",
-              background: "#0d0806",
+              background: "#290908",
             }}
           >
             <div>
@@ -180,7 +386,7 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
                 onClick={() => setPedidoSeleccionado(null)}
                 className="font-['JetBrains_Mono'] text-[10px] text-[#5a4636] uppercase tracking-widest hover:text-[#F2E6D8] transition-colors"
               >
-                ← Todas
+                ✕ Cerrar
               </button>
             )}
           </div>
@@ -207,12 +413,28 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
               className="absolute inset-0"
               style={{ pointerEvents: "all", cursor: "default" }}
             />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full pointer-events-none">
+
+            {/* Pin — se centra entre el panel y el mapa visible cuando el panel está abierto */}
+            <div
+              className="absolute top-1/2 -translate-y-full pointer-events-none transition-all duration-300"
+              style={{
+                left: pedidoActivo ? "calc(50% - 130px)" : "50%",
+                transform: "translate(-50%, -100%)",
+              }}
+            >
               <div
                 className="w-5 h-5 rounded-full bg-[#9B2335] border-2 border-[#F2E6D8]"
                 style={{ boxShadow: "0 0 12px rgba(155,35,53,0.7)" }}
               />
             </div>
+
+            {/* Tarjeta de estado vertical a la derecha */}
+            {pedidoActivo && (
+              <PanelEstado
+                pedido={pedidoActivo}
+                onCerrar={() => setPedidoSeleccionado(null)}
+              />
+            )}
           </div>
         </div>
       </div>
