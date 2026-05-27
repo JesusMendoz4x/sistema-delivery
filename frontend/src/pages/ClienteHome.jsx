@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -7,101 +7,19 @@ import Footer from "../components/Footer";
 import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 import Sucursales from "../components/Sucursales";
+import VistaPedidos from "../components/VistaPedidos";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
-import "../transitions.css";
-// Duración de la animación de salida en ms — debe coincidir con transitions.css
-const SALIDA_MS = 220;
 
 function ClienteHomeInner() {
   const { isLoggedIn, login, logout, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
-  const [mostrarMenu, setMostrarMenu] = useState(false);
   const [carrito, setCarrito] = useState([]);
+  const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
-
-  // "saliendo" dispara la animación de salida antes de cambiar la vista
-  const [saliendo, setSaliendo] = useState(false);
-  // Cola: guardamos el destino mientras se anima la salida
-  const pendienteRef = useRef(null);
-
-  const blobRef = useRef(null);
-  const rafRef = useRef(null);
-  const scrollY = useRef(0);
-
-  useEffect(() => {
-    if (mostrarMenu) return;
-
-    const handleScroll = () => {
-      scrollY.current = window.scrollY;
-      if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(() => {
-          const y = scrollY.current;
-          const maxScroll = document.body.scrollHeight - window.innerHeight;
-          const progress = Math.min(y / maxScroll, 1);
-
-          if (blobRef.current) {
-            const opacity = 0.95 - Math.sin(progress * Math.PI) * 0.6;
-            const rx1 = 50 + progress * 20;
-            const ry1 = 50 - progress * 25;
-            const rx2 = 50 - progress * 20;
-            const ry2 = 50 + progress * 25;
-            const borderRadius = `${rx1}% ${rx2}% ${rx2}% ${rx1}% / ${ry1}% ${ry1}% ${ry2}% ${ry2}%`;
-            blobRef.current.style.opacity = opacity;
-            blobRef.current.style.borderRadius = borderRadius;
-          }
-
-          rafRef.current = null;
-        });
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [mostrarMenu]);
-
-  // Aplica el cambio de vista pendiente una vez termina la animación de salida
-  useEffect(() => {
-    if (!saliendo) return;
-
-    const timer = setTimeout(() => {
-      const { cat, menu } = pendienteRef.current;
-      setCategoriaActiva(cat);
-      setMostrarMenu(menu);
-      setSaliendo(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, SALIDA_MS);
-
-    return () => clearTimeout(timer);
-  }, [saliendo]);
-
-  // Navegación con transición
-  const handleCategoriaClick = useCallback(
-    (cat) => {
-      if (cat === "Pedidos" && !isLoggedIn) {
-        openAuthWall("pedidos");
-        return;
-      }
-
-      // Si ya estamos en esa categoría, no hacemos nada
-      if (cat === categoriaActiva && cat !== "Inicio") return;
-
-      let nuevaMostrarMenu = true;
-      if (cat === "Inicio" || cat === "Nuestras Sucursales") {
-        nuevaMostrarMenu = false;
-      }
-
-      // Guardar destino y arrancar animación de salida
-      pendienteRef.current = { cat, menu: nuevaMostrarMenu };
-      setSaliendo(true);
-    },
-    [categoriaActiva, isLoggedIn, openAuthWall],
-  );
+  const [pedidos, setPedidos] = useState([]);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
@@ -137,13 +55,63 @@ function ClienteHomeInner() {
     });
   };
 
-  const confirmarPedido = () => {
-    alert("Pedido confirmado");
+  // ⚠️ handleCategoriaClick ANTES de ejecutarPedido para que pueda llamarla
+  const handleCategoriaClick = (cat) => {
+    if (cat === "Pedidos" && !isLoggedIn) {
+      openAuthWall("pedidos");
+      return;
+    }
+    if (cat === "Inicio") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Inicio");
+      return;
+    }
+    if (cat === "Nuestras Sucursales") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Nuestras Sucursales");
+      return;
+    }
+    if (cat === "Pedidos") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Pedidos");
+      return;
+    }
+    setCategoriaActiva(cat);
+    setMostrarMenu(true);
+  };
+
+  const ejecutarPedido = () => {
+    if (carrito.length === 0) return;
+    const subtotal = carrito.reduce(
+      (a, i) => a + parseFloat(i.precio) * i.cantidad,
+      0,
+    );
+    const servicio = subtotal * 0.1;
+    const total = subtotal + servicio;
+    setPedidos((prev) => [
+      {
+        id: Date.now(),
+        fecha: new Date().toLocaleDateString("es-MX", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+        estado: "pendiente",
+        items: carrito,
+        subtotal,
+        servicio,
+        total,
+      },
+      ...prev,
+    ]);
+    setCarrito([]);
+    setMostrarCarrito(false);
+    handleCategoriaClick("Pedidos");
   };
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen transition-colors duration-300"
       style={{
         backgroundColor: "rgb(10,10,10)",
         position: "relative",
@@ -151,7 +119,7 @@ function ClienteHomeInner() {
         overflowY: "auto",
       }}
     >
-      {/* Blob de fondo reactivo al scroll */}
+      {/* Ellipse de fondo */}
       <div
         aria-hidden
         style={{
@@ -166,7 +134,6 @@ function ClienteHomeInner() {
         }}
       >
         <div
-          ref={blobRef}
           style={{
             position: "absolute",
             left: "50%",
@@ -180,8 +147,7 @@ function ClienteHomeInner() {
               "radial-gradient(circle at 50% 50%, rgba(140, 0, 0, 0.42) 0%, rgba(95, 0, 0, 0.2) 32%, rgba(30, 0, 0, 0.1) 55%, rgba(10, 10, 10, 0) 72%)",
             filter: "blur(54px)",
             opacity: 0.95,
-            willChange: "opacity, border-radius",
-            transition: "border-radius 0.3s ease-out, opacity 0.3s ease-out",
+            willChange: "transform",
           }}
         />
       </div>
@@ -195,23 +161,15 @@ function ClienteHomeInner() {
           isLoggedIn={isLoggedIn}
         />
 
-        {/* Contenedor de vista con clases de animación */}
-      </div>
-
-      <div
-        key={categoriaActiva} // fuerza re-mount y reinicia la animación de entrada
-        className={saliendo ? "seccion-saliendo" : "seccion-entrando"}
-      >
-        {!mostrarMenu ? (
+        {categoriaActiva === "Pedidos" ? (
+          <VistaPedidos pedidos={pedidos} onConfirmarPedido={ejecutarPedido} />
+        ) : !mostrarMenu ? (
           <>
             {categoriaActiva === "Nuestras Sucursales" ? (
               <Sucursales />
             ) : (
               <>
-                <Hero
-                  heroProgress={0}
-                  onVerMenu={() => handleCategoriaClick("Entradas")}
-                />
+                <Hero heroProgress={0} onVerMenu={() => setMostrarMenu(true)} />
                 <Descripcion heroProgress={0} />
                 <Ubicacion heroProgress={0} />
                 <Footer heroProgress={0} />
@@ -229,13 +187,15 @@ function ClienteHomeInner() {
                 items={carrito}
                 onIncrementar={incrementar}
                 onDecrementar={decrementar}
-                onConfirmar={confirmarPedido}
+                onConfirmar={ejecutarPedido}
                 onClose={() => setMostrarCarrito(false)}
               />
             )}
           </div>
         )}
       </div>
+
+      {/* Modales — montados via portal, fuera del stacking context */}
       <AuthWall />
       <LoginModal />
 
