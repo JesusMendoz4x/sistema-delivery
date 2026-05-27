@@ -5,7 +5,8 @@ const {
     crearRepartidor,
     actualizarRepartidor,
     desactivarRepartidor,
-    activarRepartidor
+    activarRepartidor,
+    asignarRepartidorDisponible
 } = require('../controllers/repartidor.controller');
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.post('/', crearRepartidor);
 router.put('/:id', actualizarRepartidor);
 router.delete('/:id/desactivar', desactivarRepartidor);
 router.put('/:id/activar', activarRepartidor);
+router.post('/asignar', asignarRepartidorDisponible);
 
 module.exports = router;
+
