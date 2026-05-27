@@ -52,7 +52,7 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
-      - MONGODB_URI=mongodb://mongodb:27017/productosdb
+      - MONGODB_URI=mongodb://mongodb:27017/sucursales
     depends_on:
       - mongodb
     networks:
@@ -87,7 +87,7 @@ services:
       - "3003:3003"
     environment:
       - PORT=3003
-      - MONGO_URI=mongodb://mongodb:27017/pedidosdb
+      - MONGO_URI=mongodb://mongodb:27017/sucursales
     depends_on:
       - mongodb
     networks:

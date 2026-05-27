@@ -138,7 +138,7 @@ async function seed() {
 
         // --- 3. SEED DE PRODUCTOS (CATÁLOGO MAESTRO) ---
         console.log('\n[3/5] Conectando a base de datos de Productos e Inventarios...');
-        const prodConn = await mongoose.createConnection(`${mongoHost}/productosdb`).asPromise();
+        const prodConn = await mongoose.createConnection(`${mongoHost}/sucursales`).asPromise();
         
         const ProductoSchema = new mongoose.Schema({
             nombre: String,
