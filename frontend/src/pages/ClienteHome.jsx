@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import io from "socket.io-client";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -20,6 +21,41 @@ function ClienteHomeInner() {
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const [pedidos, setPedidos] = useState([]);
+
+  // Escuchar actualizaciones del pedido en tiempo real mediante WebSockets
+  useEffect(() => {
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("[WS] Conectado al API Gateway via WebSocket");
+    });
+
+    // Registrar unión a sala de cada pedido para recibir actualizaciones
+    pedidos.forEach(pedido => {
+      socket.emit("join_pedido", pedido.id);
+    });
+
+    socket.on("pedido_actualizado", (data) => {
+      console.log("[WS] Pedido actualizado recibido:", data);
+      setPedidos((prev) => 
+        prev.map((p) => {
+          if (String(p.id) === String(data.pedidoId)) {
+            return {
+              ...p,
+              estado: data.estado,
+              repartidorId: data.repartidorId,
+              ruta: data.ruta
+            };
+          }
+          return p;
+        })
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [pedidos]);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 

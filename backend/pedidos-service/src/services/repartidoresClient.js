@@ -8,10 +8,13 @@ const REPARTIDORES_SERVICE_URL = process.env.REPARTIDORES_SERVICE_URL || 'http:/
  * @param {string} repartidorId ID del repartidor.
  * @returns {Promise<any>} Datos del repartidor o respuesta de contingencia en fallback.
  */
-async function verificarRepartidor(repartidorId) {
+async function verificarRepartidor(repartidorId, correlationId) {
     const config = {
         method: 'get',
         url: `${REPARTIDORES_SERVICE_URL}/api/repartidores/${repartidorId}`,
+        headers: {
+            'x-correlation-id': correlationId || 'N/A'
+        },
         timeout: 2000 // Timeout corto para no retener la petición demasiado tiempo
     };
 

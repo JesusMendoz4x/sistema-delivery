@@ -1,11 +1,43 @@
 require('dotenv').config();
 const app = require('./app');
 
+const http = require('http');
+const { Server } = require('socket.io');
+
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: [
+            'http://localhost:5173', 'http://127.0.0.1:5173',
+            'http://localhost:5174', 'http://127.0.0.1:5174',
+            'http://localhost:5175', 'http://127.0.0.1:5175'
+        ],
+        methods: ['GET', 'POST']
+    }
+});
+
+// Registrar Socket.io en el app para usarlo en controladores de Express
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log(`[API Gateway] [WS] Cliente conectado: ${socket.id}`);
+
+    // Unirse a sala de pedido para actualizaciones en tiempo real
+    socket.on('join_pedido', (pedidoId) => {
+        socket.join(`pedido_${pedidoId}`);
+        console.log(`[API Gateway] [WS] Cliente ${socket.id} se unió al pedido_${pedidoId}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`[API Gateway] [WS] Cliente desconectado: ${socket.id}`);
+    });
+});
+
+server.listen(PORT, () => {
     console.log(`====================================================`);
-    console.log(` API Gateway escuchando en el puerto ${PORT}`);
+    console.log(` API Gateway + WebSockets escuchando en el puerto ${PORT}`);
     console.log(` Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
     console.log(`====================================================`);
 });

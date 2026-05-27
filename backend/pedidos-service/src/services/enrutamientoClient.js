@@ -9,10 +9,13 @@ const ENRUTAMIENTO_SERVICE_URL = process.env.ENRUTAMIENTO_SERVICE_URL || 'http:/
  * @param {string} repartidorId ID del repartidor asignado.
  * @returns {Promise<any>} Datos de la ruta creada o respuesta de contingencia en fallback.
  */
-async function crearRuta(pedidoId, repartidorId) {
+async function crearRuta(pedidoId, repartidorId, correlationId) {
     const config = {
         method: 'post',
         url: `${ENRUTAMIENTO_SERVICE_URL}/api/rutas`,
+        headers: {
+            'x-correlation-id': correlationId || 'N/A'
+        },
         data: {
             repartidorId,
             pedidos: [pedidoId],

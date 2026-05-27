@@ -4,12 +4,76 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secreto_super_seguro_delivery';
+
+// Middleware de verificación de JWT
+const verifyJWT = (allowedRoles = []) => {
+    return (req, res, next) => {
+        const authHeader = req.headers['authorization'];
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+                ok: false,
+                message: 'Acceso denegado. Token no proporcionado o formato incorrecto (debe ser Bearer <token>).'
+            });
+        }
+
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            req.user = decoded;
+
+            if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.rol)) {
+                return res.status(403).json({
+                    ok: false,
+                    message: `Acceso prohibido. Se requiere rol de: [${allowedRoles.join(', ')}]. Tu rol es: ${decoded.rol}`
+                });
+            }
+
+            next();
+        } catch (error) {
+            return res.status(401).json({
+                ok: false,
+                message: 'Acceso denegado. Token inválido o expirado.',
+                error: error.message
+            });
+        }
+    };
+};
 
 const app = express();
 
-// 1. Middleware de logs simple para auditoría en consola
+// A. Configuración de Helmet para seguridad de cabeceras HTTP
+app.use(helmet({
+    contentSecurityPolicy: false // Deshabilitamos CSP para evitar bloqueos en Swagger UI y Mapas de Google en iframe
+}));
+
+// B. Configuración de Rate Limiter para proteger las rutas /api/ de saturación
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 200, // Límite de 200 peticiones por IP
+    message: {
+        ok: false,
+        message: 'Demasiadas peticiones desde esta IP. Por favor intente de nuevo en 15 minutos.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api/', apiLimiter);
+
+// 1. Middleware de Correlation ID y logs de auditoría en consola
+const crypto = require('crypto');
+
 app.use((req, res, next) => {
-    console.log(`[API Gateway] ${req.method} ${req.url} -> Redirigiendo...`);
+    const correlationId = req.headers['x-correlation-id'] || req.headers['X-Correlation-ID'] || crypto.randomUUID();
+    req.correlationId = correlationId;
+    req.headers['x-correlation-id'] = correlationId;
+    res.setHeader('x-correlation-id', correlationId);
+
+    console.log(`[API Gateway] [Correlation-ID: ${correlationId}] ${req.method} ${req.url} -> Redirigiendo...`);
     next();
 });
 
@@ -103,15 +167,21 @@ app.get('/api/healthz', async (req, res) => {
 // Pasamos el filtro de ruta como primer argumento de "createProxyMiddleware".
 // Esto evita que Express recorte el prefijo y permite la reescritura fluida de rutas de forma nativa.
 
-// Rutas de Sucursales
-app.use(createProxyMiddleware('/api/sucursales', {
+// Rutas de Sucursales (GET público, otros Admin)
+app.use('/api/sucursales', (req, res, next) => {
+    if (req.method === 'GET') return next();
+    return verifyJWT(['admin'])(req, res, next);
+}, createProxyMiddleware({
     target: process.env.SUCURSALES_SERVICE_URL || 'http://localhost:3002',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
-// Rutas de Productos (Traduce /api/productos -> /api/inventario)
-app.use(createProxyMiddleware('/api/productos', {
+// Rutas de Productos (GET público, otros Admin/Sucursal)
+app.use('/api/productos', (req, res, next) => {
+    if (req.method === 'GET') return next();
+    return verifyJWT(['admin', 'sucursal'])(req, res, next);
+}, createProxyMiddleware({
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
     pathRewrite: {
@@ -120,40 +190,70 @@ app.use(createProxyMiddleware('/api/productos', {
     logLevel: 'debug'
 }));
 
-// Rutas de Inventario
-app.use(createProxyMiddleware('/api/inventario', {
+// Rutas de Inventario (GET público, otros Admin/Sucursal)
+app.use('/api/inventario', (req, res, next) => {
+    if (req.method === 'GET') return next();
+    return verifyJWT(['admin', 'sucursal'])(req, res, next);
+}, createProxyMiddleware({
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
-// Rutas de Pedidos
-app.use(createProxyMiddleware('/api/pedidos', {
+// Rutas de Pedidos (Cualquier operación requiere autenticación)
+app.use('/api/pedidos', verifyJWT(['cliente', 'admin', 'sucursal']), createProxyMiddleware({
     target: process.env.PEDIDOS_SERVICE_URL || 'http://localhost:3003',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
-// Rutas de Repartidores
-app.use(createProxyMiddleware('/api/repartidores', {
+// Rutas de Repartidores (GET público para asignación, otros Admin)
+app.use('/api/repartidores', (req, res, next) => {
+    if (req.method === 'GET') return next();
+    return verifyJWT(['admin'])(req, res, next);
+}, createProxyMiddleware({
     target: process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
 // Rutas de Usuarios / Autenticación
-app.use(createProxyMiddleware('/api/usuarios', {
+// POST /api/usuarios (registro) y POST /api/usuarios/login (login) son públicos.
+// Otras operaciones requieren rol 'admin'.
+app.use('/api/usuarios', (req, res, next) => {
+    if (req.method === 'POST') {
+        return next(); // login o registro
+    }
+    return verifyJWT(['admin'])(req, res, next);
+}, createProxyMiddleware({
     target: process.env.USUARIO_SERVICE_URL || 'http://localhost:3005',
     changeOrigin: true,
     logLevel: 'debug'
 }));
 
-// Rutas de Enrutamiento Inteligente
-app.use(createProxyMiddleware('/api/enrutamiento', {
+// Rutas de Enrutamiento Inteligente (Requiere autenticación admin o sucursal)
+app.use('/api/enrutamiento', verifyJWT(['admin', 'sucursal']), createProxyMiddleware({
     target: process.env.ENRUTAMIENTO_SERVICE_URL || 'http://localhost:3006',
     changeOrigin: true,
     logLevel: 'debug'
 }));
+
+// Endpoint interno para recibir actualizaciones de pedidos desde el pedidos-service y emitirlas vía WebSockets
+app.post('/api-internal/pedido-update', express.json(), (req, res) => {
+    const { pedidoId, estado, repartidorId, ruta } = req.body;
+    const io = req.app.get('io');
+    if (io) {
+        io.to(`pedido_${pedidoId}`).emit('pedido_actualizado', {
+            pedidoId,
+            estado,
+            repartidorId,
+            ruta
+        });
+        console.log(`[API Gateway] [WS] Evento emitido para pedido_${pedidoId}: estado=${estado}`);
+        return res.json({ ok: true });
+    }
+    res.status(500).json({ ok: false, message: 'Servidor WebSocket no disponible' });
+});
 
 // Middleware para capturar rutas no encontradas a través del Gateway
 app.use((req, res) => {

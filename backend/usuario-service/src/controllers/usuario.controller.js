@@ -85,3 +85,48 @@ exports.activarUsuario = async (req, res) => {
         res.status(500).json({ message: 'Error al activar el usuario', error: error.message });
     }
 }
+
+const jwt = require('jsonwebtoken');
+
+exports.loginUsuario = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'El correo y la contraseña son obligatorios' });
+        }
+
+        const usuario = await Usuario.findOne({ email });
+        if (!usuario) {
+            return res.status(401).json({ message: 'Credenciales incorrectas' });
+        }
+
+        if (usuario.estado === 'inactivo') {
+            return res.status(403).json({ message: 'El usuario está inactivo. Contacte al administrador.' });
+        }
+
+        // Comparación simple de contraseña en texto plano
+        if (usuario.password !== password) {
+            return res.status(401).json({ message: 'Credenciales incorrectas' });
+        }
+
+        const secret = process.env.JWT_SECRET || 'secreto_super_seguro_delivery';
+        const token = jwt.sign(
+            { id: usuario._id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+            secret,
+            { expiresIn: '8h' }
+        );
+
+        res.json({
+            ok: true,
+            usuario: {
+                id: usuario._id,
+                nombre: usuario.nombre,
+                email: usuario.email,
+                rol: usuario.rol
+            },
+            token
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error en el proceso de login', error: error.message });
+    }
+}

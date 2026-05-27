@@ -12,6 +12,14 @@ const app = express();
 app.use(cors()); // Habilitar CORS para todas las rutas
 app.use(express.json()); // Middleware para parsear JSON en el cuerpo de las solicitudes
 
+// Middleware de logs con Correlation-ID
+app.use((req, res, next) => {
+    const correlationId = req.headers['x-correlation-id'] || 'N/A';
+    req.correlationId = correlationId;
+    console.log(`[Sucursales Service] [Correlation-ID: ${correlationId}] ${req.method} ${req.originalUrl}`);
+    next();
+});
+
 // 2. RUTAS
 app.use('/api/sucursales', sucursalRoutes); // Usamos las rutas de sucursales
 

@@ -1,6 +1,21 @@
 const Pedido = require('../models/Pedido');
 const { verificarRepartidor } = require('../services/repartidoresClient');
 const { crearRuta } = require('../services/enrutamientoClient');
+const axios = require('axios');
+
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://api-gateway:5000';
+
+const notificarCambioEstado = async (pedidoId, datos) => {
+    try {
+        console.log(`[Pedidos] Notificando cambio de estado para pedido ${pedidoId} al API Gateway...`);
+        await axios.post(`${API_GATEWAY_URL}/api-internal/pedido-update`, {
+            pedidoId,
+            ...datos
+        }, { timeout: 1500 });
+    } catch (error) {
+        console.warn(`[Pedidos] Advertencia: No se pudo notificar cambio de estado a través de WebSockets: ${error.message}`);
+    }
+};
 
 exports.crearPedido = async (req, res) => {
     try {
@@ -53,6 +68,10 @@ exports.actualizarEstadoPedido = async (req, res) => {
         if (!pedido) {
             return res.status(404).json({ message: 'Pedido no encontrado' });
         }
+        
+        // Notificar en segundo plano (no bloquea la respuesta HTTP)
+        notificarCambioEstado(pedido._id, { estado: pedido.estado, repartidorId: pedido.repartidorId });
+        
         res.json(pedido);
     } catch (error) {
         res.status(500).json({ message: 'Error al actualizar el estado del pedido', error: error.message });
@@ -70,12 +89,12 @@ exports.asignarRepartidor = async (req, res) => {
         }
 
         // 1. Verificar repartidor (Resiliente, con fallback de contingencia)
-        console.log(`[Pedidos] Solicitando verificación de repartidor ${repartidorId}...`);
-        const infoRepartidor = await verificarRepartidor(repartidorId);
+        console.log(`[Pedidos] [Correlation-ID: ${req.correlationId}] Solicitando verificación de repartidor ${repartidorId}...`);
+        const infoRepartidor = await verificarRepartidor(repartidorId, req.correlationId);
 
         // 2. Calcular y registrar ruta (Resiliente, con fallback de contingencia)
-        console.log(`[Pedidos] Solicitando creación de ruta para pedido ${req.params.id} con repartidor ${repartidorId}...`);
-        const infoRuta = await crearRuta(req.params.id, repartidorId);
+        console.log(`[Pedidos] [Correlation-ID: ${req.correlationId}] Solicitando creación de ruta para pedido ${req.params.id} con repartidor ${repartidorId}...`);
+        const infoRuta = await crearRuta(req.params.id, repartidorId, req.correlationId);
 
         // 3. Actualizar el pedido localmente
         const pedido = await Pedido.findByIdAndUpdate(
@@ -83,6 +102,13 @@ exports.asignarRepartidor = async (req, res) => {
             { repartidorId, estado: 'en_camino' },
             { new: true, runValidators: true }
         );
+
+        // Notificar en segundo plano al Gateway para emitir por WebSockets
+        notificarCambioEstado(pedido._id, { 
+            estado: pedido.estado, 
+            repartidorId: pedido.repartidorId,
+            ruta: infoRuta
+        });
 
         res.json({
             message: 'Repartidor asignado con éxito',

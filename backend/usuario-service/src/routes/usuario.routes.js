@@ -5,11 +5,13 @@ const {
     crearUsuario,
     actualizarUsuario,
     desactivarUsuario,
-    activarUsuario
+    activarUsuario,
+    loginUsuario
 } = require('../controllers/usuario.controller');
 
 const router = express.Router();
 
+router.post('/login', loginUsuario);
 router.get('/', listarUsuarios);
 router.get('/:id', obtenerUsuarioPorId);
 router.post('/', crearUsuario);
