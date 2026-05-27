@@ -46,12 +46,13 @@ function PedidoCard({ pedido, index = 0 }) {
         overflow: "hidden",
         boxShadow:
           "0 4px 20px rgba(90,54,24,0.13), 0 1px 4px rgba(90,54,24,0.08), inset 0 1px 0 rgba(255,255,255,0.6)",
+        opacity: 0,
         animation: "pedidoFadeUp 0.4s ease both",
         animationDelay: `${index * 70}ms`,
         border: "1px solid rgba(160,135,110,0.3)",
       }}
     >
-      {/* ── Cabecera ── */}
+      {/* Cabecera */}
       <button
         onClick={() => setAbierto((v) => !v)}
         className="w-full text-left transition-all duration-200"
@@ -61,16 +62,15 @@ function PedidoCard({ pedido, index = 0 }) {
         }
         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
       >
-        {/* Fila 1: ID + dot de estado + chevron */}
+        {/* Fila 1: ID + dot + chevron */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <span
-              className="font-['JetBrains_Mono'] text-[9px] tracking-[0.28em] uppercase"
+              className="font-['DM_Sans'] text-[9px] tracking-[0.28em] uppercase"
               style={{ color: "rgba(20, 18, 16, 0.55)" }}
             >
               #{String(pedido.id).slice(-4).padStart(4, "0")}
             </span>
-            {/* Solo el dot — sin texto */}
             <span
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
               style={{
@@ -87,7 +87,7 @@ function PedidoCard({ pedido, index = 0 }) {
             />
           </div>
           <span
-            className="font-['JetBrains_Mono'] text-[11px] transition-transform duration-300 inline-block"
+            className="font-['DM_Sans'] text-[11px] transition-transform duration-300 inline-block"
             style={{
               color: "rgba(20, 18, 16, 0.55)",
               transform: abierto ? "rotate(180deg)" : "rotate(0deg)",
@@ -97,22 +97,19 @@ function PedidoCard({ pedido, index = 0 }) {
           </span>
         </div>
 
-        {/* Fila 2: sucursal + total */}
+        {/* Fila 2: sucursal + fecha */}
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
-            {/* Nombre en marrón oscuro cálido y prominente */}
             <p
-              className="font-['EB_Garamond'] leading-none mb-1.5"
+              className="font-['DM_Sans'] leading-none mb-1.5 font-medium"
               style={{
-                fontSize: "22px",
+                fontSize: "18px",
                 color: "#2B1B12",
-                letterSpacing: "-0.02em",
-                fontFamily: "'Cinzel', 'EB Garamond', serif",
+                letterSpacing: "-0.01em",
               }}
             >
               {SUCURSAL.nombre}
             </p>
-            {/* Dirección muy tenue */}
             <p
               className="font-['DM_Sans'] text-[10px] truncate"
               style={{ color: "rgba(35, 25, 20, 0.6)" }}
@@ -122,7 +119,7 @@ function PedidoCard({ pedido, index = 0 }) {
           </div>
           <div className="text-right flex-shrink-0">
             <p
-              className="font-['JetBrains_Mono'] text-[9px] mt-1 uppercase tracking-wider"
+              className="font-['DM_Sans'] text-[9px] mt-1 uppercase tracking-wider"
               style={{ color: "rgba(35, 25, 20, 0.6)" }}
             >
               {pedido.fecha}
@@ -131,11 +128,8 @@ function PedidoCard({ pedido, index = 0 }) {
         </div>
       </button>
 
-      {/* ── Separador con motivo decorativo ── */}
-      <div
-        className="relative flex items-center px-5 py-0"
-        style={{ marginBottom: "0" }}
-      >
+      {/* Separador decorativo */}
+      <div className="relative flex items-center px-5 py-0">
         <div
           className="flex-1 h-px"
           style={{
@@ -162,21 +156,19 @@ function PedidoCard({ pedido, index = 0 }) {
         />
       </div>
 
-      {/* ── Barra de progreso ── */}
+      {/* Barra de progreso */}
       <div className="px-5 py-3">
-        {/* Labels */}
         <div className="flex justify-between mb-2">
           {ESTADOS.map((e, i) => (
             <span
               key={e.key}
-              className="font-['JetBrains_Mono'] text-[8px] uppercase tracking-wide"
+              className="font-['DM_Sans'] text-[8px] uppercase tracking-wide"
               style={{ color: e.color, opacity: i <= idxActual ? 1 : 0.25 }}
             >
               {e.label}
             </span>
           ))}
         </div>
-        {/* Track */}
         <div className="flex items-center">
           {ESTADOS.map((e, i) => (
             <div
@@ -213,7 +205,7 @@ function PedidoCard({ pedido, index = 0 }) {
         </div>
       </div>
 
-      {/* ── Detalle colapsable ── */}
+      {/* Detalle colapsable */}
       <div
         style={{
           maxHeight: abierto ? "600px" : "0px",
@@ -221,7 +213,6 @@ function PedidoCard({ pedido, index = 0 }) {
           transition: "max-height 0.4s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
-        {/* Separador antes del detalle */}
         <div
           className="mx-5 mb-3"
           style={{
@@ -230,14 +221,10 @@ function PedidoCard({ pedido, index = 0 }) {
               "linear-gradient(90deg, transparent, rgba(140,120,95,0.2) 20%, rgba(140,120,95,0.2) 80%, transparent)",
           }}
         />
-
         <div className="mx-5 mb-3 flex items-center gap-3">
           <span
-            className="text-[9px] uppercase tracking-[0.35em]"
-            style={{
-              color: "rgba(30, 20, 16, 0.7)",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
+            className="font-['DM_Sans'] text-[9px] uppercase tracking-[0.35em]"
+            style={{ color: "rgba(30, 20, 16, 0.7)" }}
           >
             Ordenes
           </span>
@@ -272,14 +259,14 @@ function PedidoCard({ pedido, index = 0 }) {
                   {item.nombre}
                 </span>
                 <span
-                  className="font-['JetBrains_Mono'] text-[9px] flex-shrink-0"
+                  className="font-['DM_Sans'] text-[9px] flex-shrink-0"
                   style={{ color: "rgba(35, 25, 20, 0.65)" }}
                 >
                   ×{item.cantidad}
                 </span>
               </div>
               <span
-                className="font-['JetBrains_Mono'] text-[11px] flex-shrink-0"
+                className="font-['DM_Sans'] text-[11px] flex-shrink-0"
                 style={{ color: "#4A1F1F" }}
               >
                 ${(parseFloat(item.precio) * item.cantidad).toFixed(2)}
@@ -287,20 +274,19 @@ function PedidoCard({ pedido, index = 0 }) {
             </div>
           ))}
 
-          {/* Totales con separador punteado */}
           <div
             className="pt-3 mt-1"
             style={{ borderTop: "1px dashed rgba(140,120,95,0.25)" }}
           >
             <div className="flex justify-between mb-1">
               <span
-                className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-widest"
+                className="font-['DM_Sans'] text-[9px] uppercase tracking-widest"
                 style={{ color: "rgba(35, 25, 20, 0.65)" }}
               >
                 Subtotal
               </span>
               <span
-                className="font-['JetBrains_Mono'] text-[10px]"
+                className="font-['DM_Sans'] text-[10px]"
                 style={{ color: "#4A1F1F" }}
               >
                 ${pedido.subtotal.toFixed(2)}
@@ -308,13 +294,13 @@ function PedidoCard({ pedido, index = 0 }) {
             </div>
             <div className="flex justify-between mb-2">
               <span
-                className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-widest"
+                className="font-['DM_Sans'] text-[9px] uppercase tracking-widest"
                 style={{ color: "rgba(35, 25, 20, 0.65)" }}
               >
                 Servicio (10%)
               </span>
               <span
-                className="font-['JetBrains_Mono'] text-[10px]"
+                className="font-['DM_Sans'] text-[10px]"
                 style={{ color: "#4A1F1F" }}
               >
                 ${pedido.servicio.toFixed(2)}
@@ -327,7 +313,11 @@ function PedidoCard({ pedido, index = 0 }) {
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.6; transform: scale(0.85); }
+          50% { opacity: 0.6; transform: scale(0.85); }
+        }
+        @keyframes pedidoFadeUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </article>

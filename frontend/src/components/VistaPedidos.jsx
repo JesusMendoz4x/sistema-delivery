@@ -43,7 +43,6 @@ const ESTADOS = [
   },
 ];
 
-// ── Modal confirmación ───────────────────────────────────────────────────────
 function ModalConfirmar({ onAceptar, onCancelar }) {
   const suc = SUCURSALES[SUCURSAL_DEFAULT];
   return (
@@ -56,10 +55,11 @@ function ModalConfirmar({ onAceptar, onCancelar }) {
         style={{
           background: "#F2E6D8",
           border: "1px solid rgba(90,70,54,0.2)",
-          animation: "pedidoFadeUp 0.25s ease both",
+          opacity: 0,
+          animation: "pedidoFadeUp 0.25s ease 0.05s both",
         }}
       >
-        <p className="font-['JetBrains_Mono'] text-[10px] text-[#9B2335] uppercase tracking-[0.3em] mb-3">
+        <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.3em] mb-3">
           — Confirmar orden
         </p>
         <h2 className="font-['EB_Garamond'] text-2xl text-[#2f1f14] mb-2">
@@ -71,14 +71,14 @@ function ModalConfirmar({ onAceptar, onCancelar }) {
         <div className="flex gap-3">
           <button
             onClick={onCancelar}
-            className="flex-1 py-3 font-['JetBrains_Mono'] text-xs uppercase tracking-widest text-[#7a6655] hover:text-[#2f1f14] transition-colors"
+            className="flex-1 py-3 font-['DM_Sans'] text-xs uppercase tracking-widest text-[#7a6655] hover:text-[#2f1f14] transition-colors"
             style={{ border: "1px solid rgba(90,70,54,0.25)" }}
           >
             Cancelar
           </button>
           <button
             onClick={onAceptar}
-            className="flex-1 py-3 bg-[#9B2335] font-['JetBrains_Mono'] text-xs uppercase tracking-widest text-white hover:bg-[#7d1c2a] transition-colors active:scale-[0.98]"
+            className="flex-1 py-3 bg-[#9B2335] font-['DM_Sans'] text-xs uppercase tracking-widest text-white hover:bg-[#7d1c2a] transition-colors active:scale-[0.98]"
           >
             Confirmar
           </button>
@@ -88,11 +88,9 @@ function ModalConfirmar({ onAceptar, onCancelar }) {
   );
 }
 
-// ── Panel vertical de estado — flota a la derecha sobre el mapa ─────────────
 function PanelEstado({ pedido, onCerrar }) {
   const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
   const sucursal = SUCURSALES[pedido.sucursalId ?? SUCURSAL_DEFAULT];
-  const estadoActivo = ESTADOS[idxActual];
 
   return (
     <div
@@ -102,16 +100,16 @@ function PanelEstado({ pedido, onCerrar }) {
         background: "rgba(10,6,3,0.94)",
         border: "1px solid rgba(212,175,106,0.14)",
         backdropFilter: "blur(14px)",
-        animation: "panelSlideRight 0.3s ease both",
+        opacity: 0,
+        animation: "panelSlideRight 0.3s ease 0.05s both",
       }}
     >
-      {/* Header */}
       <div
         className="px-5 py-4 flex items-start justify-between flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(212,175,106,0.1)" }}
       >
         <div>
-          <p className="font-['JetBrains_Mono'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
+          <p className="font-['DM_Sans'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
             #{String(pedido.id).slice(-4).padStart(4, "0")}
           </p>
           <p className="font-['EB_Garamond'] text-[17px] text-[#F2E6D8] leading-tight">
@@ -123,19 +121,18 @@ function PanelEstado({ pedido, onCerrar }) {
           className="w-6 h-6 flex items-center justify-center text-[#5a4636] hover:text-[#F2E6D8] transition-colors flex-shrink-0 mt-0.5"
           style={{ border: "1px solid rgba(212,175,106,0.15)" }}
         >
-          <span className="font-['JetBrains_Mono'] text-[10px]">✕</span>
+          <span className="font-['DM_Sans'] text-[10px]">✕</span>
         </button>
       </div>
 
-      {/* Sucursal */}
       <div
         className="px-5 py-4 flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
       >
-        <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
+        <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
           Sucursal
         </p>
-        <p className="font-['EB_Garamond'] text-[15px] text-[#F2E6D8]">
+        <p className="font-['DM_Sans'] text-[15px] font-medium text-[#F2E6D8]">
           {sucursal.nombre}
         </p>
         <p className="font-['DM_Sans'] text-[10px] text-[#5a4636] mt-0.5 leading-snug">
@@ -143,12 +140,11 @@ function PanelEstado({ pedido, onCerrar }) {
         </p>
       </div>
 
-      {/* Timeline vertical */}
       <div
         className="flex-1 overflow-y-auto px-5 py-4"
         style={{ overscrollBehavior: "contain" }}
       >
-        <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
+        <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
           Progreso
         </p>
         <div className="flex flex-col gap-0">
@@ -158,7 +154,6 @@ function PanelEstado({ pedido, onCerrar }) {
             const futuro = i > idxActual;
             return (
               <div key={e.key} className="flex gap-3">
-                {/* Línea + dot */}
                 <div className="flex flex-col items-center flex-shrink-0">
                   <div
                     className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0"
@@ -186,7 +181,6 @@ function PanelEstado({ pedido, onCerrar }) {
                       {e.icon}
                     </span>
                   </div>
-                  {/* Línea vertical entre dots */}
                   {i < ESTADOS.length - 1 && (
                     <div
                       className="w-px flex-1 my-1 transition-all duration-500"
@@ -199,11 +193,9 @@ function PanelEstado({ pedido, onCerrar }) {
                     />
                   )}
                 </div>
-
-                {/* Texto */}
                 <div className="pb-5">
                   <p
-                    className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-wider mb-0.5"
+                    className="font-['DM_Sans'] text-[9px] uppercase tracking-wider mb-0.5"
                     style={{ color: futuro ? "rgba(90,70,54,0.4)" : e.color }}
                   >
                     {e.label}
@@ -218,7 +210,7 @@ function PanelEstado({ pedido, onCerrar }) {
                   )}
                   {done && (
                     <p
-                      className="font-['JetBrains_Mono'] text-[9px]"
+                      className="font-['DM_Sans'] text-[9px]"
                       style={{ color: "rgba(90,70,54,0.5)" }}
                     >
                       Completado
@@ -231,7 +223,6 @@ function PanelEstado({ pedido, onCerrar }) {
         </div>
       </div>
 
-      {/* Footer — total */}
       <div
         className="px-5 py-4 flex items-center justify-between flex-shrink-0"
         style={{
@@ -240,7 +231,7 @@ function PanelEstado({ pedido, onCerrar }) {
         }}
       >
         <div>
-          <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
             {pedido.items.reduce((a, i) => a + i.cantidad, 0)} productos
           </p>
           <p className="font-['DM_Sans'] text-[11px] text-[#F2E6D8]/50 mt-0.5">
@@ -248,7 +239,7 @@ function PanelEstado({ pedido, onCerrar }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="font-['JetBrains_Mono'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
             Total
           </p>
           <p className="font-['EB_Garamond'] text-xl text-[#D4AF6A]">
@@ -260,7 +251,6 @@ function PanelEstado({ pedido, onCerrar }) {
   );
 }
 
-// ── Vista principal ──────────────────────────────────────────────────────────
 function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
@@ -287,29 +277,44 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
       <style>{`
         @keyframes pedidoFadeUp {
           from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0);    }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes panelSlideRight {
           from { opacity: 0; transform: translateX(16px); }
-          to   { opacity: 1; transform: translateX(0);    }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes sidebarSlideLeft {
+          from { opacity: 0; transform: translateX(-24px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes mapaFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
       `}</style>
 
       <div className="flex pt-20" style={{ height: "calc(100vh - 5rem)" }}>
-        {/* ── Sidebar izquierdo ── */}
+        {/* Sidebar izquierdo — entra desde la izquierda */}
         <div
           className="flex-shrink-0 flex flex-col"
           style={{
             width: "400px",
             background: "rgb(10,10,10)",
             borderRight: "1px solid rgba(212,175,106,0.08)",
+            opacity: 0,
+            animation: "sidebarSlideLeft 0.5s ease 0.1s both",
           }}
         >
+          {/* Header sidebar */}
           <div
             className="px-6 pt-7 pb-5 flex-shrink-0"
-            style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
+            style={{
+              borderBottom: "1px solid rgba(212,175,106,0.08)",
+              opacity: 0,
+              animation: "pedidoFadeUp 0.4s ease 0.2s both",
+            }}
           >
-            <p className="font-['JetBrains_Mono'] text-[10px] text-[#9B2335] uppercase tracking-[0.3em] mb-1.5">
+            <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.3em] mb-1.5">
               — Mis pedidos
             </p>
             <div className="flex items-baseline justify-between">
@@ -317,19 +322,26 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
                 Órdenes
               </h1>
               {pedidos.length > 0 && (
-                <span className="font-['JetBrains_Mono'] text-[10px] text-[#5a4636] uppercase tracking-widest">
+                <span className="font-['DM_Sans'] text-[10px] text-[#5a4636] uppercase tracking-widest">
                   {pedidos.length} {pedidos.length === 1 ? "orden" : "órdenes"}
                 </span>
               )}
             </div>
           </div>
 
+          {/* Lista de pedidos */}
           <div
             className="flex-grow overflow-y-auto px-4 py-4 space-y-3"
             style={{ overscrollBehavior: "contain" }}
           >
             {pedidos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
+              <div
+                className="flex flex-col items-center justify-center h-full text-center px-4"
+                style={{
+                  opacity: 0,
+                  animation: "pedidoFadeUp 0.5s ease 0.3s both",
+                }}
+              >
                 <p className="font-['EB_Garamond'] text-2xl text-[#F2E6D8]/15 mb-2">
                   Sin órdenes
                 </p>
@@ -357,10 +369,14 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           </div>
         </div>
 
-        {/* ── Panel derecho — mapa + tarjeta de estado ── */}
+        {/* Panel derecho — mapa */}
         <div
           className="flex-1 flex flex-col relative"
-          style={{ background: "#0a0a0a" }}
+          style={{
+            background: "#0a0a0a",
+            opacity: 0,
+            animation: "mapaFadeIn 0.6s ease 0.3s both",
+          }}
         >
           {/* Header mapa */}
           <div
@@ -368,10 +384,12 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             style={{
               borderBottom: "1px solid rgba(212,175,106,0.08)",
               background: "#290908",
+              opacity: 0,
+              animation: "pedidoFadeUp 0.4s ease 0.4s both",
             }}
           >
             <div>
-              <p className="font-['JetBrains_Mono'] text-[10px] text-[#9B2335] uppercase tracking-[0.25em] mb-0.5">
+              <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.25em] mb-0.5">
                 — Sucursal asignada
               </p>
               <p className="font-['EB_Garamond'] text-xl text-[#F2E6D8]">
@@ -384,7 +402,7 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             {pedidoSeleccionado !== null && (
               <button
                 onClick={() => setPedidoSeleccionado(null)}
-                className="font-['JetBrains_Mono'] text-[10px] text-[#5a4636] uppercase tracking-widest hover:text-[#F2E6D8] transition-colors"
+                className="font-['DM_Sans'] text-[10px] text-[#5a4636] uppercase tracking-widest hover:text-[#F2E6D8] transition-colors"
               >
                 ✕ Cerrar
               </button>
@@ -414,9 +432,9 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
               style={{ pointerEvents: "all", cursor: "default" }}
             />
 
-            {/* Pin — se centra entre el panel y el mapa visible cuando el panel está abierto */}
+            {/* Pin */}
             <div
-              className="absolute top-1/2 -translate-y-full pointer-events-none transition-all duration-300"
+              className="absolute top-1/2 pointer-events-none transition-all duration-300"
               style={{
                 left: pedidoActivo ? "calc(50% - 130px)" : "50%",
                 transform: "translate(-50%, -100%)",
@@ -428,7 +446,6 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
               />
             </div>
 
-            {/* Tarjeta de estado vertical a la derecha */}
             {pedidoActivo && (
               <PanelEstado
                 pedido={pedidoActivo}
