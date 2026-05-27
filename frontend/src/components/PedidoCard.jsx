@@ -5,22 +5,28 @@ const SUCURSAL = {
   direccion: "Macedonio Alcalá 402, Centro Histórico",
 };
 
+const ESTADOS = [
+  { key: "pendiente", label: "Pendiente" },
+  { key: "en_preparacion", label: "En preparación" },
+  { key: "listo", label: "Listo" },
+  { key: "entregado", label: "Entregado" },
+];
+
 function PedidoCard({ pedido, index = 0 }) {
   const [abierto, setAbierto] = useState(index === 0);
+  const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
 
   return (
     <article
       style={{
-        background:
-          "linear-gradient(145deg, #F4EFE8 0%, #E7D9C8 60%, #DDCBB7 100%)",
+        background: "rgba(242, 237, 228, 0.06)",
         borderRadius: "16px",
         overflow: "hidden",
-        boxShadow:
-          "0 4px 20px rgba(90,54,24,0.13), 0 1px 4px rgba(90,54,24,0.08), inset 0 1px 0 rgba(255,255,255,0.6)",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.38), 0 2px 6px rgba(0,0,0,0.24)",
         opacity: 0,
         animation: "pedidoFadeUp 0.4s ease both",
         animationDelay: `${index * 70}ms`,
-        border: "1px solid rgba(160,135,110,0.3)",
+        border: "1px solid rgba(212, 175, 106, 0.2)",
       }}
     >
       {/* Cabecera */}
@@ -37,30 +43,30 @@ function PedidoCard({ pedido, index = 0 }) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span
-              className="font-['EB_Garamond'] text-[16px]"
-              style={{ color: "#2B1B12" }}
+              className="font-['DM_Sans'] text-[14px] uppercase tracking-[0.2em]"
+              style={{ color: "#F2EDE4" }}
             >
               Pedido
             </span>
             <span
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
               style={{
-                background: "rgba(90, 70, 54, 0.5)",
-                boxShadow: "0 0 0 3px rgba(90, 70, 54, 0.2)",
+                background: "#D4AF6A",
+                boxShadow: "0 0 0 3px rgba(212, 175, 106, 0.2)",
               }}
             />
           </div>
           <div className="flex items-center gap-3">
             <p
               className="font-['DM_Sans'] text-[9px] uppercase tracking-wider"
-              style={{ color: "rgba(35, 25, 20, 0.6)" }}
+              style={{ color: "rgba(242, 237, 228, 0.7)" }}
             >
               {pedido.fecha}
             </p>
             <span
               className="font-['DM_Sans'] text-[11px] transition-transform duration-300 inline-block"
               style={{
-                color: "rgba(20, 18, 16, 0.55)",
+                color: "rgba(242, 237, 228, 0.8)",
                 transform: abierto ? "rotate(180deg)" : "rotate(0deg)",
               }}
             >
@@ -74,7 +80,7 @@ function PedidoCard({ pedido, index = 0 }) {
           <div className="min-w-0">
             <p
               className="font-['DM_Sans'] text-[10px] uppercase tracking-[0.28em]"
-              style={{ color: "rgba(20, 18, 16, 0.55)" }}
+              style={{ color: "rgba(242, 237, 228, 0.6)" }}
             >
               Pedido #{String(pedido.id).slice(-4).padStart(4, "0")}
             </p>
@@ -82,7 +88,7 @@ function PedidoCard({ pedido, index = 0 }) {
               className="font-['DM_Sans'] leading-none mt-2 font-medium"
               style={{
                 fontSize: "16px",
-                color: "#2B1B12",
+                color: "#F2EDE4",
                 letterSpacing: "-0.01em",
               }}
             >
@@ -92,13 +98,80 @@ function PedidoCard({ pedido, index = 0 }) {
           <div className="text-right flex-shrink-0">
             <p
               className="font-['DM_Sans'] text-[10px]"
-              style={{ color: "rgba(35, 25, 20, 0.6)" }}
+              style={{ color: "rgba(242, 237, 228, 0.6)" }}
             >
               {SUCURSAL.direccion}
             </p>
           </div>
         </div>
       </button>
+
+      {/* Barra de progreso */}
+      <div className="px-5 pb-4">
+        <div className="flex justify-between mb-2">
+          {ESTADOS.map((e, i) => {
+            const done = i < idxActual;
+            const activo = i === idxActual;
+            return (
+              <span
+                key={e.key}
+                className="font-['DM_Sans'] text-[8px] uppercase tracking-wide"
+                style={{
+                  color: done
+                    ? "#D4AF6A"
+                    : activo
+                      ? "#9B2335"
+                      : "rgba(212, 175, 106, 0.4)",
+                }}
+              >
+                {e.label}
+              </span>
+            );
+          })}
+        </div>
+        <div className="flex items-center">
+          {ESTADOS.map((e, i) => {
+            const done = i < idxActual;
+            const activo = i === idxActual;
+            return (
+              <div
+                key={e.key}
+                className="flex items-center flex-1 last:flex-none"
+              >
+                <div
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-500"
+                  style={{
+                    background: done
+                      ? "#D4AF6A"
+                      : activo
+                        ? "#9B2335"
+                        : "rgba(212, 175, 106, 0.15)",
+                    border: activo
+                      ? "2px solid #9B2335"
+                      : "2px solid transparent",
+                    boxShadow: activo
+                      ? "0 0 8px rgba(155, 35, 53, 0.55)"
+                      : "none",
+                    transform: activo ? "scale(1.25)" : "scale(1)",
+                  }}
+                />
+                {i < ESTADOS.length - 1 && (
+                  <div
+                    className="h-0.5 flex-1 transition-all duration-500 rounded-full"
+                    style={{
+                      background: done
+                        ? "rgba(212, 175, 106, 0.8)"
+                        : activo
+                          ? "rgba(155, 35, 53, 0.55)"
+                          : "rgba(212, 175, 106, 0.15)",
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Detalle colapsable */}
       <div
@@ -113,13 +186,13 @@ function PedidoCard({ pedido, index = 0 }) {
           style={{
             height: "1px",
             background:
-              "linear-gradient(90deg, transparent, rgba(110,90,70,0.45) 20%, rgba(110,90,70,0.45) 80%, transparent)",
+              "linear-gradient(90deg, transparent, rgba(212,175,106,0.25) 20%, rgba(212,175,106,0.25) 80%, transparent)",
           }}
         />
         <div className="mx-5 mb-3 flex items-center gap-3">
           <span
             className="font-['DM_Sans'] text-[9px] uppercase tracking-[0.35em]"
-            style={{ color: "rgba(30, 20, 16, 0.7)" }}
+            style={{ color: "rgba(242, 237, 228, 0.65)" }}
           >
             Ordenes
           </span>
@@ -127,7 +200,7 @@ function PedidoCard({ pedido, index = 0 }) {
             className="flex-1 h-px"
             style={{
               background:
-                "linear-gradient(90deg, rgba(110,90,70,0.7), rgba(110,90,70,0.25) 70%, transparent)",
+                "linear-gradient(90deg, rgba(212,175,106,0.6), rgba(212,175,106,0.2) 70%, transparent)",
             }}
           />
         </div>
@@ -149,20 +222,20 @@ function PedidoCard({ pedido, index = 0 }) {
               <div className="flex-grow flex justify-between items-baseline min-w-0 gap-2">
                 <span
                   className="font-['DM_Sans'] text-[13px] truncate"
-                  style={{ color: "#2B1B12" }}
+                  style={{ color: "#F2EDE4" }}
                 >
                   {item.nombre}
                 </span>
                 <span
                   className="font-['DM_Sans'] text-[9px] flex-shrink-0"
-                  style={{ color: "rgba(35, 25, 20, 0.65)" }}
+                  style={{ color: "rgba(242, 237, 228, 0.65)" }}
                 >
                   ×{item.cantidad}
                 </span>
               </div>
               <span
                 className="font-['DM_Sans'] text-[11px] flex-shrink-0"
-                style={{ color: "#4A1F1F" }}
+                style={{ color: "#D4AF6A" }}
               >
                 ${(parseFloat(item.precio) * item.cantidad).toFixed(2)}
               </span>
@@ -171,18 +244,18 @@ function PedidoCard({ pedido, index = 0 }) {
 
           <div
             className="pt-3 mt-1"
-            style={{ borderTop: "1px dashed rgba(110,90,70,0.55)" }}
+            style={{ borderTop: "1px dashed rgba(212, 175, 106, 0.3)" }}
           >
             <div className="flex justify-between mb-1">
               <span
                 className="font-['DM_Sans'] text-[9px] uppercase tracking-widest"
-                style={{ color: "rgba(35, 25, 20, 0.65)" }}
+                style={{ color: "rgba(242, 237, 228, 0.65)" }}
               >
                 Subtotal
               </span>
               <span
                 className="font-['DM_Sans'] text-[10px]"
-                style={{ color: "#4A1F1F" }}
+                style={{ color: "#D4AF6A" }}
               >
                 ${pedido.subtotal.toFixed(2)}
               </span>
@@ -190,13 +263,13 @@ function PedidoCard({ pedido, index = 0 }) {
             <div className="flex justify-between mb-2">
               <span
                 className="font-['DM_Sans'] text-[9px] uppercase tracking-widest"
-                style={{ color: "rgba(35, 25, 20, 0.65)" }}
+                style={{ color: "rgba(242, 237, 228, 0.65)" }}
               >
                 Servicio (10%)
               </span>
               <span
                 className="font-['DM_Sans'] text-[10px]"
-                style={{ color: "#4A1F1F" }}
+                style={{ color: "#D4AF6A" }}
               >
                 ${pedido.servicio.toFixed(2)}
               </span>

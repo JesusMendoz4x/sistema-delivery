@@ -105,7 +105,7 @@ function PanelEstado({ pedido, onCerrar }) {
       }}
     >
       <div
-        className="px-5 py-4 flex items-start justify-between flex-shrink-0"
+        className="px-5 py-5 flex items-start justify-between flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(212,175,106,0.1)" }}
       >
         <div>
@@ -126,7 +126,7 @@ function PanelEstado({ pedido, onCerrar }) {
       </div>
 
       <div
-        className="px-5 py-4 flex-shrink-0"
+        className="px-5 py-5 flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
       >
         <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
@@ -141,13 +141,13 @@ function PanelEstado({ pedido, onCerrar }) {
       </div>
 
       <div
-        className="flex-1 overflow-y-auto px-5 py-4"
+        className="flex-1 overflow-y-auto px-5 py-5"
         style={{ overscrollBehavior: "contain" }}
       >
         <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
           Progreso
         </p>
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-2">
           {ESTADOS.map((e, i) => {
             const done = i < idxActual;
             const activo = i === idxActual;
@@ -159,12 +159,14 @@ function PanelEstado({ pedido, onCerrar }) {
                     className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0"
                     style={{
                       background: activo
-                        ? e.color
+                        ? "#9B2335"
                         : done
-                          ? `${e.color}22`
-                          : "rgba(20,12,6,1)",
-                      border: `1px solid ${futuro ? "rgba(90,70,54,0.2)" : e.color}`,
-                      boxShadow: activo ? `0 0 10px ${e.color}55` : "none",
+                          ? "#D4AF6A"
+                          : "rgba(212,175,106,0.15)",
+                      border: `1px solid ${futuro ? "rgba(212,175,106,0.15)" : "rgba(212,175,106,0.85)"}`,
+                      boxShadow: activo
+                        ? "0 0 10px rgba(155, 35, 53, 0.55)"
+                        : "none",
                     }}
                   >
                     <span
@@ -174,8 +176,8 @@ function PanelEstado({ pedido, onCerrar }) {
                         color: activo
                           ? "#fff"
                           : done
-                            ? e.color
-                            : "rgba(90,70,54,0.35)",
+                            ? "#3D3530"
+                            : "rgba(61,53,48,0.35)",
                       }}
                     >
                       {e.icon}
@@ -185,10 +187,10 @@ function PanelEstado({ pedido, onCerrar }) {
                     <div
                       className="w-px flex-1 my-1 transition-all duration-500"
                       style={{
-                        minHeight: "28px",
+                        minHeight: "36px",
                         background: done
-                          ? `${e.color}55`
-                          : "rgba(90,70,54,0.15)",
+                          ? "rgba(212,175,106,0.65)"
+                          : "rgba(212,175,106,0.15)",
                       }}
                     />
                   )}
@@ -196,7 +198,13 @@ function PanelEstado({ pedido, onCerrar }) {
                 <div className="pb-5">
                   <p
                     className="font-['DM_Sans'] text-[9px] uppercase tracking-wider mb-0.5"
-                    style={{ color: futuro ? "rgba(90,70,54,0.4)" : e.color }}
+                    style={{
+                      color: activo
+                        ? "#9B2335"
+                        : done
+                          ? "#D4AF6A"
+                          : "rgba(212,175,106,0.4)",
+                    }}
                   >
                     {e.label}
                   </p>
@@ -224,7 +232,7 @@ function PanelEstado({ pedido, onCerrar }) {
       </div>
 
       <div
-        className="px-5 py-4 flex items-center justify-between flex-shrink-0"
+        className="px-5 py-5 flex items-center justify-between flex-shrink-0"
         style={{
           borderTop: "1px solid rgba(212,175,106,0.08)",
           background: "rgba(0,0,0,0.25)",
@@ -299,8 +307,9 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           className="flex-shrink-0 flex flex-col"
           style={{
             width: "400px",
-            background: "rgb(10,10,10)",
-            borderRight: "1px solid rgba(212,175,106,0.08)",
+            background:
+              "linear-gradient(180deg, rgba(20,16,14,0.98) 0%, rgba(12,10,9,0.98) 55%, rgba(10,10,10,0.98) 100%)",
+            borderRight: "1px solid rgba(212,175,106,0.14)",
             opacity: 0,
             animation: "sidebarSlideLeft 0.5s ease 0.1s both",
           }}
@@ -309,9 +318,11 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
           <div
             className="px-6 pt-7 pb-5 flex-shrink-0"
             style={{
-              borderBottom: "1px solid rgba(212,175,106,0.08)",
+              borderBottom: "1px solid rgba(212,175,106,0.14)",
               opacity: 0,
               animation: "pedidoFadeUp 0.4s ease 0.2s both",
+              background:
+                "linear-gradient(180deg, rgba(41,9,8,0.85) 0%, rgba(10,10,10,0.25) 100%)",
             }}
           >
             <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.3em] mb-1.5">
@@ -394,17 +405,19 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             <div
               className="px-8 py-5 flex-shrink-0 flex items-center justify-between"
               style={{
-                borderBottom: "1px solid rgba(212,175,106,0.08)",
-                background: "#290908",
+                borderBottom: "1px solid rgba(212,175,106,0.16)",
+                background:
+                  "linear-gradient(90deg, rgba(41,9,8,0.95) 0%, rgba(26,26,26,0.95) 55%, rgba(12,10,9,0.95) 100%)",
+                boxShadow: "0 10px 24px rgba(0,0,0,0.4)",
                 opacity: 0,
                 animation: "pedidoFadeUp 0.4s ease 0.4s both",
               }}
             >
               <div>
-                <p className="font-['DM_Sans'] text-[10px] text-[#9B2335] uppercase tracking-[0.25em] mb-0.5">
+                <p className="font-['JetBrains_Mono'] text-[9px] text-[#9B2335] uppercase tracking-[0.25em] mb-1">
                   — Sucursal asignada
                 </p>
-                <p className="font-['EB_Garamond'] text-xl text-[#F2E6D8]">
+                <p className="font-['EB_Garamond'] text-[24px] text-[#F2EDE4] leading-tight">
                   {sucursalActiva.nombre}
                 </p>
                 <p className="font-['DM_Sans'] text-[11px] text-[#5a4636]">
@@ -422,40 +435,133 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             </div>
 
             {/* Mapa */}
-            <div className="flex-1 relative overflow-hidden">
-              <iframe
-                key={sucursalActiva.embedUrl}
-                title="Mapa sucursal"
-                src={sucursalActiva.embedUrl}
-                width="100%"
-                height="100%"
-                style={{
-                  border: 0,
-                  display: "block",
-                  filter: "grayscale(1) contrast(0.88) sepia(0.12)",
-                  pointerEvents: "none",
-                }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+            <div className="flex-1 flex items-center justify-center p-6">
               <div
-                className="absolute inset-0"
-                style={{ pointerEvents: "all", cursor: "default" }}
-              />
-
-              {/* Pin */}
-              <div
-                className="absolute top-1/2 pointer-events-none transition-all duration-300"
+                className="relative w-full h-full overflow-hidden"
                 style={{
-                  left: "50%",
-                  transform: "translate(-50%, -100%)",
+                  maxWidth: "860px",
+                  maxHeight: "520px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(212,175,106,0.28)",
+                  boxShadow:
+                    "0 18px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(26,26,26,0.8) inset",
+                  background: "#1A1A1A",
                 }}
               >
-                <div
-                  className="w-5 h-5 rounded-full bg-[#9B2335] border-2 border-[#F2E6D8]"
-                  style={{ boxShadow: "0 0 12px rgba(155,35,53,0.7)" }}
+                <iframe
+                  key={sucursalActiva.embedUrl}
+                  title="Mapa sucursal"
+                  src={sucursalActiva.embedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{
+                    border: 0,
+                    display: "block",
+                    filter:
+                      "grayscale(1) contrast(0.92) sepia(0.2) brightness(0.8)",
+                    pointerEvents: "none",
+                  }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    pointerEvents: "all",
+                    cursor: "default",
+                    background:
+                      "linear-gradient(180deg, rgba(41,9,8,0.22) 0%, rgba(10,10,10,0.45) 100%)",
+                    mixBlendMode: "multiply",
+                  }}
+                />
+
+                <div
+                  className="absolute top-4 left-4 px-4 py-3"
+                  style={{
+                    background: "rgba(10,10,10,0.7)",
+                    border: "1px solid rgba(212,175,106,0.2)",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.35)",
+                    backdropFilter: "blur(6px)",
+                  }}
+                >
+                  <p className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.25em] text-[#9B2335] mb-1">
+                    Sucursal asignada
+                  </p>
+                  <p className="font-['EB_Garamond'] text-[18px] text-[#F2EDE4] leading-tight">
+                    {sucursalActiva.nombre}
+                  </p>
+                  <p className="font-['DM_Sans'] text-[10px] text-[#D4AF6A]/80">
+                    {sucursalActiva.direccion}
+                  </p>
+                </div>
+
+                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    className="w-8 h-8 flex items-center justify-center text-[#D4AF6A]"
+                    style={{
+                      background: "rgba(10,10,10,0.7)",
+                      border: "1px solid rgba(212,175,106,0.25)",
+                      borderRadius: "999px",
+                    }}
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    className="w-8 h-8 flex items-center justify-center text-[#D4AF6A]"
+                    style={{
+                      background: "rgba(10,10,10,0.7)",
+                      border: "1px solid rgba(212,175,106,0.25)",
+                      borderRadius: "999px",
+                    }}
+                  >
+                    -
+                  </button>
+                  <button
+                    type="button"
+                    className="w-8 h-8 flex items-center justify-center text-[#D4AF6A]"
+                    style={{
+                      background: "rgba(10,10,10,0.7)",
+                      border: "1px solid rgba(212,175,106,0.25)",
+                      borderRadius: "999px",
+                    }}
+                  >
+                    ⌖
+                  </button>
+                </div>
+
+                {/* Pin */}
+                <div
+                  className="absolute top-1/2 pointer-events-none transition-all duration-300"
+                  style={{
+                    left: "50%",
+                    transform: "translate(-50%, -100%)",
+                  }}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full bg-[#9B2335] border-2 border-[#D4AF6A]"
+                    style={{
+                      boxShadow:
+                        "0 0 0 6px rgba(155,35,53,0.25), 0 0 16px rgba(155,35,53,0.75)",
+                    }}
+                  />
+                </div>
+
+                <div
+                  className="absolute left-4 bottom-4 px-3 py-2"
+                  style={{
+                    background: "rgba(10,10,10,0.7)",
+                    border: "1px solid rgba(212,175,106,0.18)",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <p className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.25em] text-[#D4AF6A]">
+                    Mapa activo · pin Casablanca
+                  </p>
+                </div>
               </div>
 
               {pedidoActivo && (
