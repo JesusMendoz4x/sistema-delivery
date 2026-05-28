@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
-const mongoHost = 'mongodb://127.0.0.1:27017';
+const mongoHost = process.env.MONGO_URI 
+    ? process.env.MONGO_URI.replace(/\/usuariosdb$/, '') 
+    : 'mongodb://127.0.0.1:27017';
+
 
 // Datos de prueba basados en el MenuGrid.jsx del frontend
 const productosSeed = [
@@ -163,7 +166,7 @@ async function seed() {
         console.log('\n[4/5] Creando stock para los productos en la Sucursal Centro...');
         const InventarioSchema = new mongoose.Schema({
             productoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto' },
-            sucursalId: mongoose.Schema.Types.ObjectId,
+            sucursalId: String,
             stock: Number
         });
         const InventarioModel = prodConn.model('Inventario', InventarioSchema);
@@ -173,7 +176,7 @@ async function seed() {
         for (const prod of createdProducts) {
             await InventarioModel.create({
                 productoId: prod._id,
-                sucursalId: sucursalOaxaca._id,
+                sucursalId: sucursalOaxaca._id.toString(),
                 stock: 100 // 100 unidades de stock por defecto
             });
         }

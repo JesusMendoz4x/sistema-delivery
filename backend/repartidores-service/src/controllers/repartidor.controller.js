@@ -83,3 +83,40 @@ exports.activarRepartidor = async (req, res) => {
         res.status(500).json({ message: 'Error al activar el repartidor', error: error.message });
     }
 }
+
+// Buscar un repartidor con estado 'disponible' y marcarlo como 'en_ruta' de forma atómica
+exports.asignarRepartidorDisponible = async (req, res) => {
+    try {
+        console.log(`[Repartidores Service] [Correlation-ID: ${req.correlationId}] Buscando repartidor disponible...`);
+        
+        // Buscamos y actualizamos a 'en_ruta' para prevenir condiciones de carrera
+        const repartidor = await Repartidor.findOneAndUpdate(
+            { estado: 'disponible' },
+            { estado: 'en_ruta' },
+            { new: true, runValidators: true }
+        );
+
+        if (!repartidor) {
+            console.log(`[Repartidores Service] [Correlation-ID: ${req.correlationId}] No hay repartidores disponibles en este momento.`);
+            return res.json({
+                ok: true,
+                mensaje: 'No hay repartidores disponibles en este momento.',
+                repartidor: null
+            });
+        }
+
+        console.log(`[Repartidores Service] [Correlation-ID: ${req.correlationId}] Repartidor asignado exitosamente: ${repartidor.nombre} (${repartidor._id})`);
+        res.json({
+            ok: true,
+            mensaje: 'Repartidor asignado con éxito.',
+            repartidor
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            ok: false, 
+            message: 'Error al asignar repartidor disponible', 
+            error: error.message 
+        });
+    }
+};
+
