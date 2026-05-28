@@ -1,4 +1,49 @@
+import { useRef } from "react";
 import { useAuth } from "../context/AuthContext";
+
+function lanzarIconoVolador(origenEl) {
+  const destino = document.getElementById("carrito-icono-nav");
+  if (!destino || !origenEl) return;
+
+  const origen = origenEl.getBoundingClientRect();
+  const dest = destino.getBoundingClientRect();
+
+  // Crear ícono volador
+  const icono = document.createElement("span");
+  icono.className = "material-symbols-outlined";
+  icono.textContent = "shopping_bag";
+  icono.style.cssText = `
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    font-size: 18px;
+    color: #D4AF6A;
+    left: ${origen.left + origen.width / 2}px;
+    top: ${origen.top + origen.height / 2}px;
+    transform: translate(-50%, -50%) scale(1);
+    transition: left 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                top 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.55s ease,
+                transform 0.55s ease;
+    opacity: 1;
+  `;
+
+  document.body.appendChild(icono);
+
+  // Forzar reflow antes de animar
+  void icono.offsetWidth;
+
+  // Animar hacia el ícono del Navbar
+  icono.style.left = `${dest.left + dest.width / 2}px`;
+  icono.style.top = `${dest.top + dest.height / 2}px`;
+  icono.style.transform = "translate(-50%, -50%) scale(0.5)";
+  icono.style.opacity = "0";
+
+  // Limpiar después de la animación
+  setTimeout(() => {
+    if (document.body.contains(icono)) document.body.removeChild(icono);
+  }, 600);
+}
 
 function MenuCard({
   nombre,
@@ -11,6 +56,8 @@ function MenuCard({
   variant = "gold",
 }) {
   const { isLoggedIn, openAuthWall } = useAuth();
+  const btnRef = useRef(null);
+
   const paletteByVariant = {
     gold: {
       accent: "#D4AF6A",
@@ -51,17 +98,15 @@ function MenuCard({
 
   const palette = paletteByVariant[variant] ?? paletteByVariant.gold;
 
-  const handleAgregar = () => {
+  const handleAgregar = (e) => {
+    e.stopPropagation();
     if (!isLoggedIn) {
       openAuthWall("agregar");
       return;
     }
+    // Lanzar ícono volador desde el botón hacia el carrito
+    lanzarIconoVolador(btnRef.current);
     onAgregar();
-  };
-
-  const handleOpen = () => {
-    if (!onOpen) return;
-    onOpen();
   };
 
   return (
@@ -69,21 +114,18 @@ function MenuCard({
       className="group relative z-10"
       role={onOpen ? "button" : undefined}
       tabIndex={onOpen ? 0 : undefined}
-      onClick={handleOpen}
+      onClick={onOpen ?? undefined}
       onKeyDown={(event) => {
         if (!onOpen) return;
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          handleOpen();
+          onOpen();
         }
       }}
     >
       <div
         className="absolute -inset-1 rounded-[16px] opacity-0 blur-[14px] transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: palette.glow,
-          pointerEvents: "none",
-        }}
+        style={{ background: palette.glow, pointerEvents: "none" }}
       />
       <div
         className="relative flex flex-col items-center p-7 transition-all duration-300 group-hover:scale-[1.03]"
@@ -108,10 +150,7 @@ function MenuCard({
         {badge && (
           <div
             className="absolute top-3 right-3 font-['JetBrains_Mono'] text-[9px] uppercase tracking-widest px-2 py-1"
-            style={{
-              background: palette.accent,
-              color: palette.badgeText,
-            }}
+            style={{ background: palette.accent, color: palette.badgeText }}
           >
             {badge}
           </div>
@@ -161,10 +200,8 @@ function MenuCard({
               ${precio}
             </span>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAgregar();
-              }}
+              ref={btnRef}
+              onClick={handleAgregar}
               onMouseDown={(e) => e.stopPropagation()}
               className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-widest px-4 py-2 transition-colors duration-200 active:scale-95"
               style={{

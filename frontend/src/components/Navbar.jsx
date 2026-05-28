@@ -87,6 +87,7 @@ function Navbar({
         >
           <div className="relative">
             <span
+              id="carrito-icono-nav"
               ref={iconoRef}
               className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors inline-block"
             >
