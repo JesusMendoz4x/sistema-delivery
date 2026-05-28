@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "concurrently": "^8.2.2",
-    "mongoose": "^9.6.2"
+    "mongoose": "^9.6.2",
+    "bcryptjs": "^2.4.3"
   }
 }
+
