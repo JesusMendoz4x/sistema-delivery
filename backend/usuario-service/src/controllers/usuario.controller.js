@@ -43,6 +43,14 @@ exports.obtenerUsuarioPorId = async (req, res) => {
 
 exports.actualizarUsuario = async (req, res) => {
     try {
+        // Si el usuario intenta cambiar su contraseña, la ciframos manualmente
+        // ya que findByIdAndUpdate se salta los middlewares de save de Mongoose
+        if (req.body.password) {
+            const bcrypt = require('bcryptjs');
+            const salt = await bcrypt.genSalt(10);
+            req.body.password = await bcrypt.hash(req.body.password, salt);
+        }
+
         const usuario = await Usuario.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
@@ -104,8 +112,9 @@ exports.loginUsuario = async (req, res) => {
             return res.status(403).json({ message: 'El usuario está inactivo. Contacte al administrador.' });
         }
 
-        // Comparación simple de contraseña en texto plano
-        if (usuario.password !== password) {
+        // Comparación segura de contraseña con hash bcrypt
+        const esValida = await usuario.compararPassword(password);
+        if (!esValida) {
             return res.status(401).json({ message: 'Credenciales incorrectas' });
         }
 

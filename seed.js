@@ -68,6 +68,7 @@ async function seed() {
         console.log('[1/5] Conectando a base de datos de Usuarios...');
         const userConn = await mongoose.createConnection(`${mongoHost}/usuariosdb`).asPromise();
         
+        const bcrypt = require('bcryptjs');
         const UsuarioSchema = new mongoose.Schema({
             nombre: String,
             email: { type: String, unique: true },
@@ -77,7 +78,21 @@ async function seed() {
             rol: String,
             estado: { type: String, default: 'activo' }
         });
+
+        // Cifrar contraseñas del seeder usando el mismo algoritmo que el microservicio
+        UsuarioSchema.pre('save', async function(next) {
+            if (!this.isModified('password')) return next();
+            try {
+                const salt = await bcrypt.genSalt(10);
+                this.password = await bcrypt.hash(this.password, salt);
+                next();
+            } catch (error) {
+                next(error);
+            }
+        });
+
         const UsuarioModel = userConn.model('Usuario', UsuarioSchema);
+
         
         await UsuarioModel.deleteMany({});
         console.log(' Limpiados usuarios previos.');
