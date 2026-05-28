@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginModalModo, setLoginModalModo] = useState("login");
   const [showAuthWall, setShowAuthWall] = useState(false);
   const [authWallMotivo, setAuthWallMotivo] = useState(null);
 
@@ -18,7 +19,11 @@ export function AuthProvider({ children }) {
   };
 
   const loginAdmin = () => {
-    setUser({ nombre: "Administrador", rol: "admin", email: "admin@sistema.com" });
+    setUser({
+      nombre: "Administrador",
+      rol: "admin",
+      email: "admin@sistema.com",
+    });
     setIsLoggedIn(true);
   };
 
@@ -38,7 +43,14 @@ export function AuthProvider({ children }) {
     setAuthWallMotivo(null);
   };
 
-  const confirmarAuthWall = () => {
+  const openLoginModal = () => {
+    setLoginModalModo("login");
+    setShowAuthWall(false);
+    setShowLoginModal(true);
+  };
+
+  const openRegisterModal = () => {
+    setLoginModalModo("register");
     setShowAuthWall(false);
     setShowLoginModal(true);
   };
@@ -54,12 +66,14 @@ export function AuthProvider({ children }) {
         loginAdmin,
         logout,
         showLoginModal,
+        loginModalModo,
+        openLoginModal,
+        openRegisterModal,
         closeLoginModal,
         showAuthWall,
         authWallMotivo,
         openAuthWall,
         closeAuthWall,
-        confirmarAuthWall,
       }}
     >
       {children}

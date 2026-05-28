@@ -15,8 +15,13 @@ const MENSAJES = {
 };
 
 function AuthWall() {
-  const { showAuthWall, authWallMotivo, closeAuthWall, confirmarAuthWall } =
-    useAuth();
+  const {
+    showAuthWall,
+    authWallMotivo,
+    closeAuthWall,
+    openLoginModal,
+    openRegisterModal,
+  } = useAuth();
 
   if (!showAuthWall) return null;
 
@@ -75,11 +80,9 @@ function AuthWall() {
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <p
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "9px",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "rgba(212, 175, 106, 0.6)",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "13px",
+              color: "rgba(242, 237, 228, 0.75)",
               marginBottom: "8px",
             }}
           >
@@ -87,7 +90,7 @@ function AuthWall() {
           </p>
           <p
             style={{
-              fontFamily: "'Nunito', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: "13px",
               color: "rgba(242, 237, 228, 0.65)",
               lineHeight: "1.6",
@@ -101,14 +104,12 @@ function AuthWall() {
         {/* Acciones */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <button
-            onClick={confirmarAuthWall}
+            onClick={openLoginModal}
             style={{
               width: "100%",
               padding: "10px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "10px",
-              textTransform: "uppercase",
-              letterSpacing: "0.18em",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "13px",
               color: "#F2EDE4",
               backgroundColor: "#9B2335",
               border: "none",
@@ -118,19 +119,17 @@ function AuthWall() {
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
           >
-            Iniciar sesión
+            Iniciar sesion
           </button>
 
           <button
-            onClick={closeAuthWall}
+            onClick={openRegisterModal}
             style={{
               width: "100%",
               padding: "10px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "10px",
-              textTransform: "uppercase",
-              letterSpacing: "0.18em",
-              color: "rgba(242, 237, 228, 0.4)",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "13px",
+              color: "rgba(242, 237, 228, 0.5)",
               backgroundColor: "transparent",
               border: "1px solid rgba(212, 175, 106, 0.15)",
               cursor: "pointer",
@@ -145,7 +144,7 @@ function AuthWall() {
               e.currentTarget.style.borderColor = "rgba(212, 175, 106, 0.15)";
             }}
           >
-            Cancelar
+            Registrarme
           </button>
         </div>
 

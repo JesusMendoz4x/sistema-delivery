@@ -40,14 +40,111 @@ function Toast({ mensaje, visible }) {
   );
 }
 
+function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
+  if (!visible) return null;
+
+  const esConfirmado = estado === "confirmado";
+
+  return (
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !esConfirmado) onCerrar();
+      }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(10, 10, 10, 0.78)",
+        backdropFilter: "blur(6px)",
+      }}
+    >
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: "340px",
+          margin: "0 16px",
+          padding: "28px",
+          backgroundColor: "#141418",
+          border: "1px solid rgba(226, 227, 230, 0.15)",
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "16px",
+            color: "#F2F2F4",
+            marginBottom: "8px",
+          }}
+        >
+          {esConfirmado ? "Pedido confirmado" : "Confirmar pedido"}
+        </p>
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "13px",
+            color: "rgba(242, 242, 244, 0.65)",
+            marginBottom: "20px",
+          }}
+        >
+          {esConfirmado
+            ? "Tu pedido fue registrado correctamente"
+            : "Revisa tu orden antes de continuar"}
+        </p>
+
+        {!esConfirmado && (
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              onClick={onCerrar}
+              style={{
+                flex: 1,
+                padding: "10px",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "13px",
+                color: "rgba(242, 242, 244, 0.75)",
+                backgroundColor: "transparent",
+                border: "1px solid rgba(226, 227, 230, 0.2)",
+                cursor: "pointer",
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onConfirmar}
+              style={{
+                flex: 1,
+                padding: "10px",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "13px",
+                color: "#0B0B0E",
+                backgroundColor: "#D95F5F",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Confirmar
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ClienteHomeInner() {
-  const { isLoggedIn, login, logout, openAuthWall } = useAuth();
+  const { isLoggedIn, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const [pedidos, setPedidos] = useState([]);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
 
   // Toast
   const [toastVisible, setToastVisible] = useState(false);
@@ -159,7 +256,21 @@ function ClienteHomeInner() {
     ]);
     setCarrito([]);
     setMostrarCarrito(false);
-    handleCategoriaClick("Pedidos");
+  };
+
+  const abrirConfirmacion = () => {
+    if (carrito.length === 0) return;
+    setEstadoConfirmacion("confirmar");
+    setMostrarConfirmacion(true);
+  };
+
+  const confirmarPedido = () => {
+    ejecutarPedido();
+    setEstadoConfirmacion("confirmado");
+    setTimeout(() => {
+      setMostrarConfirmacion(false);
+      handleCategoriaClick("Pedidos");
+    }, 1200);
   };
 
   return (
@@ -245,7 +356,7 @@ function ClienteHomeInner() {
                 items={carrito}
                 onIncrementar={incrementar}
                 onDecrementar={decrementar}
-                onConfirmar={ejecutarPedido}
+                onConfirmar={abrirConfirmacion}
                 onClose={() => setMostrarCarrito(false)}
               />
             )}
@@ -259,25 +370,12 @@ function ClienteHomeInner() {
       {/* Modales */}
       <AuthWall />
       <LoginModal />
-
-      {/* Controles mock — eliminar cuando auth esté conectado */}
-      <div className="fixed bottom-4 right-4 z-50 flex gap-2">
-        {!isLoggedIn ? (
-          <button
-            onClick={() => login({ nombre: "Cliente", rol: "cliente" })}
-            className="px-3 py-1 bg-[#9B2335] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
-          >
-            Mock Login Cliente
-          </button>
-        ) : (
-          <button
-            onClick={logout}
-            className="px-3 py-1 bg-[#3D3530] text-white text-xs rounded font-['DM_Sans'] hover:opacity-80 transition-opacity shadow-lg"
-          >
-            Logout mock
-          </button>
-        )}
-      </div>
+      <ConfirmModal
+        visible={mostrarConfirmacion}
+        estado={estadoConfirmacion}
+        onConfirmar={confirmarPedido}
+        onCerrar={() => setMostrarConfirmacion(false)}
+      />
     </div>
   );
 }
