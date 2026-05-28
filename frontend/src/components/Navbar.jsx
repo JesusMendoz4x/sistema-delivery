@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import logo from "../assets/logo.png";
 
 const CATEGORIAS_BASE = ["Inicio", "Entradas"];
@@ -9,7 +10,20 @@ function Navbar({
   totalItems,
   onCarritoClick,
   isLoggedIn,
+  carritoAnimado = false,
 }) {
+  const iconoRef = useRef(null);
+
+  // Dispara la animación bounce cada vez que carritoAnimado cambia a true
+  useEffect(() => {
+    if (!carritoAnimado || !iconoRef.current) return;
+    const el = iconoRef.current;
+    el.style.animation = "none";
+    // fuerza reflow para reiniciar la animación
+    void el.offsetWidth;
+    el.style.animation = "cartBounce 0.4s ease forwards";
+  }, [carritoAnimado]);
+
   const categorias = isLoggedIn
     ? [...CATEGORIAS_BASE, "Pedidos", ...CATEGORIAS_FINAL]
     : [...CATEGORIAS_BASE, ...CATEGORIAS_FINAL];
@@ -27,10 +41,7 @@ function Navbar({
       {/* Logo */}
       <div
         className="flex items-center gap-3"
-        style={{
-          opacity: 0,
-          animation: "fadeIn 0.5s ease-out 0.6s forwards",
-        }}
+        style={{ opacity: 0, animation: "fadeIn 0.5s ease-out 0.6s forwards" }}
       >
         <img src={logo} alt="Casablanca" className="w-10 h-10 object-contain" />
         <div className="flex flex-col">
@@ -43,7 +54,7 @@ function Navbar({
         </div>
       </div>
 
-      {/* Categorías — cada item con delay escalonado */}
+      {/* Categorías */}
       <ul className="flex items-center gap-8">
         {categorias.map((cat, i) => {
           const activa = cat === categoriaActiva;
@@ -52,11 +63,7 @@ function Navbar({
               key={cat}
               onClick={() => onCategoriaClick(cat)}
               className={`font-['DM_Sans'] text-[12px] uppercase tracking-widest cursor-pointer transition-colors pb-1
-                ${
-                  activa
-                    ? "text-[#D4AF6A] border-b border-[#D4AF6A]"
-                    : "text-[#F2EDE4]/70 hover:text-[#D4AF6A]"
-                }`}
+                ${activa ? "text-[#D4AF6A] border-b border-[#D4AF6A]" : "text-[#F2EDE4]/70 hover:text-[#D4AF6A]"}`}
               style={{
                 opacity: 0,
                 animation: `fadeIn 0.4s ease-out ${0.7 + i * 0.1}s forwards`,
@@ -79,7 +86,10 @@ function Navbar({
           }}
         >
           <div className="relative">
-            <span className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors">
+            <span
+              ref={iconoRef}
+              className="material-symbols-outlined text-[#F2EDE4]/70 group-hover:text-[#D4AF6A] transition-colors inline-block"
+            >
               shopping_bag
             </span>
             {totalItems > 0 && (

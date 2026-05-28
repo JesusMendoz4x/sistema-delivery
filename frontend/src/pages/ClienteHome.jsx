@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import io from "socket.io-client";
+import { useState, useRef, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Descripcion from "../components/Descripcion";
@@ -13,6 +12,34 @@ import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
 
+// ── Toast de confirmación ────────────────────────────────────────────────────
+function Toast({ mensaje, visible }) {
+  if (!visible) return null;
+  return (
+    <div
+      className="fixed z-[100] font-['DM_Sans'] text-[13px]"
+      style={{
+        bottom: "32px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        background: "rgba(26, 26, 26, 0.97)",
+        border: "1px solid rgba(212, 175, 106, 0.35)",
+        color: "#F2EDE4",
+        padding: "10px 20px",
+        backdropFilter: "blur(8px)",
+        animation: "toastSlideIn 0.3s ease forwards",
+        whiteSpace: "nowrap",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+      }}
+    >
+      <span style={{ color: "#2D7A4F", fontSize: "15px" }}>✓</span>
+      {mensaje}
+    </div>
+  );
+}
+
 function ClienteHomeInner() {
   const { isLoggedIn, login, logout, openAuthWall } = useAuth();
 
@@ -22,56 +49,46 @@ function ClienteHomeInner() {
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const [pedidos, setPedidos] = useState([]);
 
-  // Escuchar actualizaciones del pedido en tiempo real mediante WebSockets
-  useEffect(() => {
-    const socket = io("http://localhost:5000");
+  // Toast
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMensaje, setToastMensaje] = useState("");
+  const toastTimerRef = useRef(null);
 
-    socket.on("connect", () => {
-      console.log("[WS] Conectado al API Gateway via WebSocket");
-    });
+  // Bounce del carrito
+  const [carritoAnimado, setCarritoAnimado] = useState(false);
 
-    // Registrar unión a sala de cada pedido para recibir actualizaciones
-    pedidos.forEach(pedido => {
-      socket.emit("join_pedido", pedido.id);
-    });
-
-    socket.on("pedido_actualizado", (data) => {
-      console.log("[WS] Pedido actualizado recibido:", data);
-      setPedidos((prev) => 
-        prev.map((p) => {
-          if (String(p.id) === String(data.pedidoId)) {
-            return {
-              ...p,
-              estado: data.estado,
-              repartidorId: data.repartidorId,
-              ruta: data.ruta
-            };
-          }
-          return p;
-        })
-      );
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [pedidos]);
+  const mostrarToast = useCallback((nombre) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastMensaje(`${nombre} agregado al carrito`);
+    setToastVisible(true);
+    // Bounce en el ícono
+    setCarritoAnimado(false);
+    requestAnimationFrame(() => setCarritoAnimado(true));
+    toastTimerRef.current = setTimeout(() => {
+      setToastVisible(false);
+      setCarritoAnimado(false);
+    }, 2200);
+  }, []);
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
 
-  const agregarAlCarrito = (producto) => {
-    setCarrito((prev) => {
-      const existe = prev.find((item) => item.id === producto.id);
-      if (existe) {
-        return prev.map((item) =>
-          item.id === producto.id
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item,
-        );
-      }
-      return [...prev, { ...producto, cantidad: 1 }];
-    });
-  };
+  const agregarAlCarrito = useCallback(
+    (producto) => {
+      setCarrito((prev) => {
+        const existe = prev.find((item) => item.id === producto.id);
+        if (existe) {
+          return prev.map((item) =>
+            item.id === producto.id
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item,
+          );
+        }
+        return [...prev, { ...producto, cantidad: 1 }];
+      });
+      mostrarToast(producto.nombre);
+    },
+    [mostrarToast],
+  );
 
   const incrementar = (id) => {
     setCarrito((prev) =>
@@ -91,7 +108,6 @@ function ClienteHomeInner() {
     });
   };
 
-  // ⚠️ handleCategoriaClick ANTES de ejecutarPedido para que pueda llamarla
   const handleCategoriaClick = (cat) => {
     if (cat === "Pedidos" && !isLoggedIn) {
       openAuthWall("pedidos");
@@ -156,7 +172,7 @@ function ClienteHomeInner() {
         overflowY: "auto",
       }}
     >
-      {/* Ellipse de fondo */}
+      {/* Blob de fondo */}
       <div
         aria-hidden
         style={{
@@ -200,6 +216,7 @@ function ClienteHomeInner() {
             )
           }
           isLoggedIn={isLoggedIn}
+          carritoAnimado={carritoAnimado}
         />
 
         {categoriaActiva === "Pedidos" ? (
@@ -236,11 +253,14 @@ function ClienteHomeInner() {
         )}
       </div>
 
-      {/* Modales — montados via portal, fuera del stacking context */}
+      {/* Toast de confirmación */}
+      <Toast visible={toastVisible} mensaje={toastMensaje} />
+
+      {/* Modales */}
       <AuthWall />
       <LoginModal />
 
-      {/* Controles temporales de pruebas */}
+      {/* Controles mock — eliminar cuando auth esté conectado */}
       <div className="fixed bottom-4 right-4 z-50 flex gap-2">
         {!isLoggedIn ? (
           <button
@@ -262,4 +282,12 @@ function ClienteHomeInner() {
   );
 }
 
-export default ClienteHomeInner;
+function ClienteHome() {
+  return (
+    <AuthProvider>
+      <ClienteHomeInner />
+    </AuthProvider>
+  );
+}
+
+export default ClienteHome;
