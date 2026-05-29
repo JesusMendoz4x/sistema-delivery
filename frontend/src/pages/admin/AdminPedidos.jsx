@@ -6,6 +6,7 @@ import { getPedidosCliente } from "../../services/pedidosService";
 function AdminPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [repartidores, setRepartidores] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPedido, setCurrentPedido] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,10 +32,20 @@ function AdminPedidos() {
     }
   };
 
+  const fetchUsuarios = async () => {
+    try {
+      const response = await api.get("/usuarios");
+      setUsuarios(response.data);
+    } catch (error) {
+      console.error("Error al obtener la lista de usuarios:", error);
+    }
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       await fetchPedidos();
       await fetchRepartidores();
+      await fetchUsuarios();
     };
     initializeData();
   }, []);
@@ -141,6 +152,7 @@ function AdminPedidos() {
           {pedidos.map((pedido) => {
             const countItems = pedido.productos?.reduce((a, p) => a + p.cantidad, 0) || 0;
             const repartidorAsignado = repartidores.find(r => r._id === pedido.repartidorId);
+            const clienteAsignado = usuarios.find(u => (u._id || u.id) === pedido.clienteId);
             
             return (
               <div key={pedido._id} className={`bg-[#141414]/60 border border-[#D4AF6A]/20 p-6 rounded-xl relative group hover:border-[#D4AF6A]/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md ${pedido.estado === 'cancelado' ? 'opacity-70 grayscale-[0.3]' : ''}`}>
@@ -185,7 +197,7 @@ function AdminPedidos() {
                   </div>
                   <div>
                     <p className="font-['Nunito'] text-[#F2EDE4] text-[15px] font-semibold">
-                      {`Cliente #${String(pedido.clienteId || '').slice(-6).toUpperCase()}`}
+                      {clienteAsignado ? clienteAsignado.nombre : `Cliente #${String(pedido.clienteId || '').slice(-6).toUpperCase()}`}
                     </p>
                     <p className="font-['Nunito'] text-[#F2EDE4]/50 text-[12px]">{countItems} artículo(s)</p>
                   </div>
@@ -218,94 +230,97 @@ function AdminPedidos() {
         onClose={() => setIsModalOpen(false)}
         title={currentPedido ? `Detalle Ticket ORD-${String(currentPedido._id || '').slice(-6).toUpperCase()}` : "Detalles"}
       >
-        {currentPedido && (
-          <form onSubmit={handleActualizarDetalles} className="space-y-6">
-            <div className="flex items-center gap-4 p-4 bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-[#141414] border border-[#D4AF6A]/30 flex items-center justify-center text-[#D4AF6A] font-['Outfit'] text-[20px]">
-                C
+        {currentPedido && (() => {
+          const clienteModal = usuarios.find(u => (u._id || u.id) === currentPedido.clienteId);
+          return (
+            <form onSubmit={handleActualizarDetalles} className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-[#141414] border border-[#D4AF6A]/30 flex items-center justify-center text-[#D4AF6A] font-['Outfit'] text-[20px]">
+                  C
+                </div>
+                <div>
+                  <h3 className="font-['Nunito'] text-[#F2EDE4] text-[16px] font-semibold">
+                    {clienteModal ? `${clienteModal.nombre}` : `Cliente ID: ${currentPedido.clienteId}`}
+                  </h3>
+                  <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/50 text-[10px] uppercase tracking-widest">
+                    {clienteModal ? `Tel: ${clienteModal.telefono} · ` : ""}Creado: {new Date(currentPedido.createdAt).toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-['Nunito'] text-[#F2EDE4] text-[16px] font-semibold">
-                  {`Cliente ID: ${currentPedido.clienteId}`}
-                </h3>
-                <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/50 text-[10px] uppercase tracking-widest">
-                  Creado: {new Date(currentPedido.createdAt).toLocaleString()}
+
+              <div className="space-y-3">
+                <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Platillos en la Orden</h4>
+                <div className="bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg p-4 max-h-[160px] overflow-y-auto">
+                  {currentPedido.productos?.map((p, idx) => (
+                    <div key={p.productoId || idx} className="flex justify-between items-center mb-2 pb-2 border-b border-[#D4AF6A]/10 last:border-0 last:mb-0 last:pb-0">
+                      <span className="font-['Nunito'] text-[#F2EDE4] text-sm">
+                        {p.cantidad}x {p.nombre || "Platillo"}
+                      </span>
+                      <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-sm">
+                        ${(p.cantidad * (p.precioUnitario || 0)).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Dirección de Entrega</h4>
+                <p className="text-sm font-['Nunito'] text-[#F2EDE4] bg-[#1a1a1a] border border-[#D4AF6A]/15 rounded-lg px-4 py-2.5">
+                  {currentPedido.direccionEntrega}
                 </p>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Platillos en la Orden</h4>
-              <div className="bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg p-4 max-h-[160px] overflow-y-auto">
-                {currentPedido.productos?.map((p, idx) => (
-                  <div key={p.productoId || idx} className="flex justify-between items-center mb-2 pb-2 border-b border-[#D4AF6A]/10 last:border-0 last:mb-0 last:pb-0">
-                    <span className="font-['Nunito'] text-[#F2EDE4] text-sm">
-                      {p.cantidad}x {p.nombre || "Platillo"}
-                    </span>
-                    <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-sm">
-                      ${(p.cantidad * (p.precioUnitario || 0)).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Estado del Pedido</label>
+                  <select 
+                    name="estado"
+                    defaultValue={currentPedido.estado} 
+                    className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
+                  >
+                    <option value="pendiente">Pendiente (Sin Conductor)</option>
+                    <option value="preparando">Preparando Cocina</option>
+                    <option value="en_camino">En Camino (Delivery)</option>
+                    <option value="entregado">Entregado con Éxito</option>
+                    <option value="cancelado">Cancelado</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Asignar Repartidor</label>
+                  <select 
+                    name="repartidor"
+                    defaultValue={currentPedido.repartidorId || ""} 
+                    className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
+                  >
+                    <option value="">Sin Asignar</option>
+                    {repartidores.map(r => (
+                      <option key={r._id} value={r._id}>
+                        {`${r.nombre} (${r.estado === 'disponible' ? 'Disponible' : 'Ocupado'})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-1">
-              <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Dirección de Entrega</h4>
-              <p className="text-sm font-['Nunito'] text-[#F2EDE4] bg-[#1a1a1a] border border-[#D4AF6A]/15 rounded-lg px-4 py-2.5">
-                {currentPedido.direccionEntrega}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-5">
-              <div>
-                <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Estado del Pedido</label>
-                <select 
-                  name="estado"
-                  defaultValue={currentPedido.estado} 
-                  className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
+              <div className="pt-6 mt-6 flex justify-end gap-3 border-t border-[#D4AF6A]/10">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="px-5 py-2.5 rounded-lg font-['Nunito'] text-[13px] text-[#F2EDE4]/70 hover:bg-[#F2EDE4]/10 hover:text-[#F2EDE4] transition-colors"
                 >
-                  <option value="pendiente">Pendiente (Sin Conductor)</option>
-                  <option value="preparando">Preparando Cocina</option>
-                  <option value="en_camino">En Camino (Delivery)</option>
-                  <option value="entregado">Entregado con Éxito</option>
-                  <option value="cancelado">Cancelado</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Asignar Repartidor</label>
-                <select 
-                  name="repartidor"
-                  defaultValue={currentPedido.repartidorId || ""} 
-                  className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
+                  Cerrar
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-[#D4AF6A] text-[#101010] px-6 py-2.5 rounded-lg font-['Nunito'] text-[13px] font-bold hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(212,175,106,0.3)]"
                 >
-                  <option value="">Sin Asignar</option>
-                  {repartidores.map(r => (
-                    <option key={r._id} value={r._id}>
-                      {`${r.nombre} (${r.estado === 'disponible' ? 'Disponible' : 'Ocupado'})`}
-                    </option>
-                  ))}
-                </select>
+                  Actualizar Pedido
+                </button>
               </div>
-            </div>
-
-            <div className="pt-6 mt-6 flex justify-end gap-3 border-t border-[#D4AF6A]/10">
-              <button 
-                type="button" 
-                onClick={() => setIsModalOpen(false)} 
-                className="px-5 py-2.5 rounded-lg font-['Nunito'] text-[13px] text-[#F2EDE4]/70 hover:bg-[#F2EDE4]/10 hover:text-[#F2EDE4] transition-colors"
-              >
-                Cerrar
-              </button>
-              <button 
-                type="submit" 
-                className="bg-[#D4AF6A] text-[#101010] px-6 py-2.5 rounded-lg font-['Nunito'] text-[13px] font-bold hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(212,175,106,0.3)]"
-              >
-                Actualizar Pedido
-              </button>
-            </div>
-          </form>
-        )}
+            </form>
+          );
+        })()}
       </AdminModal>
     </div>
   );

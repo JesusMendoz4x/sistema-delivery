@@ -9,6 +9,7 @@ function AdminDashboard() {
     usuariosActivos: 89, // fallback inicial
   });
   const [pedidosRecientes, setPedidosRecientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +30,16 @@ function AdminDashboard() {
         const pedidosResponse = await getPedidosCliente();
         if (Array.isArray(pedidosResponse)) {
           setPedidosRecientes(pedidosResponse.slice(0, 5));
+        }
+
+        // 3. Cargar usuarios para mostrar nombres reales
+        try {
+          const usuariosResponse = await api.get("/usuarios");
+          if (Array.isArray(usuariosResponse.data)) {
+            setUsuarios(usuariosResponse.data);
+          }
+        } catch (error) {
+          console.error("Error al obtener usuarios para el Dashboard:", error);
         }
       } catch (error) {
         console.error("Error al obtener los datos del Dashboard:", error);
@@ -146,27 +157,30 @@ function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pedidosRecientes.map((pedido) => (
-                      <tr key={pedido._id} className="border-b border-[#D4AF6A]/5 hover:bg-[#1a1a1a]/40 transition-colors">
-                        <td className="font-['JetBrains_Mono'] text-[12px] text-[#D4AF6A] py-4">
-                          {String(pedido._id || '').slice(-6).toUpperCase()}
-                        </td>
-                        <td className="font-['Nunito'] text-[13px] text-[#F2EDE4] py-4">
-                          {pedido.clienteId ? `CL-${String(pedido.clienteId).slice(-6).toUpperCase()}` : "Anónimo"}
-                        </td>
-                        <td className="font-['Outfit'] text-[14px] text-[#D4AF6A] font-semibold py-4">
-                          ${pedido.total.toFixed(2)}
-                        </td>
-                        <td className="font-['Nunito'] text-[12px] text-[#F2EDE4]/60 py-4 capitalize">
-                          {pedido.metodoPago || "Efectivo"}
-                        </td>
-                        <td className="py-4">
-                          <span className={`px-2.5 py-0.5 border rounded-full text-[9px] uppercase tracking-widest font-['JetBrains_Mono'] ${getEstadoEstilo(pedido.estado)}`}>
-                            {getEstadoDisplay(pedido.estado)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {pedidosRecientes.map((pedido) => {
+                      const clienteAsignado = usuarios.find(u => (u._id || u.id) === pedido.clienteId);
+                      return (
+                        <tr key={pedido._id} className="border-b border-[#D4AF6A]/5 hover:bg-[#1a1a1a]/40 transition-colors">
+                          <td className="font-['JetBrains_Mono'] text-[12px] text-[#D4AF6A] py-4">
+                            {String(pedido._id || '').slice(-6).toUpperCase()}
+                          </td>
+                          <td className="font-['Nunito'] text-[13px] text-[#F2EDE4] py-4">
+                            {clienteAsignado ? clienteAsignado.nombre : (pedido.clienteId ? `CL-${String(pedido.clienteId).slice(-6).toUpperCase()}` : "Anónimo")}
+                          </td>
+                          <td className="font-['Outfit'] text-[14px] text-[#D4AF6A] font-semibold py-4">
+                            ${pedido.total.toFixed(2)}
+                          </td>
+                          <td className="font-['Nunito'] text-[12px] text-[#F2EDE4]/60 py-4 capitalize">
+                            {pedido.metodoPago || "Efectivo"}
+                          </td>
+                          <td className="py-4">
+                            <span className={`px-2.5 py-0.5 border rounded-full text-[9px] uppercase tracking-widest font-['JetBrains_Mono'] ${getEstadoEstilo(pedido.estado)}`}>
+                              {getEstadoDisplay(pedido.estado)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
