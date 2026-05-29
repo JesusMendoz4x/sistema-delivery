@@ -368,11 +368,12 @@ function ClienteHomeInner() {
 
   const agregarAlCarrito = useCallback(
     (producto) => {
+      const prodId = producto._id || producto.id;
       setCarrito((prev) => {
-        const existe = prev.find((item) => item.id === producto.id);
+        const existe = prev.find((item) => (item._id || item.id) === prodId);
         if (existe) {
           return prev.map((item) =>
-            item.id === producto.id
+            (item._id || item.id) === prodId
               ? { ...item, cantidad: item.cantidad + 1 }
               : item,
           );
@@ -387,17 +388,18 @@ function ClienteHomeInner() {
   const incrementar = (id) => {
     setCarrito((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, cantidad: item.cantidad + 1 } : item,
+        (item._id || item.id) === id ? { ...item, cantidad: item.cantidad + 1 } : item,
       ),
     );
   };
 
   const decrementar = (id) => {
     setCarrito((prev) => {
-      const item = prev.find((i) => i.id === id);
-      if (item.cantidad === 1) return prev.filter((i) => i.id !== id);
+      const item = prev.find((i) => (i._id || i.id) === id);
+      if (!item) return prev;
+      if (item.cantidad === 1) return prev.filter((i) => (i._id || i.id) !== id);
       return prev.map((i) =>
-        i.id === id ? { ...i, cantidad: i.cantidad - 1 } : i,
+        (i._id || i.id) === id ? { ...i, cantidad: i.cantidad - 1 } : i,
       );
     });
   };

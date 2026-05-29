@@ -131,14 +131,17 @@ function CartPanel({
           </p>
         ) : (
           <>
-            {items.map((item) => (
-              <CartItem
-                key={item.id}
-                {...item}
-                onIncrementar={() => onIncrementar(item.id)}
-                onDecrementar={() => onDecrementar(item.id)}
-              />
-            ))}
+            {items.map((item) => {
+              const itemId = item._id || item.id;
+              return (
+                <CartItem
+                  key={itemId}
+                  {...item}
+                  onIncrementar={() => onIncrementar(itemId)}
+                  onDecrementar={() => onDecrementar(itemId)}
+                />
+              );
+            })}
             <div className="pt-6 mt-6 border-t border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-['DM_Sans'] text-[12px] text-[#B9BBC3]">
