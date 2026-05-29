@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { loginUsuario } from "../../services/usuariosService";
 
 function AdminLogin() {
   const { loginAdmin } = useAuth();
@@ -9,16 +10,28 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulamos validación simple
-    if (email === "admin@casablanca.com" && password === "admin123") {
-      loginAdmin();
-      navigate("/admin");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  
+  try {
+    const data = await loginUsuario(email, password);
+    
+    if (data.ok && data.token) {
+      // Verificar que el usuario tenga rol de administrador
+      if (data.usuario.rol === "admin") {
+        loginAdmin(data.usuario, data.token); // Guardar sesión real con JWT
+        navigate("/admin");
+      } else {
+        setError("Acceso denegado. Este panel requiere privilegios de administrador.");
+      }
     } else {
-      setError("Credenciales incorrectas. Usa admin@casablanca.com / admin123");
+      setError(data.message || "Credenciales inválidas.");
     }
-  };
+  } catch (err) {
+    setError(err.response?.data?.message || "Error de conexión con el microservicio de usuarios.");
+  }
+};
 
   return (
     <div 
