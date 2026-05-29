@@ -276,6 +276,13 @@ app.post('/api-internal/pedido-update', express.json(), (req, res) => {
     res.status(500).json({ ok: false, message: 'Servidor WebSocket no disponible' });
 });
 
+// Endpoint interno para consultar la cantidad de sockets conectados actualmente (usuarios activos en tiempo real)
+app.get('/api-internal/usuarios-activos', (req, res) => {
+    const io = req.app.get('io');
+    const conteo = io ? io.sockets.sockets.size : 0;
+    res.json({ usuariosActivos: conteo });
+});
+
 // Middleware para capturar rutas no encontradas a través del Gateway
 app.use((req, res) => {
     res.status(404).json({

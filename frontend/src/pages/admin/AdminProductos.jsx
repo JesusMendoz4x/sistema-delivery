@@ -54,7 +54,7 @@ function AdminProductos() {
 
     try {
       if (currentProduct) {
-        await updateProducto(currentProduct.id, data);
+        await updateProducto(currentProduct._id || currentProduct.id, data);
       } else {
         await createProducto(data);
       }
@@ -85,7 +85,7 @@ function AdminProductos() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {productos.map((prod) => (
-            <div key={prod.id} className="bg-[#141414]/60 border border-[#D4AF6A]/20 p-6 rounded-xl relative group hover:border-[#D4AF6A]/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md">
+            <div key={prod._id || prod.id} className="bg-[#141414]/60 border border-[#D4AF6A]/20 p-6 rounded-xl relative group hover:border-[#D4AF6A]/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md">
               
               {prod.destacado && (
                 <div className="absolute -top-3 -left-3 px-3 py-1 bg-[#D4AF6A] text-[#101010] text-[9px] font-bold tracking-widest uppercase font-['JetBrains_Mono'] shadow-lg rounded">
@@ -101,7 +101,7 @@ function AdminProductos() {
                   <span className="material-symbols-outlined text-[16px] font-light">edit</span>
                 </button>
                 <button 
-                  onClick={() => handleDelete(prod.id)}
+                  onClick={() => handleDelete(prod._id || prod.id)}
                   className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#9B2335]/30 flex items-center justify-center text-[#9B2335]/70 hover:text-[#9B2335] hover:bg-[#9B2335]/10 transition-colors shadow-lg"
                 >
                   <span className="material-symbols-outlined text-[16px] font-light">delete</span>
@@ -130,7 +130,7 @@ function AdminProductos() {
                 <div className="flex flex-col gap-1 items-end">
                   <span className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.2em] text-[#D4AF6A]/50">ID</span>
                   <span className="font-['JetBrains_Mono'] text-[10px] text-[#F2EDE4]/30">
-                    #{prod.id.toString().padStart(4, '0')}
+                    #{String(prod._id || prod.id || '').slice(-6).toUpperCase()}
                   </span>
                 </div>
               </div>
