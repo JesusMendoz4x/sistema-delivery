@@ -107,7 +107,7 @@ function AdminUsuarios() {
       case "admin":
         return "ADMINISTRADOR";
       case "sucursal":
-        return "SUCURSAL";
+        return "GERENTE (SUCURSAL)";
       default:
         return "CLIENTE";
     }
@@ -121,7 +121,7 @@ function AdminUsuarios() {
     <div>
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-[24px] font-['Outfit'] text-[#F2EDE4] tracking-widest uppercase">
-          Gestión de Equipo
+          Gestión de Usuarios
         </h2>
         <button 
           onClick={handleAdd}
@@ -134,7 +134,7 @@ function AdminUsuarios() {
 
       {isLoading ? (
         <div className="text-center text-[#D4AF6A] font-['JetBrains_Mono'] mt-20">
-          Cargando colaboradores en tiempo real...
+          Cargando usuarios en tiempo real...
         </div>
       ) : usuarios.length === 0 ? (
         <div className="text-center text-[#F2EDE4]/40 font-['Nunito'] mt-20">

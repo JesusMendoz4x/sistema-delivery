@@ -1,55 +1,76 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../../services/api";
 import { getPedidosCliente } from "../../services/pedidosService";
+import { io } from "socket.io-client";
 
 function AdminDashboard() {
   const [metricas, setMetricas] = useState({
     totalPedidos: 0,
     ingresosDia: 0,
-    usuariosActivos: 89, // fallback inicial
+    usuariosActivos: 0, // inicializado en 0
   });
   const [pedidosRecientes, setPedidosRecientes] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setIsLoading(true);
+  const fetchDashboardData = useCallback(async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
+    try {
+      // 1. Cargar métricas dinámicas de MongoDB
+      const metricasResponse = await api.get("/pedidos/metricas");
+      if (metricasResponse.data) {
+        setMetricas({
+          totalPedidos: metricasResponse.data.totalPedidos ?? 0,
+          ingresosDia: metricasResponse.data.ingresosDia ?? 0,
+          usuariosActivos: metricasResponse.data.usuariosActivos ?? 0,
+        });
+      }
+
+      // 2. Cargar los últimos pedidos reales de MongoDB y tomar los 5 más recientes
+      const pedidosResponse = await getPedidosCliente();
+      if (Array.isArray(pedidosResponse)) {
+        setPedidosRecientes(pedidosResponse.slice(0, 5));
+      }
+
+      // 3. Cargar usuarios para mostrar nombres reales
       try {
-        // 1. Cargar métricas dinámicas de MongoDB
-        const metricasResponse = await api.get("/pedidos/metricas");
-        if (metricasResponse.data) {
-          setMetricas({
-            totalPedidos: metricasResponse.data.totalPedidos ?? 0,
-            ingresosDia: metricasResponse.data.ingresosDia ?? 0,
-            usuariosActivos: metricasResponse.data.usuariosActivos ?? 89,
-          });
-        }
-
-        // 2. Cargar los últimos pedidos reales de MongoDB y tomar los 5 más recientes
-        const pedidosResponse = await getPedidosCliente();
-        if (Array.isArray(pedidosResponse)) {
-          setPedidosRecientes(pedidosResponse.slice(0, 5));
-        }
-
-        // 3. Cargar usuarios para mostrar nombres reales
-        try {
-          const usuariosResponse = await api.get("/usuarios");
-          if (Array.isArray(usuariosResponse.data)) {
-            setUsuarios(usuariosResponse.data);
-          }
-        } catch (error) {
-          console.error("Error al obtener usuarios para el Dashboard:", error);
+        const usuariosResponse = await api.get("/usuarios");
+        if (Array.isArray(usuariosResponse.data)) {
+          setUsuarios(usuariosResponse.data);
         }
       } catch (error) {
-        console.error("Error al obtener los datos del Dashboard:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error al obtener usuarios para el Dashboard:", error);
       }
-    };
-
-    fetchDashboardData();
+    } catch (error) {
+      console.error("Error al obtener los datos del Dashboard:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData(true);
+  }, [fetchDashboardData]);
+
+  useEffect(() => {
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("[WS] Admin Dashboard conectado al API Gateway");
+      // Volver a consultar de inmediato para reflejar esta nueva conexión activa
+      fetchDashboardData(false);
+    });
+
+    // Escuchar actualizaciones de pedidos para refrescar el dashboard en tiempo real
+    socket.on("pedido_actualizado", () => {
+      console.log("[WS] Actualización de pedido detectada, refrescando dashboard...");
+      fetchDashboardData(false);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [fetchDashboardData]);
 
   const getEstadoEstilo = (estado) => {
     switch (estado) {

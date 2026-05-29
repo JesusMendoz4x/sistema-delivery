@@ -320,7 +320,7 @@ exports.obtenerMetricasDashboard = async (req, res) => {
         res.json({
             totalPedidos,
             ingresosDia,
-            usuariosActivos: usuariosActivos || 89 // Usa el valor real o el fallback estático
+            usuariosActivos: usuariosActivos
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

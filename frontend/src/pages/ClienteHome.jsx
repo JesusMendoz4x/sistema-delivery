@@ -302,7 +302,7 @@ function ClienteHomeInner() {
 
   // 2. Conectar WebSocket para recibir actualizaciones del backend
   useEffect(() => {
-    if (!isLoggedIn || pedidos.length === 0) return undefined;
+    if (!isLoggedIn) return undefined;
 
     // Nos conectamos al API Gateway que actúa como proxy WebSocket
     const socket = io("http://localhost:5000");
