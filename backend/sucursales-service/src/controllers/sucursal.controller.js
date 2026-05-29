@@ -3,15 +3,16 @@ const Sucursal = require('../models/Sucursal');
 // 1. Crear una nueva sucursal
 exports.crearSucursal = async (req, res) => {
     try {
-        const { nombre, ubicacion, capacidadOperativa } = req.body;
+        const { nombre, direccion, ubicacion, capacidadOperativa } = req.body;
 
         // Validar que todos los campos requeridos estén presentes
-        if (!nombre || !ubicacion || !ubicacion.latitud || !ubicacion.longitud || !capacidadOperativa) {
+        if (!nombre || !direccion || !ubicacion || !ubicacion.latitud || !ubicacion.longitud || !capacidadOperativa) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
         const nuevaSucursal = new Sucursal({
             nombre,
+            direccion,
             ubicacion,
             capacidadOperativa,
         });
@@ -75,11 +76,11 @@ exports.obtenerSucursalPorId = async (req, res) => {
 exports.actualizarSucursal = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, ubicacion, capacidadOperativa, estado } = req.body;
+        const { nombre, direccion, ubicacion, capacidadOperativa, estado } = req.body;
 
         const sucursalActualizada = await Sucursal.findByIdAndUpdate(
             id,
-            { nombre, ubicacion, capacidadOperativa, estado },
+            { nombre, direccion, ubicacion, capacidadOperativa, estado },
             { new: true, runValidators: true } // new: Devuelve el documento actualizado y runValidators: ejecuta las validaciones del esquema
         );
 
