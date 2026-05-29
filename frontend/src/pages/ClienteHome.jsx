@@ -46,10 +46,47 @@ function Toast({ mensaje, visible }) {
   );
 }
 
-function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
+function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUbicacion }) {
   if (!visible) return null;
 
   const esConfirmado = estado === "confirmado";
+
+  // Función para leer las coordenadas reales del GPS del navegador
+  const detectarGPSReal = () => {
+    if (!navigator.geolocation) {
+      alert("Tu navegador no soporta geolocalización nativa.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUbicacion({
+          latitud: position.coords.latitude,
+          longitud: position.coords.longitude,
+          tipo: "GPS Real (Navegador)"
+        });
+      },
+      () => {
+        alert("No se pudo obtener tu ubicación GPS real. Asegúrate de autorizar los permisos en el navegador.");
+      },
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
+  };
+
+  const usarCentro = () => {
+    setUbicacion({
+      latitud: 17.0600,
+      longitud: -96.7260,
+      tipo: "Simulada (Oaxaca Centro)"
+    });
+  };
+
+  const usarReforma = () => {
+    setUbicacion({
+      latitud: 17.0818,
+      longitud: -96.7135,
+      tipo: "Simulada (Oaxaca Reforma)"
+    });
+  };
 
   return (
     <div
@@ -71,20 +108,23 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
         style={{
           position: "relative",
           width: "100%",
-          maxWidth: "340px",
+          maxWidth: "360px",
           margin: "0 16px",
           padding: "28px",
           backgroundColor: "#141418",
-          border: "1px solid rgba(226, 227, 230, 0.15)",
+          border: "1px solid rgba(212, 175, 106, 0.25)",
           textAlign: "center",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.6)"
         }}
       >
         <p
           style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "16px",
-            color: "#F2F2F4",
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: "18px",
+            color: "#D4AF6A",
             marginBottom: "8px",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase"
           }}
         >
           {esConfirmado ? "Pedido confirmado" : "Confirmar pedido"}
@@ -99,42 +139,124 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
         >
           {esConfirmado
             ? "Tu pedido fue registrado correctamente"
-            : "Revisa tu orden antes de continuar"}
+            : "Revisa tu orden y tu geolocalización antes de continuar"}
         </p>
 
         {!esConfirmado && (
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              onClick={onCerrar}
+          <>
+            {/* Panel de Geolocalización Integrado en el Checkout */}
+            <div 
               style={{
-                flex: 1,
-                padding: "10px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "13px",
-                color: "rgba(242, 242, 244, 0.75)",
-                backgroundColor: "transparent",
-                border: "1px solid rgba(226, 227, 230, 0.2)",
-                cursor: "pointer",
+                background: "rgba(20, 20, 20, 0.6)",
+                border: "1px solid rgba(212, 175, 106, 0.15)",
+                padding: "12px",
+                marginBottom: "20px",
+                textAlign: "left",
+                fontFamily: "'Nunito', sans-serif"
               }}
             >
-              Cancelar
-            </button>
-            <button
-              onClick={onConfirmar}
-              style={{
-                flex: 1,
-                padding: "10px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "13px",
-                color: "#0B0B0E",
-                backgroundColor: "#D95F5F",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Confirmar
-            </button>
-          </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", color: "#D4AF6A", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Punto de Entrega (Haversine)
+              </span>
+              <p style={{ color: "#F2EDE4", fontSize: "12px", margin: "4px 0" }}>
+                <strong>Origen:</strong> {ubicacion.tipo}
+              </p>
+              <p style={{ color: "rgba(242, 242, 244, 0.6)", fontSize: "11px", margin: "2px 0", fontFamily: "'JetBrains Mono', monospace" }}>
+                Lat: {ubicacion.latitud.toFixed(4)} | Lon: {ubicacion.longitud.toFixed(4)}
+              </p>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px" }}>
+                <button
+                  type="button"
+                  onClick={detectarGPSReal}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "1px solid rgba(212, 175, 106, 0.4)",
+                    color: "#D4AF6A",
+                    fontSize: "10px",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    padding: "6px",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(212, 175, 106, 0.1)"}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                >
+                  📡 Detectar GPS Real
+                </button>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    onClick={usarCentro}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "transparent",
+                      border: "1px solid rgba(242, 237, 228, 0.2)",
+                      color: "rgba(242, 237, 228, 0.8)",
+                      fontSize: "9px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      padding: "5px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    📍 Demo Centro
+                  </button>
+                  <button
+                    type="button"
+                    onClick={usarReforma}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "transparent",
+                      border: "1px solid rgba(242, 237, 228, 0.2)",
+                      color: "rgba(242, 237, 228, 0.8)",
+                      fontSize: "9px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      padding: "5px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    📍 Demo Reforma
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={onCerrar}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "13px",
+                  color: "rgba(242, 242, 244, 0.75)",
+                  backgroundColor: "transparent",
+                  border: "1px solid rgba(226, 227, 230, 0.2)",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={onConfirmar}
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "13px",
+                  color: "#0B0B0E",
+                  backgroundColor: "#D4AF6A",
+                  border: "none",
+                  cursor: "pointer",
+                  fontWeight: "bold"
+                }}
+              >
+                Confirmar
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -151,6 +273,14 @@ function ClienteHomeInner() {
   const [pedidos, setPedidos] = useState([]);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
+
+    // Ubicación dinámica de entrega para el enrutamiento Haversine
+  const [ubicacionCliente, setUbicacionCliente] = useState({
+    latitud: 17.0600, // Coordenadas del Zócalo de Oaxaca por defecto
+    longitud: -96.7260,
+    tipo: "Simulada (Oaxaca Centro)",
+  });
+
   // Socket.IO para actualización en tiempo real de pedidos
     // 1. Cargar el historial real de pedidos al iniciar sesión
   useEffect(() => {
@@ -467,6 +597,8 @@ function ClienteHomeInner() {
         estado={estadoConfirmacion}
         onConfirmar={confirmarPedido}
         onCerrar={() => setMostrarConfirmacion(false)}
+        ubicacion={ubicacionCliente}
+        setUbicacion={setUbicacionCliente}
       />
     </div>
   );
