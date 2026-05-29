@@ -149,10 +149,10 @@ function AdminDashboard() {
                     {pedidosRecientes.map((pedido) => (
                       <tr key={pedido._id} className="border-b border-[#D4AF6A]/5 hover:bg-[#1a1a1a]/40 transition-colors">
                         <td className="font-['JetBrains_Mono'] text-[12px] text-[#D4AF6A] py-4">
-                          {pedido._id.slice(-6).toUpperCase()}
+                          {String(pedido._id || '').slice(-6).toUpperCase()}
                         </td>
                         <td className="font-['Nunito'] text-[13px] text-[#F2EDE4] py-4">
-                          {pedido.clienteId ? `CL-${pedido.clienteId.slice(-6).toUpperCase()}` : "Anónimo"}
+                          {pedido.clienteId ? `CL-${String(pedido.clienteId).slice(-6).toUpperCase()}` : "Anónimo"}
                         </td>
                         <td className="font-['Outfit'] text-[14px] text-[#D4AF6A] font-semibold py-4">
                           ${pedido.total.toFixed(2)}

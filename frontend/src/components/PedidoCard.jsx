@@ -7,14 +7,19 @@ const SUCURSAL = {
 
 const ESTADOS = [
   { key: "pendiente", label: "Pendiente" },
-  { key: "en_preparacion", label: "En preparación" },
-  { key: "listo", label: "Listo" },
+  { key: "preparando", label: "En preparación" },
+  { key: "en_camino", label: "En camino" },
   { key: "entregado", label: "Entregado" },
 ];
 
 function PedidoCard({ pedido, index = 0 }) {
   const [abierto, setAbierto] = useState(index === 0);
   const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
+
+  const items = pedido.items || pedido.productos || [];
+  const subtotal = pedido.subtotal || items.reduce((acc, item) => acc + parseFloat(item.precio || item.precioUnitario || 0) * item.cantidad, 0);
+  const servicio = pedido.servicio || (subtotal * 0.1);
+  const total = pedido.total || (subtotal + servicio);
 
   return (
     <article
@@ -61,7 +66,7 @@ function PedidoCard({ pedido, index = 0 }) {
               className="font-['DM_Sans'] text-[9px] uppercase tracking-wider"
               style={{ color: "rgba(242, 237, 228, 0.7)" }}
             >
-              {pedido.fecha}
+              {pedido.fecha || (pedido.createdAt ? new Date(pedido.createdAt).toLocaleDateString() : '')}
             </p>
             <span
               className="font-['DM_Sans'] text-[11px] transition-transform duration-300 inline-block"
@@ -82,7 +87,7 @@ function PedidoCard({ pedido, index = 0 }) {
               className="font-['DM_Sans'] text-[10px] uppercase tracking-[0.28em]"
               style={{ color: "rgba(242, 237, 228, 0.6)" }}
             >
-              Pedido #{String(pedido.id).slice(-4).padStart(4, "0")}
+              Pedido #{String(pedido._id || pedido.id || '').slice(-4).padStart(4, "0")}
             </p>
             <p
               className="font-['DM_Sans'] leading-none mt-2 font-medium"
@@ -206,8 +211,8 @@ function PedidoCard({ pedido, index = 0 }) {
         </div>
 
         <div className="px-5 pb-5 space-y-2">
-          {pedido.items.map((item) => (
-            <div key={item.id} className="flex items-center gap-3">
+          {items.map((item) => (
+            <div key={item.id || item.productoId || item._id} className="flex items-center gap-3">
               {item.imagen && (
                 <img
                   src={item.imagen}
@@ -237,7 +242,7 @@ function PedidoCard({ pedido, index = 0 }) {
                 className="font-['DM_Sans'] text-[11px] flex-shrink-0"
                 style={{ color: "#D4AF6A" }}
               >
-                ${(parseFloat(item.precio) * item.cantidad).toFixed(2)}
+                ${(parseFloat(item.precio || item.precioUnitario || 0) * item.cantidad).toFixed(2)}
               </span>
             </div>
           ))}
@@ -257,7 +262,7 @@ function PedidoCard({ pedido, index = 0 }) {
                 className="font-['DM_Sans'] text-[10px]"
                 style={{ color: "#D4AF6A" }}
               >
-                ${pedido.subtotal.toFixed(2)}
+                ${subtotal.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between mb-2">
@@ -271,7 +276,7 @@ function PedidoCard({ pedido, index = 0 }) {
                 className="font-['DM_Sans'] text-[10px]"
                 style={{ color: "#D4AF6A" }}
               >
-                ${pedido.servicio.toFixed(2)}
+                ${servicio.toFixed(2)}
               </span>
             </div>
           </div>

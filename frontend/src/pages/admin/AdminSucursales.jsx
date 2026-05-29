@@ -137,7 +137,7 @@ function AdminSucursales() {
                 <div>
                   <h3 className="font-['Nunito'] text-[#F2EDE4] text-[16px] font-semibold">{suc.nombre}</h3>
                   <p className="font-['Nunito'] text-[#F2EDE4]/50 text-[11px] uppercase tracking-widest">
-                    ID: {suc._id.slice(-6).toUpperCase()}
+                    ID: {String(suc._id || '').slice(-6).toUpperCase()}
                   </p>
                 </div>
               </div>

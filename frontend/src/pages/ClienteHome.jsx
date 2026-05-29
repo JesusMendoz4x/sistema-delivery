@@ -543,11 +543,7 @@ function ClienteHomeInner() {
           categoriaActiva={categoriaActiva}
           onCategoriaClick={handleCategoriaClick}
           totalItems={totalItems}
-          onCarritoClick={() =>
-            setMostrarCarrito(
-              categoriaActiva === "Entradas" ? !mostrarCarrito : false,
-            )
-          }
+          onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
           isLoggedIn={isLoggedIn}
           carritoAnimado={carritoAnimado}
         />
@@ -573,18 +569,19 @@ function ClienteHomeInner() {
               categoriaActiva={categoriaActiva}
               onAgregar={agregarAlCarrito}
             />
-            {categoriaActiva === "Entradas" && mostrarCarrito && (
-              <CartPanel
-                items={carrito}
-                onIncrementar={incrementar}
-                onDecrementar={decrementar}
-                onConfirmar={abrirConfirmacion}
-                onClose={() => setMostrarCarrito(false)}
-              />
-            )}
           </div>
         )}
       </div>
+
+      {mostrarCarrito && (
+        <CartPanel
+          items={carrito}
+          onIncrementar={incrementar}
+          onDecrementar={decrementar}
+          onConfirmar={abrirConfirmacion}
+          onClose={() => setMostrarCarrito(false)}
+        />
+      )}
 
       {/* Toast de confirmación */}
       <Toast visible={toastVisible} mensaje={toastMensaje} />

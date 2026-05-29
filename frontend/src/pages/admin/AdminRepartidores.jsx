@@ -134,7 +134,7 @@ function AdminRepartidores() {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h3 className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[13px] tracking-wider mb-1">
-                    {`REP-${rep._id.slice(-4).toUpperCase()}`}
+                    {`REP-${String(rep._id || '').slice(-4).toUpperCase()}`}
                   </h3>
                 </div>
                 <span className={`px-2.5 py-1 border rounded-full text-[9px] uppercase tracking-widest font-['JetBrains_Mono'] flex items-center gap-1 ${getEstadoColor(rep.estado)}`}>

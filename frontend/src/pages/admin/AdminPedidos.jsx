@@ -167,7 +167,7 @@ function AdminPedidos() {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[13px] tracking-wider mb-1">
-                      {`ORD-${pedido._id.slice(-6).toUpperCase()}`}
+                      {`ORD-${String(pedido._id || '').slice(-6).toUpperCase()}`}
                     </h3>
                     <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/40 text-[10px] tracking-widest uppercase">
                       {formatTiempo(pedido.createdAt)}
@@ -185,7 +185,7 @@ function AdminPedidos() {
                   </div>
                   <div>
                     <p className="font-['Nunito'] text-[#F2EDE4] text-[15px] font-semibold">
-                      {`Cliente #${pedido.clienteId.slice(-6).toUpperCase()}`}
+                      {`Cliente #${String(pedido.clienteId || '').slice(-6).toUpperCase()}`}
                     </p>
                     <p className="font-['Nunito'] text-[#F2EDE4]/50 text-[12px]">{countItems} artículo(s)</p>
                   </div>
@@ -216,7 +216,7 @@ function AdminPedidos() {
       <AdminModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        title={currentPedido ? `Detalle Ticket ORD-${currentPedido._id.slice(-6).toUpperCase()}` : "Detalles"}
+        title={currentPedido ? `Detalle Ticket ORD-${String(currentPedido._id || '').slice(-6).toUpperCase()}` : "Detalles"}
       >
         {currentPedido && (
           <form onSubmit={handleActualizarDetalles} className="space-y-6">

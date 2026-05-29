@@ -145,7 +145,7 @@ function AdminInventario() {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[13px] tracking-wider mb-1">
-                      {prod._id ? `PROD-${prod._id.slice(-6).toUpperCase()}` : "REF-GEN"}
+                      {prod._id ? `PROD-${String(prod._id).slice(-6).toUpperCase()}` : "REF-GEN"}
                     </h3>
                     <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/40 text-[10px] tracking-widest uppercase">
                       {prod.categoria || "Menú"}
