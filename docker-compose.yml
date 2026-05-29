@@ -148,6 +148,20 @@ services:
     networks:
       - delivery_network
 
+  # 8. Frontend de React (Servido por Nginx de producción)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: delivery_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - delivery_network
+
 volumes:
   mongo_data:
     driver: local
@@ -155,17 +169,3 @@ volumes:
 networks:
   delivery_network:
     driver: bridge
-
-# 8. Frontend de React (Servido por Nginx de producción)
-frontend:
-  build:
-    context: ./frontend
-    dockerfile: Dockerfile
-  container_name: delivery_frontend
-  restart: always
-  ports:
-    - "80:80"
-  depends_on:
-    - api-gateway
-  networks:
-    - delivery_network
