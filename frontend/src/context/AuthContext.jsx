@@ -2,37 +2,47 @@ import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
-// motivo: "agregar" | "pedidos"
 export function AuthProvider({ children }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  // Inicialización inteligente: recuperar sesión previa si existe
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem("token") ? true : false;
+  });
+
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginModalModo, setLoginModalModo] = useState("login");
   const [showAuthWall, setShowAuthWall] = useState(false);
   const [authWallMotivo, setAuthWallMotivo] = useState(null);
 
-  const login = (userData = { nombre: "Cliente", rol: "cliente" }) => {
+  // Iniciar sesión (Cliente o Sucursal) guardando JWT y datos
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     setIsLoggedIn(true);
     setShowLoginModal(false);
     setShowAuthWall(false);
   };
 
-  const loginAdmin = () => {
-    setUser({
-      nombre: "Administrador",
-      rol: "admin",
-      email: "admin@sistema.com",
-    });
+  // Iniciar sesión de Administrador
+  const loginAdmin = (userData, token) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
     setIsLoggedIn(true);
   };
 
+  // Cerrar sesión limpiando credenciales del navegador
   const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
   };
 
-  // AuthWall → LoginModal
   const openAuthWall = (motivo) => {
     setAuthWallMotivo(motivo);
     setShowAuthWall(true);
@@ -43,14 +53,7 @@ export function AuthProvider({ children }) {
     setAuthWallMotivo(null);
   };
 
-  const openLoginModal = () => {
-    setLoginModalModo("login");
-    setShowAuthWall(false);
-    setShowLoginModal(true);
-  };
-
-  const openRegisterModal = () => {
-    setLoginModalModo("register");
+  const confirmarAuthWall = () => {
     setShowAuthWall(false);
     setShowLoginModal(true);
   };
@@ -66,14 +69,12 @@ export function AuthProvider({ children }) {
         loginAdmin,
         logout,
         showLoginModal,
-        loginModalModo,
-        openLoginModal,
-        openRegisterModal,
         closeLoginModal,
         showAuthWall,
         authWallMotivo,
         openAuthWall,
         closeAuthWall,
+        confirmarAuthWall,
       }}
     >
       {children}
@@ -81,6 +82,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }
