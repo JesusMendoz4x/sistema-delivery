@@ -8,6 +8,7 @@ import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 import Sucursales from "../components/Sucursales";
 import VistaPedidos from "../components/VistaPedidos";
+import MiCuenta from "../components/MiCuenta";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
@@ -274,6 +275,9 @@ function ClienteHomeInner() {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
 
+  const categoriaActivaRender = isLoggedIn ? categoriaActiva : "Inicio";
+  const mostrarMenuRender = isLoggedIn ? mostrarMenu : false;
+
     // Ubicación dinámica de entrega para el enrutamiento Haversine
   const [ubicacionCliente, setUbicacionCliente] = useState({
     latitud: 17.0600, // Coordenadas del Zócalo de Oaxaca por defecto
@@ -368,6 +372,12 @@ function ClienteHomeInner() {
 
   const agregarAlCarrito = useCallback(
     (producto) => {
+      // Si no está logueado, bloquear y forzar la validación de inicio de sesión / registro
+      if (!isLoggedIn) {
+        openAuthWall("agregar productos al carrito");
+        return;
+      }
+
       const prodId = producto._id || producto.id;
       setCarrito((prev) => {
         const existe = prev.find((item) => (item._id || item.id) === prodId);
@@ -382,7 +392,7 @@ function ClienteHomeInner() {
       });
       mostrarToast(producto.nombre);
     },
-    [mostrarToast],
+    [isLoggedIn, openAuthWall, mostrarToast],
   );
 
   const incrementar = (id) => {
@@ -405,8 +415,9 @@ function ClienteHomeInner() {
   };
 
   const handleCategoriaClick = (cat) => {
-    if (cat === "Pedidos" && !isLoggedIn) {
-      openAuthWall("pedidos");
+    // Si no está logueado y da clic en algo que requiere auth
+    if (!isLoggedIn && (cat === "Pedidos" || cat === "Mi Cuenta")) {
+      openAuthWall(cat === "Pedidos" ? "ver tus pedidos" : "gestionar tu cuenta");
       return;
     }
     if (cat === "Inicio") {
@@ -422,6 +433,11 @@ function ClienteHomeInner() {
     if (cat === "Pedidos") {
       setMostrarMenu(false);
       setCategoriaActiva("Pedidos");
+      return;
+    }
+    if (cat === "Mi Cuenta") {
+      setMostrarMenu(false);
+      setCategoriaActiva("Mi Cuenta");
       return;
     }
     setCategoriaActiva(cat);
@@ -542,19 +558,22 @@ function ClienteHomeInner() {
 
       <div style={{ position: "relative", zIndex: 10 }}>
         <Navbar
-          categoriaActiva={categoriaActiva}
+          categoriaActiva={categoriaActivaRender}
           onCategoriaClick={handleCategoriaClick}
           totalItems={totalItems}
           onCarritoClick={() => setMostrarCarrito(!mostrarCarrito)}
           isLoggedIn={isLoggedIn}
           carritoAnimado={carritoAnimado}
+          mostrarMenu={mostrarMenuRender}
         />
 
-        {categoriaActiva === "Pedidos" ? (
+        {categoriaActivaRender === "Pedidos" ? (
           <VistaPedidos pedidos={pedidos} onConfirmarPedido={ejecutarPedido} />
-        ) : !mostrarMenu ? (
+        ) : categoriaActivaRender === "Mi Cuenta" ? (
+          <MiCuenta />
+        ) : !mostrarMenuRender ? (
           <>
-            {categoriaActiva === "Nuestras Sucursales" ? (
+            {categoriaActivaRender === "Nuestras Sucursales" ? (
               <Sucursales />
             ) : (
               <>
@@ -568,7 +587,7 @@ function ClienteHomeInner() {
         ) : (
           <div className="pt-20 flex">
             <MenuGrid
-              categoriaActiva={categoriaActiva}
+              categoriaActiva={categoriaActivaRender}
               onAgregar={agregarAlCarrito}
             />
           </div>

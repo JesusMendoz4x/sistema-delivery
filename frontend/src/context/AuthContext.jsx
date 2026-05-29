@@ -44,6 +44,12 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(false);
   };
 
+  // Actualizar datos de usuario en caliente
+  const actualizarUserData = (updatedUserData) => {
+    localStorage.setItem("user", JSON.stringify(updatedUserData));
+    setUser(updatedUserData);
+  };
+
   const openAuthWall = (motivo) => {
     setAuthWallMotivo(motivo);
     setShowAuthWall(true);
@@ -79,6 +85,7 @@ export function AuthProvider({ children }) {
         login,
         loginAdmin,
         logout,
+        actualizarUserData,
         showLoginModal,
         closeLoginModal,
         showAuthWall,

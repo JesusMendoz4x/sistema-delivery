@@ -238,12 +238,36 @@ app.use('/api/repartidores', (req, res, next) => {
 
 // Rutas de Usuarios / Autenticación
 // POST /api/usuarios (registro) y POST /api/usuarios/login (login) son públicos.
-// Otras operaciones requieren rol 'admin'.
 app.use('/api/usuarios', (req, res, next) => {
     if (req.method === 'POST') {
-        return next(); // login o registro
+        return next(); // login o registro son públicos
     }
-    return verifyJWT(['admin'])(req, res, next);
+    // Permitir a usuarios autenticados acceder a su propio perfil
+    return verifyJWT(['admin', 'cliente', 'sucursal'])(req, res, (err) => {
+        if (err) return next(err);
+        
+        // Si es admin, tiene acceso total e irrestricto
+        if (req.user.rol === 'admin') {
+            return next();
+        }
+
+        // Si no es admin, solo puede consultar o modificar su propio ID
+        // req.path es relativo al mount path (ej: /6650dbf7f1a0b1234567890c)
+        const idPath = req.path.split('/')[1];
+        const userId = req.user.id || req.user._id;
+
+        if (idPath && idPath === userId) {
+            // El usuario autenticado solo puede hacer GET o PUT a su propio ID
+            if (req.method === 'GET' || req.method === 'PUT') {
+                return next();
+            }
+        }
+
+        return res.status(403).json({
+            ok: false,
+            message: 'Acceso prohibido. No tienes permisos para consultar o modificar este perfil.'
+        });
+    });
 }, createProxyMiddleware({
     target: process.env.USUARIO_SERVICE_URL || 'http://localhost:3005',
     changeOrigin: true,
