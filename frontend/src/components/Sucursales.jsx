@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import centroImg from "../assets/centro.png";
 import reformaImg from "../assets/reforma.png";
 import macroplazaImg from "../assets/macroplaza.png";
 import montealbanImg from "../assets/MonteAlban.png";
+import api from "../services/api";
 
 const sucursales = [
   {
@@ -104,14 +105,91 @@ const sucursales = [
 ];
 
 function Sucursales() {
+  const [sucursalesReales, setSucursalesReales] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activa, setActiva] = useState(0);
   const [animando, setAnimando] = useState(false);
   const [direccion, setDireccion] = useState(1);
   const [mapKey, setMapKey] = useState(0);
   const [vistaPanel, setVistaPanel] = useState("foto");
 
-  const total = sucursales.length;
-  const sucursal = sucursales[activa];
+  useEffect(() => {
+    const fetchSucursales = async () => {
+      try {
+        const response = await api.get('/sucursales');
+        const listaDB = response.data.data || [];
+        
+        // Cruzamos la telemetría real de MongoDB con las descripciones y fotos locales de Casablanca
+        const cruzadas = listaDB.map((sucDB, index) => {
+          const estatica = sucursales.find(
+            s => s.nombre.toLowerCase().includes(sucDB.nombre.toLowerCase()) ||
+                 sucDB.nombre.toLowerCase().includes(s.nombre.toLowerCase())
+          ) || sucursales[index % sucursales.length];
+          
+          return {
+            ...estatica,
+            _id: sucDB._id,
+            nombre: sucDB.nombre,
+            direccion: sucDB.direccion || estatica.direccion,
+            lat: sucDB.ubicacion?.latitud || estatica.lat,
+            lng: sucDB.ubicacion?.longitud || estatica.lng,
+          };
+        });
+        
+        setSucursalesReales(cruzadas);
+      } catch (err) {
+        console.error("Error al cargar sucursales de MongoDB:", err);
+        // Fallback resiliente a los datos locales
+        setSucursalesReales(sucursales);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSucursales();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div 
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "rgb(10,10,10)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "11px",
+          color: "#D4AF6A",
+          textTransform: "uppercase",
+          letterSpacing: "0.2em"
+        }}
+      >
+        Cargando red de sucursales en tiempo real...
+      </div>
+    );
+  }
+
+  if (sucursalesReales.length === 0) {
+    return (
+      <div 
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "rgb(10,10,10)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "'Nunito', sans-serif",
+          fontSize: "14px",
+          color: "rgba(242, 237, 228, 0.4)"
+        }}
+      >
+        No hay sucursales activas registradas en MongoDB.
+      </div>
+    );
+  }
+
+  const total = sucursalesReales.length;
+  const sucursal = sucursalesReales[activa];
 
   const navegar = (dir) => {
     if (animando) return;
@@ -257,7 +335,7 @@ function Sucursales() {
               <div
                 style={{ display: "flex", alignItems: "center", gap: "12px" }}
               >
-                {sucursales.map((_, i) => (
+                {sucursalesReales.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => seleccionarSucursal(i)}

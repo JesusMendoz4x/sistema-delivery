@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   });
 
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginModalModo, setLoginModalModo] = useState("login"); // "login" o "register"
   const [showAuthWall, setShowAuthWall] = useState(false);
   const [authWallMotivo, setAuthWallMotivo] = useState(null);
 
@@ -53,9 +54,19 @@ export function AuthProvider({ children }) {
     setAuthWallMotivo(null);
   };
 
+  const openLoginModal = () => {
+    setLoginModalModo("login");
+    setShowLoginModal(true);
+  };
+
+  const openRegisterModal = () => {
+    setLoginModalModo("register");
+    setShowLoginModal(true);
+  };
+
   const confirmarAuthWall = () => {
     setShowAuthWall(false);
-    setShowLoginModal(true);
+    openLoginModal();
   };
 
   const closeLoginModal = () => setShowLoginModal(false);
@@ -75,6 +86,9 @@ export function AuthProvider({ children }) {
         openAuthWall,
         closeAuthWall,
         confirmarAuthWall,
+        loginModalModo,
+        openLoginModal,
+        openRegisterModal,
       }}
     >
       {children}
