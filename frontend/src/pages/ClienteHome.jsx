@@ -13,6 +13,10 @@ import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
 // Importamos el servicio para crear pedidos
 import { crearPedidoReal } from "../services/pedidosService";
+//
+import { useEffect } from "react";
+import { getPedidosCliente } from "../services/pedidosService";
+import { io } from "socket.io-client";
 
 // ── Toast de confirmación ────────────────────────────────────────────────────
 function Toast({ mensaje, visible }) {
@@ -147,6 +151,67 @@ function ClienteHomeInner() {
   const [pedidos, setPedidos] = useState([]);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
+  // Socket.IO para actualización en tiempo real de pedidos
+    // 1. Cargar el historial real de pedidos al iniciar sesión
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      const cargarHistorialPedidos = async () => {
+        try {
+          const data = await getPedidosCliente();
+          const pedidosFiltrados = data.filter(
+            (p) => String(p.clienteId) === String(user.id || user._id)
+          );
+          setPedidos(pedidosFiltrados);
+        } catch (error) {
+          console.error("Error al recuperar el historial de pedidos:", error);
+        }
+      };
+      cargarHistorialPedidos();
+    }
+  }, [isLoggedIn, user]);
+
+  // 2. Conectar WebSocket para recibir actualizaciones del backend
+  useEffect(() => {
+    if (!isLoggedIn || pedidos.length === 0) return undefined;
+
+    // Nos conectamos al API Gateway que actúa como proxy WebSocket
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("[WS] Canal activo con el API Gateway en puerto 5000");
+    });
+
+    // Unirse a las salas exclusivas de cada pedido activo para evitar colisiones
+    pedidos.forEach((pedido) => {
+      const pedidoId = pedido._id || pedido.id;
+      if (pedidoId) {
+        socket.emit("join_pedido", pedidoId);
+      }
+    });
+
+    // Escuchar actualizaciones dinámicas de la máquina de estados simulada
+    socket.on("pedido_actualizado", (data) => {
+      console.log("[WS] Transición de estado del pedido detectada:", data);
+      setPedidos((prev) =>
+        prev.map((p) => {
+          const pId = String(p._id || p.id);
+          if (pId === String(data.pedidoId)) {
+            return {
+              ...p,
+              estado: data.estado,
+              repartidorId: data.repartidorId,
+              ruta: data.ruta
+            };
+          }
+          return p;
+        })
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isLoggedIn, pedidos]);
 
   // Toast
   const [toastVisible, setToastVisible] = useState(false);
