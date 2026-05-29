@@ -11,6 +11,8 @@ import VistaPedidos from "../components/VistaPedidos";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
+// Importamos el servicio para crear pedidos
+import { crearPedidoReal } from "../services/pedidosService";
 
 // ── Toast de confirmación ────────────────────────────────────────────────────
 function Toast({ mensaje, visible }) {
@@ -136,7 +138,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
 }
 
 function ClienteHomeInner() {
-  const { isLoggedIn, openAuthWall } = useAuth();
+  const { isLoggedIn, user, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
@@ -230,32 +232,57 @@ function ClienteHomeInner() {
     setMostrarCarrito(false);
   };
 
-  const ejecutarPedido = () => {
-    if (carrito.length === 0) return;
+   // Lógica de Compra Real conectada al Backend Orquestado
+  const ejecutarPedido = async () => {
+    if (carrito.length === 0 || !isLoggedIn || !user) return;
+
     const subtotal = carrito.reduce(
       (a, i) => a + parseFloat(i.precio) * i.cantidad,
       0,
     );
     const servicio = subtotal * 0.1;
     const total = subtotal + servicio;
-    setPedidos((prev) => [
-      {
-        id: Date.now(),
-        fecha: new Date().toLocaleDateString("es-MX", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
-        estado: "pendiente",
-        items: carrito,
-        subtotal,
-        servicio,
-        total,
-      },
-      ...prev,
-    ]);
-    setCarrito([]);
-    setMostrarCarrito(false);
+
+    try {
+      // Coordenadas simuladas del cliente (Cerca de la sucursal Centro de Oaxaca)
+      const latitudCliente = 17.0600;
+      const longitudCliente = -96.7260;
+
+      // 1. Mapear el carrito al formato esperado por el validador del backend
+      const productosPedido = carrito.map(item => ({
+        productoId: item._id || item.id, // ID del catálogo de MongoDB
+        nombre: item.nombre,
+        precioUnitario: parseFloat(item.precio),
+        cantidad: item.cantidad
+      }));
+
+      // 2. Enviar el pedido al API Gateway
+      const nuevoPedidoReal = await crearPedidoReal({
+        clienteId: user.id || user._id,
+        productos: productosPedido,
+        total: total,
+        direccionEntrega: {
+          calle: user.direccion || "Macedonio Alcalá 402, Centro, Oaxaca",
+          ubicacion: { latitud: latitudCliente, longitud: longitudCliente }
+        },
+        metodoPago: "tarjeta",
+        latitud: latitudCliente,   // Se pasan en la raíz del body para el enrutador
+        longitud: longitudCliente
+      });
+
+      // 3. Agregar el pedido retornado por MongoDB al estado de la vista
+      setPedidos((prev) => [nuevoPedidoReal, ...prev]);
+
+      // Limpiar el carrito de compras
+      setCarrito([]);
+      setMostrarCarrito(false);
+      handleCategoriaClick("Pedidos");
+
+      console.log(" Pedido creado y procesado en el Backend:", nuevoPedidoReal);
+    } catch (error) {
+      console.error(" Error al procesar el pedido: ", error);
+      alert(error.response?.data?.message || "Ocurrió un error al procesar tu compra. Por favor verifica el stock de la sucursal.");
+    }
   };
 
   const abrirConfirmacion = () => {
