@@ -1,37 +1,90 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminModal from "../../components/AdminModal";
+import api from "../../services/api";
+import { getPedidosCliente } from "../../services/pedidosService";
 
 function AdminPedidos() {
+  const [pedidos, setPedidos] = useState([]);
+  const [repartidores, setRepartidores] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPedido, setCurrentPedido] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const pedidos = [
-    { id: "ORD-001", cliente: "María López", total: 450.00, estado: "Preparando", items: 3, tiempo: "Hace 10 min", repartidor: null },
-    { id: "ORD-002", cliente: "Carlos García", total: 120.00, estado: "En Camino", items: 1, tiempo: "Hace 25 min", repartidor: "Juan R." },
-    { id: "ORD-003", cliente: "Ana Martínez", total: 850.00, estado: "Cancelado", items: 5, tiempo: "Hace 1 hora", repartidor: null },
-    { id: "ORD-004", cliente: "Luis Torres", total: 320.00, estado: "Entregado", items: 2, tiempo: "Ayer", repartidor: "Pedro M." },
-    { id: "ORD-005", cliente: "Sofía Ruiz", total: 180.00, estado: "Preparando", items: 1, tiempo: "Hace 5 min", repartidor: null },
-    { id: "ORD-006", cliente: "Jorge Silva", total: 540.00, estado: "En Camino", items: 4, tiempo: "Hace 40 min", repartidor: "Juan R." },
-  ];
+  const fetchPedidos = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getPedidosCliente();
+      setPedidos(data);
+    } catch (error) {
+      console.error("Error al obtener pedidos:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchRepartidores = async () => {
+    try {
+      const response = await api.get("/repartidores");
+      setRepartidores(response.data);
+    } catch (error) {
+      console.error("Error al obtener flotilla de repartidores:", error);
+    }
+  };
+
+  useEffect(() => {
+    const initializeData = async () => {
+      await fetchPedidos();
+      await fetchRepartidores();
+    };
+    initializeData();
+  }, []);
 
   const getEstadoEstilo = (estado) => {
     switch(estado) {
-      case "Preparando": return "bg-[#D4AF6A]/10 border-[#D4AF6A]/30 text-[#D4AF6A]";
-      case "En Camino": return "bg-[#9B2335]/20 border-[#9B2335]/40 text-[#dfbfbf]";
-      case "Entregado": return "bg-green-500/10 border-green-500/30 text-green-400";
-      case "Cancelado": return "bg-red-500/10 border-red-500/30 text-red-400 opacity-60";
+      case "pendiente": return "bg-orange-500/10 border-orange-500/30 text-orange-400";
+      case "preparando": return "bg-[#D4AF6A]/10 border-[#D4AF6A]/30 text-[#D4AF6A]";
+      case "en_camino": return "bg-[#9B2335]/20 border-[#9B2335]/40 text-[#dfbfbf]";
+      case "entregado": return "bg-green-500/10 border-green-500/30 text-green-400";
+      case "cancelado": return "bg-red-500/10 border-red-500/30 text-red-400 opacity-60";
       default: return "bg-[#F2EDE4]/5 border-[#F2EDE4]/20 text-[#F2EDE4]/50";
     }
   };
 
   const getEstadoIcono = (estado) => {
     switch(estado) {
-      case "Preparando": return "soup_kitchen";
-      case "En Camino": return "two_wheeler";
-      case "Entregado": return "check_circle";
-      case "Cancelado": return "block";
+      case "preparando": return "soup_kitchen";
+      case "en_camino": return "two_wheeler";
+      case "entregado": return "check_circle";
+      case "cancelado": return "block";
       default: return "receipt_long";
     }
+  };
+
+  const getEstadoDisplay = (estado) => {
+    switch(estado) {
+      case "pendiente": return "Pendiente";
+      case "preparando": return "Preparando";
+      case "en_camino": return "En Camino";
+      case "entregado": return "Entregado";
+      case "cancelado": return "Cancelado";
+      default: return estado;
+    }
+  };
+
+  const formatTiempo = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Hace un momento";
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `Hace ${diffHours} h`;
+    
+    return date.toLocaleDateString();
   };
 
   const handleView = (pedido) => {
@@ -39,150 +92,199 @@ function AdminPedidos() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleCancelar = async (pedidoId) => {
+    if(window.confirm("¿Seguro de cancelar este pedido de forma manual?")) {
+      try {
+        await api.put(`/pedidos/${pedidoId}/estado`, { estado: "cancelado" });
+        await fetchPedidos();
+      } catch (error) {
+        console.error("Error al cancelar pedido:", error);
+      }
+    }
+  };
+
+  const handleActualizarDetalles = async (e) => {
     e.preventDefault();
-    setIsModalOpen(false);
+    const selectEstado = e.target.elements.estado.value;
+    const selectRepartidor = e.target.elements.repartidor.value;
+
+    try {
+      const pedidoId = currentPedido._id || currentPedido.id;
+      
+      // 1. Actualizar estado
+      await api.put(`/pedidos/${pedidoId}/estado`, { estado: selectEstado });
+      
+      // 2. Actualizar repartidor si cambió
+      await api.put(`/pedidos/${pedidoId}/repartidor`, { repartidorId: selectRepartidor || null });
+      
+      setIsModalOpen(false);
+      await fetchPedidos();
+    } catch (error) {
+      console.error("Error al actualizar la orden:", error);
+    }
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-10">
         <h2 className="text-[24px] font-['Outfit'] text-[#F2EDE4] tracking-widest uppercase">
-          Gestión de Órdenes
+          Gestión de Órdenes Real-Time
         </h2>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-[#141414]/60 border border-[#D4AF6A]/20 text-[#D4AF6A] px-5 py-2 rounded hover:bg-[#D4AF6A]/10 transition-colors shadow-lg backdrop-blur-md">
-            <span className="material-symbols-outlined font-light text-[18px]">filter_list</span>
-            <span className="font-['Nunito'] text-[12px] font-bold tracking-wide">Filtrar</span>
-          </button>
+      </div>
+
+      {isLoading ? (
+        <div className="text-center text-[#D4AF6A] font-['JetBrains_Mono'] mt-20">
+          Cargando pedidos activos...
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {pedidos.map((pedido) => (
-          <div key={pedido.id} className={`bg-[#141414]/60 border border-[#D4AF6A]/20 p-6 rounded-xl relative group hover:border-[#D4AF6A]/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md ${pedido.estado === 'Cancelado' ? 'opacity-70 grayscale-[0.3]' : ''}`}>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {pedidos.map((pedido) => {
+            const countItems = pedido.productos?.reduce((a, p) => a + p.cantidad, 0) || 0;
+            const repartidorAsignado = repartidores.find(r => r._id === pedido.repartidorId);
             
-            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button 
-                onClick={() => handleView(pedido)}
-                className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#D4AF6A]/30 flex items-center justify-center text-[#D4AF6A]/70 hover:text-[#D4AF6A] hover:bg-[#D4AF6A]/10 transition-colors shadow-lg" 
-                title="Detalles y Asignación"
-              >
-                <span className="material-symbols-outlined text-[16px] font-light">visibility</span>
-              </button>
-              {pedido.estado !== 'Cancelado' && pedido.estado !== 'Entregado' && (
-                <button className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#9B2335]/30 flex items-center justify-center text-[#9B2335]/70 hover:text-[#9B2335] hover:bg-[#9B2335]/10 transition-colors shadow-lg" title="Cancelar Pedido">
-                  <span className="material-symbols-outlined text-[16px] font-light">cancel</span>
-                </button>
-              )}
-            </div>
+            return (
+              <div key={pedido._id} className={`bg-[#141414]/60 border border-[#D4AF6A]/20 p-6 rounded-xl relative group hover:border-[#D4AF6A]/50 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-md ${pedido.estado === 'cancelado' ? 'opacity-70 grayscale-[0.3]' : ''}`}>
+                
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => handleView(pedido)}
+                    className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#D4AF6A]/30 flex items-center justify-center text-[#D4AF6A]/70 hover:text-[#D4AF6A] hover:bg-[#D4AF6A]/10 transition-colors shadow-lg" 
+                    title="Detalles y Asignación"
+                  >
+                    <span className="material-symbols-outlined text-[16px] font-light">visibility</span>
+                  </button>
+                  {pedido.estado !== 'cancelado' && pedido.estado !== 'entregado' && (
+                    <button 
+                      onClick={() => handleCancelar(pedido._id)}
+                      className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#9B2335]/30 flex items-center justify-center text-[#9B2335]/70 hover:text-[#9B2335] hover:bg-[#9B2335]/10 transition-colors shadow-lg" 
+                      title="Cancelar Pedido"
+                    >
+                      <span className="material-symbols-outlined text-[16px] font-light">cancel</span>
+                    </button>
+                  )}
+                </div>
 
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[13px] tracking-wider mb-1">
-                  {pedido.id}
-                </h3>
-                <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/40 text-[10px] tracking-widest uppercase">
-                  {pedido.tiempo}
-                </p>
-              </div>
-              <span className={`px-2.5 py-1 border rounded-full text-[9px] uppercase tracking-widest font-['JetBrains_Mono'] flex items-center gap-1 ${getEstadoEstilo(pedido.estado)}`}>
-                <span className="material-symbols-outlined text-[12px]">{getEstadoIcono(pedido.estado)}</span>
-                {pedido.estado}
-              </span>
-            </div>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[13px] tracking-wider mb-1">
+                      {`ORD-${pedido._id.slice(-6).toUpperCase()}`}
+                    </h3>
+                    <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/40 text-[10px] tracking-widest uppercase">
+                      {formatTiempo(pedido.createdAt)}
+                    </p>
+                  </div>
+                  <span className={`px-2.5 py-1 border rounded-full text-[9px] uppercase tracking-widest font-['JetBrains_Mono'] flex items-center gap-1 ${getEstadoEstilo(pedido.estado)}`}>
+                    <span className="material-symbols-outlined text-[12px]">{getEstadoIcono(pedido.estado)}</span>
+                    {getEstadoDisplay(pedido.estado)}
+                  </span>
+                </div>
 
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#D4AF6A]/20 flex items-center justify-center text-[#F2EDE4]/70 font-['Outfit'] text-[16px]">
-                {pedido.cliente.charAt(0)}
-              </div>
-              <div>
-                <p className="font-['Nunito'] text-[#F2EDE4] text-[15px] font-semibold">{pedido.cliente}</p>
-                <p className="font-['Nunito'] text-[#F2EDE4]/50 text-[12px]">{pedido.items} artículo(s)</p>
-              </div>
-            </div>
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#D4AF6A]/20 flex items-center justify-center text-[#F2EDE4]/70 font-['Outfit'] text-[16px]">
+                    C
+                  </div>
+                  <div>
+                    <p className="font-['Nunito'] text-[#F2EDE4] text-[15px] font-semibold">
+                      {`Cliente #${pedido.clienteId.slice(-6).toUpperCase()}`}
+                    </p>
+                    <p className="font-['Nunito'] text-[#F2EDE4]/50 text-[12px]">{countItems} artículo(s)</p>
+                  </div>
+                </div>
 
-            <div className="pt-4 border-t border-[#D4AF6A]/10 flex justify-between items-end">
-              <div className="flex flex-col gap-1">
-                <span className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.2em] text-[#D4AF6A]/50">Repartidor</span>
-                <span className="font-['JetBrains_Mono'] text-[10px] text-[#F2EDE4]/70">
-                  {pedido.repartidor ? pedido.repartidor : "Sin Asignar"}
-                </span>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.2em] text-[#D4AF6A]/50">Total</span>
-                <span className={`font-['Outfit'] text-[20px] font-bold ${pedido.estado === 'Cancelado' ? 'text-[#F2EDE4]/50 line-through' : 'text-[#D4AF6A]'}`}>
-                  ${pedido.total.toFixed(2)}
-                </span>
-              </div>
-            </div>
+                <div className="pt-4 border-t border-[#D4AF6A]/10 flex justify-between items-end">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.2em] text-[#D4AF6A]/50">Repartidor</span>
+                    <span className="font-['JetBrains_Mono'] text-[10px] text-[#F2EDE4]/70">
+                      {repartidorAsignado ? repartidorAsignado.nombre : "Sin Asignar"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-['JetBrains_Mono'] text-[9px] uppercase tracking-[0.2em] text-[#D4AF6A]/50">Total</span>
+                    <span className={`font-['Outfit'] text-[20px] font-bold ${pedido.estado === 'cancelado' ? 'text-[#F2EDE4]/50 line-through' : 'text-[#D4AF6A]'}`}>
+                      ${pedido.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
 
-          </div>
-        ))}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
+      {/* Ticket de detalle del Pedido */}
       <AdminModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        title={`Ticket ${currentPedido?.id || ""}`}
+        title={currentPedido ? `Detalle Ticket ORD-${currentPedido._id.slice(-6).toUpperCase()}` : "Detalles"}
       >
         {currentPedido && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleActualizarDetalles} className="space-y-6">
             <div className="flex items-center gap-4 p-4 bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg">
               <div className="w-12 h-12 rounded-full bg-[#141414] border border-[#D4AF6A]/30 flex items-center justify-center text-[#D4AF6A] font-['Outfit'] text-[20px]">
-                {currentPedido.cliente.charAt(0)}
+                C
               </div>
               <div>
-                <h3 className="font-['Nunito'] text-[#F2EDE4] text-[16px] font-semibold">{currentPedido.cliente}</h3>
-                <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/50 text-[10px] uppercase tracking-widest">{currentPedido.tiempo}</p>
+                <h3 className="font-['Nunito'] text-[#F2EDE4] text-[16px] font-semibold">
+                  {`Cliente ID: ${currentPedido.clienteId}`}
+                </h3>
+                <p className="font-['JetBrains_Mono'] text-[#F2EDE4]/50 text-[10px] uppercase tracking-widest">
+                  Creado: {new Date(currentPedido.createdAt).toLocaleString()}
+                </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Detalle del Pedido</h4>
-              <div className="bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg p-4">
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#D4AF6A]/10">
-                  <span className="font-['Nunito'] text-[#F2EDE4] text-sm">2x Tonkotsu Ramen</span>
-                  <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-sm">$360.00</span>
-                </div>
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#D4AF6A]/10">
-                  <span className="font-['Nunito'] text-[#F2EDE4] text-sm">1x Edamames al Vapor</span>
-                  <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-sm">$65.00</span>
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                  <span className="font-['JetBrains_Mono'] text-[#D4AF6A]/50 text-[10px] uppercase tracking-[0.2em]">Costo de Envío</span>
-                  <span className="font-['JetBrains_Mono'] text-[#F2EDE4]/70 text-sm">$25.00</span>
-                </div>
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#D4AF6A]/20">
-                  <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-[12px] uppercase tracking-[0.2em]">Total</span>
-                  <span className="font-['Outfit'] text-[#D4AF6A] text-[22px] font-bold">${currentPedido.total.toFixed(2)}</span>
-                </div>
+              <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Platillos en la Orden</h4>
+              <div className="bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg p-4 max-h-[160px] overflow-y-auto">
+                {currentPedido.productos?.map((p, idx) => (
+                  <div key={p.productoId || idx} className="flex justify-between items-center mb-2 pb-2 border-b border-[#D4AF6A]/10 last:border-0 last:mb-0 last:pb-0">
+                    <span className="font-['Nunito'] text-[#F2EDE4] text-sm">
+                      {p.cantidad}x {p.nombre || "Platillo"}
+                    </span>
+                    <span className="font-['JetBrains_Mono'] text-[#D4AF6A] text-sm">
+                      ${(p.cantidad * (p.precioUnitario || 0)).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <h4 className="font-['JetBrains_Mono'] text-[#D4AF6A]/70 text-[10px] uppercase tracking-[0.2em]">Dirección de Entrega</h4>
+              <p className="text-sm font-['Nunito'] text-[#F2EDE4] bg-[#1a1a1a] border border-[#D4AF6A]/15 rounded-lg px-4 py-2.5">
+                {currentPedido.direccionEntrega}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-5">
               <div>
                 <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Estado del Pedido</label>
                 <select 
+                  name="estado"
                   defaultValue={currentPedido.estado} 
                   className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
                 >
-                  <option value="Preparando">Preparando</option>
-                  <option value="En Camino">En Camino</option>
-                  <option value="Entregado">Entregado</option>
-                  <option value="Cancelado">Cancelado</option>
+                  <option value="pendiente">Pendiente (Sin Conductor)</option>
+                  <option value="preparando">Preparando Cocina</option>
+                  <option value="en_camino">En Camino (Delivery)</option>
+                  <option value="entregado">Entregado con Éxito</option>
+                  <option value="cancelado">Cancelado</option>
                 </select>
               </div>
               <div>
                 <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Asignar Repartidor</label>
                 <select 
-                  defaultValue={currentPedido.repartidor || ""} 
+                  name="repartidor"
+                  defaultValue={currentPedido.repartidorId || ""} 
                   className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors appearance-none"
                 >
                   <option value="">Sin Asignar</option>
-                  <option value="Juan R.">Juan R. (Disponible)</option>
-                  <option value="Pedro M.">Pedro M. (En ruta)</option>
-                  <option value="Luis F.">Luis F. (Disponible)</option>
+                  {repartidores.map(r => (
+                    <option key={r._id} value={r._id}>
+                      {`${r.nombre} (${r.estado === 'disponible' ? 'Disponible' : 'Ocupado'})`}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -208,4 +310,5 @@ function AdminPedidos() {
     </div>
   );
 }
+
 export default AdminPedidos;
