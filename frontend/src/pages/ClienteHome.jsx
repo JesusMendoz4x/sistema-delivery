@@ -47,7 +47,14 @@ function Toast({ mensaje, visible }) {
   );
 }
 
-function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUbicacion }) {
+function ConfirmModal({
+  visible,
+  estado,
+  onConfirmar,
+  onCerrar,
+  ubicacion,
+  setUbicacion,
+}) {
   if (!visible) return null;
 
   const esConfirmado = estado === "confirmado";
@@ -63,21 +70,23 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
         setUbicacion({
           latitud: position.coords.latitude,
           longitud: position.coords.longitude,
-          tipo: "GPS Real (Navegador)"
+          tipo: "GPS Real (Navegador)",
         });
       },
       () => {
-        alert("No se pudo obtener tu ubicación GPS real. Asegúrate de autorizar los permisos en el navegador.");
+        alert(
+          "No se pudo obtener tu ubicación GPS real. Asegúrate de autorizar los permisos en el navegador.",
+        );
       },
-      { enableHighAccuracy: true, timeout: 5000 }
+      { enableHighAccuracy: true, timeout: 5000 },
     );
   };
 
   const usarCentro = () => {
     setUbicacion({
-      latitud: 17.0600,
-      longitud: -96.7260,
-      tipo: "Simulada (Oaxaca Centro)"
+      latitud: 17.06,
+      longitud: -96.726,
+      tipo: "Simulada (Oaxaca Centro)",
     });
   };
 
@@ -85,7 +94,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
     setUbicacion({
       latitud: 17.0818,
       longitud: -96.7135,
-      tipo: "Simulada (Oaxaca Reforma)"
+      tipo: "Simulada (Oaxaca Reforma)",
     });
   };
 
@@ -115,7 +124,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
           backgroundColor: "#141418",
           border: "1px solid rgba(212, 175, 106, 0.25)",
           textAlign: "center",
-          boxShadow: "0 15px 40px rgba(0,0,0,0.6)"
+          boxShadow: "0 15px 40px rgba(0,0,0,0.6)",
         }}
       >
         <p
@@ -125,7 +134,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
             color: "#D4AF6A",
             marginBottom: "8px",
             letterSpacing: "0.1em",
-            textTransform: "uppercase"
+            textTransform: "uppercase",
           }}
         >
           {esConfirmado ? "Pedido confirmado" : "Confirmar pedido"}
@@ -146,27 +155,52 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
         {!esConfirmado && (
           <>
             {/* Panel de Geolocalización Integrado en el Checkout */}
-            <div 
+            <div
               style={{
                 background: "rgba(20, 20, 20, 0.6)",
                 border: "1px solid rgba(212, 175, 106, 0.15)",
                 padding: "12px",
                 marginBottom: "20px",
                 textAlign: "left",
-                fontFamily: "'Nunito', sans-serif"
+                fontFamily: "'Nunito', sans-serif",
               }}
             >
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", color: "#D4AF6A", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "9px",
+                  color: "#D4AF6A",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
                 Punto de Entrega (Haversine)
               </span>
-              <p style={{ color: "#F2EDE4", fontSize: "12px", margin: "4px 0" }}>
+              <p
+                style={{ color: "#F2EDE4", fontSize: "12px", margin: "4px 0" }}
+              >
                 <strong>Origen:</strong> {ubicacion.tipo}
               </p>
-              <p style={{ color: "rgba(242, 242, 244, 0.6)", fontSize: "11px", margin: "2px 0", fontFamily: "'JetBrains Mono', monospace" }}>
-                Lat: {ubicacion.latitud.toFixed(4)} | Lon: {ubicacion.longitud.toFixed(4)}
+              <p
+                style={{
+                  color: "rgba(242, 242, 244, 0.6)",
+                  fontSize: "11px",
+                  margin: "2px 0",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                Lat: {ubicacion.latitud.toFixed(4)} | Lon:{" "}
+                {ubicacion.longitud.toFixed(4)}
               </p>
-              
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "10px" }}>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                  marginTop: "10px",
+                }}
+              >
                 <button
                   type="button"
                   onClick={detectarGPSReal}
@@ -180,10 +214,15 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
                     cursor: "pointer",
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    transition: "all 0.2s"
+                    transition: "all 0.2s",
                   }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(212, 175, 106, 0.1)"}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "rgba(212, 175, 106, 0.1)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
                 >
                   📡 Detectar GPS Real
                 </button>
@@ -199,7 +238,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
                       fontSize: "9px",
                       fontFamily: "'JetBrains Mono', monospace",
                       padding: "5px",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     📍 Demo Centro
@@ -215,7 +254,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
                       fontSize: "9px",
                       fontFamily: "'JetBrains Mono', monospace",
                       padding: "5px",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     📍 Demo Reforma
@@ -251,7 +290,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar, ubicacion, setUb
                   backgroundColor: "#D4AF6A",
                   border: "none",
                   cursor: "pointer",
-                  fontWeight: "bold"
+                  fontWeight: "bold",
                 }}
               >
                 Confirmar
@@ -275,25 +314,31 @@ function ClienteHomeInner() {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
 
-  const categoriaActivaRender = isLoggedIn ? categoriaActiva : "Inicio";
-  const mostrarMenuRender = isLoggedIn ? mostrarMenu : false;
+  const categoriasPublicas = ["Inicio", "Nuestras Sucursales", "Entradas"];
+  const categoriaActivaRender =
+    isLoggedIn || categoriasPublicas.includes(categoriaActiva)
+      ? categoriaActiva
+      : "Inicio";
+  const mostrarMenuRender = isLoggedIn
+    ? mostrarMenu
+    : categoriaActiva === "Entradas" && mostrarMenu;
 
-    // Ubicación dinámica de entrega para el enrutamiento Haversine
+  // Ubicación dinámica de entrega para el enrutamiento Haversine
   const [ubicacionCliente, setUbicacionCliente] = useState({
-    latitud: 17.0600, // Coordenadas del Zócalo de Oaxaca por defecto
-    longitud: -96.7260,
+    latitud: 17.06, // Coordenadas del Zócalo de Oaxaca por defecto
+    longitud: -96.726,
     tipo: "Simulada (Oaxaca Centro)",
   });
 
   // Socket.IO para actualización en tiempo real de pedidos
-    // 1. Cargar el historial real de pedidos al iniciar sesión
+  // 1. Cargar el historial real de pedidos al iniciar sesión
   useEffect(() => {
     if (isLoggedIn && user) {
       const cargarHistorialPedidos = async () => {
         try {
           const data = await getPedidosCliente();
           const pedidosFiltrados = data.filter(
-            (p) => String(p.clienteId) === String(user.id || user._id)
+            (p) => String(p.clienteId) === String(user.id || user._id),
           );
           setPedidos(pedidosFiltrados);
         } catch (error) {
@@ -334,11 +379,11 @@ function ClienteHomeInner() {
               ...p,
               estado: data.estado,
               repartidorId: data.repartidorId,
-              ruta: data.ruta
+              ruta: data.ruta,
             };
           }
           return p;
-        })
+        }),
       );
     });
 
@@ -398,7 +443,9 @@ function ClienteHomeInner() {
   const incrementar = (id) => {
     setCarrito((prev) =>
       prev.map((item) =>
-        (item._id || item.id) === id ? { ...item, cantidad: item.cantidad + 1 } : item,
+        (item._id || item.id) === id
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item,
       ),
     );
   };
@@ -407,7 +454,8 @@ function ClienteHomeInner() {
     setCarrito((prev) => {
       const item = prev.find((i) => (i._id || i.id) === id);
       if (!item) return prev;
-      if (item.cantidad === 1) return prev.filter((i) => (i._id || i.id) !== id);
+      if (item.cantidad === 1)
+        return prev.filter((i) => (i._id || i.id) !== id);
       return prev.map((i) =>
         (i._id || i.id) === id ? { ...i, cantidad: i.cantidad - 1 } : i,
       );
@@ -417,7 +465,9 @@ function ClienteHomeInner() {
   const handleCategoriaClick = (cat) => {
     // Si no está logueado y da clic en algo que requiere auth
     if (!isLoggedIn && (cat === "Pedidos" || cat === "Mi Cuenta")) {
-      openAuthWall(cat === "Pedidos" ? "ver tus pedidos" : "gestionar tu cuenta");
+      openAuthWall(
+        cat === "Pedidos" ? "ver tus pedidos" : "gestionar tu cuenta",
+      );
       return;
     }
     if (cat === "Inicio") {
@@ -445,7 +495,7 @@ function ClienteHomeInner() {
     setMostrarCarrito(false);
   };
 
-   // Lógica de Compra Real conectada al Backend Orquestado
+  // Lógica de Compra Real conectada al Backend Orquestado
   const ejecutarPedido = async () => {
     if (carrito.length === 0 || !isLoggedIn || !user) return;
 
@@ -458,15 +508,15 @@ function ClienteHomeInner() {
 
     try {
       // Coordenadas simuladas del cliente (Cerca de la sucursal Centro de Oaxaca)
-      const latitudCliente = 17.0600;
-      const longitudCliente = -96.7260;
+      const latitudCliente = 17.06;
+      const longitudCliente = -96.726;
 
       // 1. Mapear el carrito al formato esperado por el validador del backend
-      const productosPedido = carrito.map(item => ({
+      const productosPedido = carrito.map((item) => ({
         productoId: item._id || item.id, // ID del catálogo de MongoDB
         nombre: item.nombre,
         precioUnitario: parseFloat(item.precio),
-        cantidad: item.cantidad
+        cantidad: item.cantidad,
       }));
 
       // 2. Enviar el pedido al API Gateway
@@ -476,11 +526,11 @@ function ClienteHomeInner() {
         total: total,
         direccionEntrega: {
           calle: user.direccion || "Macedonio Alcalá 402, Centro, Oaxaca",
-          ubicacion: { latitud: latitudCliente, longitud: longitudCliente }
+          ubicacion: { latitud: latitudCliente, longitud: longitudCliente },
         },
         metodoPago: "tarjeta",
-        latitud: latitudCliente,   // Se pasan en la raíz del body para el enrutador
-        longitud: longitudCliente
+        latitud: latitudCliente, // Se pasan en la raíz del body para el enrutador
+        longitud: longitudCliente,
       });
 
       // 3. Agregar el pedido retornado por MongoDB al estado de la vista
@@ -494,7 +544,10 @@ function ClienteHomeInner() {
       console.log(" Pedido creado y procesado en el Backend:", nuevoPedidoReal);
     } catch (error) {
       console.error(" Error al procesar el pedido: ", error);
-      alert(error.response?.data?.message || "Ocurrió un error al procesar tu compra. Por favor verifica el stock de la sucursal.");
+      alert(
+        error.response?.data?.message ||
+          "Ocurrió un error al procesar tu compra. Por favor verifica el stock de la sucursal.",
+      );
     }
   };
 
