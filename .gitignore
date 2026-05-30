@@ -1,5 +1,5 @@
 # Ignore dependencies and local env files everywhere in the repo
-**/node_modules/
+/node_modules/
 **/.env
 **/.env.*
 *.log
