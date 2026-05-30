@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../context/AuthContext";
+// Importamos nuestros clientes de API reales
+import { loginUsuario, registrarUsuario } from "../services/usuariosService";
 
 function LoginModal() {
   const {
@@ -19,19 +21,34 @@ function LoginModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mostrarPassword, setMostrarPassword] = useState(false);
+  const [errorMensaje, setErrorMensaje] = useState(""); // 👈 Para pintar alertas en UI
 
   const esRegistro = loginModalModo === "register";
 
   if (!showLoginModal) return null;
 
-  const handleLogin = () => {
+  // Lógica de Login Real conectada a Docker
+  const handleLogin = async () => {
     if (!email || !password) return;
-    login({ nombre: email.split("@")[0], email });
-    setEmail("");
-    setPassword("");
+    setErrorMensaje("");
+    
+    try {
+      const data = await loginUsuario(email, password);
+      if (data.ok && data.token) {
+        // Guardar sesión real en Contexto y LocalStorage
+        login(data.usuario, data.token);
+        setEmail("");
+        setPassword("");
+      } else {
+        setErrorMensaje(data.message || "Credenciales incorrectas");
+      }
+    } catch (err) {
+      setErrorMensaje(err.response?.data?.message || "Error al conectar con el servidor de autenticación.");
+    }
   };
 
-  const handleRegister = () => {
+  // Lógica de Registro Real conectada a Docker
+  const handleRegister = async () => {
     if (
       !nombre ||
       !telefono ||
@@ -41,21 +58,39 @@ function LoginModal() {
       !email ||
       !password
     ) {
+      setErrorMensaje("Por favor completa todos los campos requeridos.");
       return;
     }
-    login({
-      nombre,
-      telefono,
-      direccion: { calle, colonia, codigoPostal },
-      email,
-    });
-    setNombre("");
-    setTelefono("");
-    setCalle("");
-    setColonia("");
-    setCodigoPostal("");
-    setEmail("");
-    setPassword("");
+    setErrorMensaje("");
+
+    try {
+      const direccionCompleta = `${calle}, ${colonia}, C.P. ${codigoPostal}`;
+      
+      // 1. Crear la cuenta en el backend
+      await registrarUsuario({
+        nombre,
+        telefono,
+        direccion: direccionCompleta,
+        email,
+        password,
+        rol: "cliente" // El registro desde el modal de cliente siempre nace con rol 'cliente'
+      });
+
+      // 2. Auto-login inmediato en segundo plano para no obligarlo a escribir de nuevo
+      const loginData = await loginUsuario(email, password);
+      login(loginData.usuario, loginData.token);
+
+      // Limpiar estados
+      setNombre("");
+      setTelefono("");
+      setCalle("");
+      setColonia("");
+      setCodigoPostal("");
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      setErrorMensaje(err.response?.data?.message || "Error al realizar el registro de la cuenta.");
+    }
   };
 
   const handleBackdropClick = (e) => {
@@ -447,6 +482,22 @@ function LoginModal() {
             </div>
           </div>
         </div>
+
+        {/* Mostrar mensaje de error si existe */}
+        {errorMensaje && (
+          <div
+            style={{
+              marginBottom: "12px",
+              padding: "8px 10px",
+              backgroundColor: "rgba(155, 35, 53, 0.12)",
+              color: "#F2EDE4",
+              fontSize: "12px",
+              border: "1px solid rgba(155, 35, 53, 0.25)",
+            }}
+          >
+            {errorMensaje}
+          </div>
+        )}
 
         {/* Botón */}
         <button

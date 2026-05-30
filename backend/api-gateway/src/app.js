@@ -13,6 +13,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secreto_super_seguro_delivery';
 // Middleware de verificación de JWT
 const verifyJWT = (allowedRoles = []) => {
     return (req, res, next) => {
+        // Permitir peticiones de tipo OPTIONS libres para preflight de CORS
+        if (req.method === 'OPTIONS') {
+            return next();
+        }
+
         const authHeader = req.headers['authorization'];
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({
@@ -80,6 +85,7 @@ app.use((req, res, next) => {
 // 2. Configuración de CORS habilitando el frontend
 app.use(cors({
     origin: [
+        'http://localhost', 'http://127.0.0.1', // Puerto 80 del Frontend Dockerizado
         'http://localhost:5173', 'http://127.0.0.1:5173',
         'http://localhost:5174', 'http://127.0.0.1:5174',
         'http://localhost:5175', 'http://127.0.0.1:5175'
@@ -167,6 +173,14 @@ app.get('/api/healthz', async (req, res) => {
 // Pasamos el filtro de ruta como primer argumento de "createProxyMiddleware".
 // Esto evita que Express recorte el prefijo y permite la reescritura fluida de rutas de forma nativa.
 
+// Limpiador de cabeceras CORS duplicadas de microservicios para evitar conflictos en el navegador
+const cleanCorsHeaders = (proxyRes, req, res) => {
+    delete proxyRes.headers['access-control-allow-origin'];
+    delete proxyRes.headers['access-control-allow-credentials'];
+    delete proxyRes.headers['access-control-allow-methods'];
+    delete proxyRes.headers['access-control-allow-headers'];
+};
+
 // Rutas de Sucursales (GET público, otros Admin)
 app.use('/api/sucursales', (req, res, next) => {
     if (req.method === 'GET') return next();
@@ -174,7 +188,8 @@ app.use('/api/sucursales', (req, res, next) => {
 }, createProxyMiddleware({
     target: process.env.SUCURSALES_SERVICE_URL || 'http://localhost:3002',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Productos (GET público, otros Admin/Sucursal)
@@ -187,7 +202,8 @@ app.use('/api/productos', (req, res, next) => {
     pathRewrite: {
         '^/api/productos': '/api/inventario'
     },
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Inventario (GET público, otros Admin/Sucursal)
@@ -197,14 +213,16 @@ app.use('/api/inventario', (req, res, next) => {
 }, createProxyMiddleware({
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Pedidos (Cualquier operación requiere autenticación)
 app.use('/api/pedidos', verifyJWT(['cliente', 'admin', 'sucursal']), createProxyMiddleware({
     target: process.env.PEDIDOS_SERVICE_URL || 'http://localhost:3003',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Repartidores (GET público para asignación, otros Admin)
@@ -214,28 +232,55 @@ app.use('/api/repartidores', (req, res, next) => {
 }, createProxyMiddleware({
     target: process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Usuarios / Autenticación
 // POST /api/usuarios (registro) y POST /api/usuarios/login (login) son públicos.
-// Otras operaciones requieren rol 'admin'.
 app.use('/api/usuarios', (req, res, next) => {
     if (req.method === 'POST') {
-        return next(); // login o registro
+        return next(); // login o registro son públicos
     }
-    return verifyJWT(['admin'])(req, res, next);
+    // Permitir a usuarios autenticados acceder a su propio perfil
+    return verifyJWT(['admin', 'cliente', 'sucursal'])(req, res, (err) => {
+        if (err) return next(err);
+        
+        // Si es admin, tiene acceso total e irrestricto
+        if (req.user.rol === 'admin') {
+            return next();
+        }
+
+        // Si no es admin, solo puede consultar o modificar su propio ID
+        // req.path es relativo al mount path (ej: /6650dbf7f1a0b1234567890c)
+        const idPath = req.path.split('/')[1];
+        const userId = req.user.id || req.user._id;
+
+        if (idPath && idPath === userId) {
+            // El usuario autenticado solo puede hacer GET o PUT a su propio ID
+            if (req.method === 'GET' || req.method === 'PUT') {
+                return next();
+            }
+        }
+
+        return res.status(403).json({
+            ok: false,
+            message: 'Acceso prohibido. No tienes permisos para consultar o modificar este perfil.'
+        });
+    });
 }, createProxyMiddleware({
     target: process.env.USUARIO_SERVICE_URL || 'http://localhost:3005',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Rutas de Enrutamiento Inteligente (Requiere autenticación admin o sucursal)
 app.use('/api/enrutamiento', verifyJWT(['admin', 'sucursal']), createProxyMiddleware({
     target: process.env.ENRUTAMIENTO_SERVICE_URL || 'http://localhost:3006',
     changeOrigin: true,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
 }));
 
 // Endpoint interno para recibir actualizaciones de pedidos desde el pedidos-service y emitirlas vía WebSockets
@@ -253,6 +298,13 @@ app.post('/api-internal/pedido-update', express.json(), (req, res) => {
         return res.json({ ok: true });
     }
     res.status(500).json({ ok: false, message: 'Servidor WebSocket no disponible' });
+});
+
+// Endpoint interno para consultar la cantidad de sockets conectados actualmente (usuarios activos en tiempo real)
+app.get('/api-internal/usuarios-activos', (req, res) => {
+    const io = req.app.get('io');
+    const conteo = io ? io.sockets.sockets.size : 0;
+    res.json({ usuariosActivos: conteo });
 });
 
 // Middleware para capturar rutas no encontradas a través del Gateway

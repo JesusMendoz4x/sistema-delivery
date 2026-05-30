@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { loginUsuario } from "../../services/usuariosService"; // Importar el servicio real
 
 function AdminLogin() {
   const { loginAdmin } = useAuth();
@@ -8,15 +9,36 @@ function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulamos validación simple
-    if (email === "admin@casablanca.com" && password === "admin123") {
-      loginAdmin();
-      navigate("/admin");
-    } else {
-      setError("Credenciales incorrectas. Usa admin@casablanca.com / admin123");
+    setError("");
+    setIsLoading(true);
+
+    try {
+      // 1. Validar credenciales contra el microservicio de usuarios real en MongoDB
+      const data = await loginUsuario(email, password);
+
+      if (data.ok && data.token) {
+        // 2. Verificar que el usuario tenga rol de administrador
+        if (data.usuario.rol === "admin") {
+          // Guardar el usuario y el token JWT real en localStorage y en el contexto
+          loginAdmin(data.usuario, data.token);
+          navigate("/admin");
+        } else {
+          setError("Acceso denegado. Este panel requiere rol de administrador.");
+        }
+      } else {
+        setError(data.message || "Credenciales incorrectas.");
+      }
+    } catch (err) {
+      console.error("Error en login de administrador:", err);
+      setError(
+        err.response?.data?.message || "Error al conectar con el servidor de autenticación."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -25,7 +47,7 @@ function AdminLogin() {
       className="min-h-screen flex items-center justify-center font-['Nunito'] relative overflow-hidden"
       style={{ backgroundColor: "rgb(10,10,10)" }}
     >
-      {/* Background Ellipse */}
+      {/* Elipse de Fondo */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] max-w-[1200px] aspect-square rounded-full pointer-events-none"
         style={{
           background: "radial-gradient(circle at 50% 50%, rgba(140, 0, 0, 0.4) 0%, rgba(95, 0, 0, 0.2) 30%, rgba(30, 0, 0, 0.1) 50%, rgba(10, 10, 10, 0) 70%)",
@@ -47,8 +69,9 @@ function AdminLogin() {
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-3 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors"
-              placeholder="admin@casablanca.com"
+              placeholder="admin@delivery.com"
             />
           </div>
           
@@ -58,6 +81,7 @@ function AdminLogin() {
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-3 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors"
               placeholder="••••••••"
             />
@@ -67,9 +91,10 @@ function AdminLogin() {
 
           <button 
             type="submit"
-            className="w-full bg-[#9B2335] text-white py-3 rounded-lg font-['Nunito'] text-[14px] font-bold tracking-wide hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(155,35,53,0.4)] mt-4"
+            disabled={isLoading}
+            className="w-full bg-[#9B2335] text-white py-3 rounded-lg font-['Nunito'] text-[14px] font-bold tracking-wide hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(155,35,53,0.4)] mt-4 disabled:opacity-50"
           >
-            Ingresar al Sistema
+            {isLoading ? "Validando..." : "Ingresar al Sistema"}
           </button>
         </form>
 

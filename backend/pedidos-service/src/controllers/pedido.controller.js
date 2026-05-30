@@ -289,3 +289,40 @@ exports.asignarRepartidor = async (req, res) => {
         res.status(500).json({ message: 'Error al asignar repartidor', error: error.message });
     }
 }
+
+
+// Endpoint para métricas del dashboard (total pedidos, ingresos del día, usuarios activos)
+exports.obtenerMetricasDashboard = async (req, res) => {
+    try {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        // Total histórico
+        const totalPedidos = await Pedido.countDocuments();
+        
+        // Ingresos acumulados del día (pedidos entregados)
+        const pedidosHoy = await Pedido.find({
+            createdAt: { $gte: hoy },
+            estado: 'entregado'
+        });
+        const ingresosDia = pedidosHoy.reduce((sum, p) => sum + p.total, 0);
+        
+        // Conteo de usuarios activos (se puede consultar sincrónicamente a usuario-service)
+        let usuariosActivos = 0;
+        try {
+            const response = await axios.get(`${API_GATEWAY_URL}/api-internal/usuarios-activos`, { timeout: 2000 });
+            usuariosActivos = response.data.usuariosActivos || 0;
+        } catch (err) {
+            console.warn(`[Pedidos] Advertencia al obtener usuarios activos: ${err.message}`);
+        }
+        // Si el servicio está aislado, retornamos el valor o un conteo simulado resiliente
+        
+        res.json({
+            totalPedidos,
+            ingresosDia,
+            usuariosActivos: usuariosActivos
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

@@ -5,9 +5,10 @@ function AdminLayout() {
     { to: "/admin", label: "Dashboard", icon: "dashboard" },
     { to: "/admin/productos", label: "Catálogo", icon: "restaurant_menu" },
     { to: "/admin/pedidos", label: "Órdenes", icon: "receipt_long" },
-    { to: "/admin/usuarios", label: "Equipo", icon: "group" },
+    { to: "/admin/usuarios", label: "Usuarios", icon: "group" },
     { to: "/admin/inventario", label: "Inventario", icon: "inventory_2" },
-    { to: "/admin/repartidores", label: "Flotilla", icon: "two_wheeler" },
+    { to: "/admin/repartidores", label: "Repartidores", icon: "two_wheeler" },
+    { to: "/admin/sucursales", label: "Sucursales", icon: "storefront" },
   ];
 
   return (

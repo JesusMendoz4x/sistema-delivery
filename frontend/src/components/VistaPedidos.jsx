@@ -21,18 +21,18 @@ const ESTADOS = [
     icon: "schedule",
   },
   {
-    key: "en_preparacion",
+    key: "preparando",
     label: "En preparación",
     desc: "El equipo de cocina está preparando tu orden.",
     color: "#9B2335",
     icon: "soup_kitchen",
   },
   {
-    key: "listo",
-    label: "Listo",
-    desc: "Tu pedido está listo para ser recogido.",
-    color: "#2D7A4F",
-    icon: "check_circle",
+    key: "en_camino",
+    label: "En camino",
+    desc: "Tu pedido va rumbo a tu domicilio en tiempo real.",
+    color: "#D4AF6A",
+    icon: "two_wheeler",
   },
   {
     key: "entregado",
@@ -90,7 +90,7 @@ function ModalConfirmar({ onAceptar, onCancelar }) {
 
 function PanelEstado({ pedido, onCerrar }) {
   const idxActual = ESTADOS.findIndex((e) => e.key === pedido.estado);
-  const sucursal = SUCURSALES[pedido.sucursalId ?? SUCURSAL_DEFAULT];
+  const sucursal = SUCURSALES[pedido.sucursalId] || SUCURSALES[SUCURSAL_DEFAULT];
 
   return (
     <div
@@ -110,7 +110,7 @@ function PanelEstado({ pedido, onCerrar }) {
       >
         <div>
           <p className="font-['DM_Sans'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
-            #{String(pedido.id).slice(-4).padStart(4, "0")}
+            #{String(pedido._id || pedido.id || '').slice(-4).padStart(4, "0")}
           </p>
           <p className="font-['EB_Garamond'] text-[17px] text-[#F2E6D8] leading-tight">
             Estado del pedido
@@ -240,10 +240,10 @@ function PanelEstado({ pedido, onCerrar }) {
       >
         <div>
           <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
-            {pedido.items.reduce((a, i) => a + i.cantidad, 0)} productos
+            {(pedido.items || pedido.productos || []).reduce((a, i) => a + i.cantidad, 0)} productos
           </p>
           <p className="font-['DM_Sans'] text-[11px] text-[#F2E6D8]/50 mt-0.5">
-            {pedido.fecha}
+            {pedido.fecha || (pedido.createdAt ? new Date(pedido.createdAt).toLocaleDateString() : '')}
           </p>
         </div>
         <div className="text-right">
@@ -251,7 +251,7 @@ function PanelEstado({ pedido, onCerrar }) {
             Total
           </p>
           <p className="font-['EB_Garamond'] text-xl text-[#D4AF6A]">
-            ${pedido.total.toFixed(2)}
+            ${(pedido.total || 0).toFixed(2)}
           </p>
         </div>
       </div>
@@ -263,10 +263,9 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
 
-  const pedidoActivo = pedidos.find((p) => p.id === pedidoSeleccionado) ?? null;
-  const sucursalActiva = pedidoActivo
-    ? SUCURSALES[pedidoActivo.sucursalId ?? SUCURSAL_DEFAULT]
-    : SUCURSALES[SUCURSAL_DEFAULT];
+  const pedidoActivo = pedidos.find((p) => (p._id || p.id) === pedidoSeleccionado) ?? null;
+  const sucursalActiva = (pedidoActivo && SUCURSALES[pedidoActivo.sucursalId]) 
+    || SUCURSALES[SUCURSAL_DEFAULT];
 
   const handleAceptar = () => {
     setMostrarModal(false);
@@ -374,12 +373,12 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
             ) : (
               pedidos.map((p, i) => (
                 <div
-                  key={p.id}
-                  onClick={() => handlePedidoClick(p.id)}
+                  key={p._id || p.id}
+                  onClick={() => handlePedidoClick(p._id || p.id)}
                   className="cursor-pointer transition-all duration-150"
                   style={{
                     outline:
-                      pedidoSeleccionado === p.id
+                      pedidoSeleccionado === (p._id || p.id)
                         ? "2px solid rgba(155,35,53,0.55)"
                         : "2px solid transparent",
                   }}

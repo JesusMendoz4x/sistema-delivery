@@ -6,6 +6,11 @@ const SucursalSchema = new mongoose.Schema({
         required: [true, 'El nombre de la sucursal es obligatorio'],
         trim: true,
     },
+    direccion: {
+        type: String,
+        required: [true, 'La dirección física de la sucursal es obligatoria'],
+        trim: true,
+    },
     ubicacion: {
         latitud: {
             type: Number,

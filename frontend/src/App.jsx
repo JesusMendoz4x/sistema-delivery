@@ -10,6 +10,7 @@ import AdminInventario from "./pages/admin/AdminInventario";
 import AdminRepartidores from "./pages/admin/AdminRepartidores";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import AdminSucursales from "./pages/admin/AdminSucursales";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               <Route path="productos" element={<AdminProductos />} />
               <Route path="inventario" element={<AdminInventario />} />
               <Route path="repartidores" element={<AdminRepartidores />} />
+               <Route path="sucursales" element={<AdminSucursales />} />
             </Route>
           </Route>
         </Routes>
