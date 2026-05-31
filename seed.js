@@ -1,3 +1,7 @@
+if (typeof global.crypto === 'undefined' || !global.crypto.getRandomValues) {
+    const nodeCrypto = require('crypto');
+    global.crypto = nodeCrypto.webcrypto || nodeCrypto;
+}
 const mongoose = require('mongoose');
 
 const mongoHost = process.env.MONGO_URI 
@@ -245,6 +249,43 @@ async function seed() {
             estado: 'disponible'
         });
         console.log(` Creado repartidor de prueba: ${repartidor1.nombre} (ID: ${repartidor1._id})`);
+
+        const repartidor2 = await RepartidorModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890c'), // ID fijo
+            nombre: 'Sofía Veloz',
+            email: 'sofia@repartidor.com',
+            telefono: '9512223333',
+            vehiculo: {
+                tipo: 'motocicleta',
+                placa: 'MX-54321'
+            },
+            ubicacion: {
+                latitud: 17.0620,
+                longitud: -96.7280
+            },
+            capacidadOperativa: 3,
+            estado: 'disponible'
+        });
+        console.log(` Creado repartidor de prueba: ${repartidor2.nombre} (ID: ${repartidor2._id})`);
+
+        const repartidor3 = await RepartidorModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890d'), // ID fijo
+            nombre: 'Miguel Rutas',
+            email: 'miguel@repartidor.com',
+            telefono: '9513334444',
+            vehiculo: {
+                tipo: 'automóvil',
+                placa: 'MX-98765'
+            },
+            ubicacion: {
+                latitud: 17.0580,
+                longitud: -96.7240
+            },
+            capacidadOperativa: 3,
+            estado: 'disponible'
+        });
+        console.log(` Creado repartidor de prueba: ${repartidor3.nombre} (ID: ${repartidor3._id})`);
+
         await repConn.close();
 
         console.log('\n==================================================');

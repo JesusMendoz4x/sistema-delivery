@@ -93,169 +93,177 @@ function PanelEstado({ pedido, onCerrar }) {
   const sucursal = SUCURSALES[pedido.sucursalId] || SUCURSALES[SUCURSAL_DEFAULT];
 
   return (
-    <div
-      className="absolute top-4 right-4 bottom-4 z-20 flex flex-col overflow-hidden"
-      style={{
-        width: "260px",
-        background: "rgba(10,6,3,0.94)",
-        border: "1px solid rgba(212,175,106,0.14)",
-        backdropFilter: "blur(14px)",
-        opacity: 0,
-        animation: "panelSlideRight 0.3s ease 0.05s both",
-      }}
-    >
+    <>
+      {/* Backdrop de fondo oscuro en móvil para destacar el panel de estado */}
+      <div 
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        onClick={onCerrar}
+      />
+      
       <div
-        className="px-5 py-5 flex items-start justify-between flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(212,175,106,0.1)" }}
-      >
-        <div>
-          <p className="font-['DM_Sans'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
-            #{String(pedido._id || pedido.id || '').slice(-4).padStart(4, "0")}
-          </p>
-          <p className="font-['EB_Garamond'] text-[17px] text-[#F2E6D8] leading-tight">
-            Estado del pedido
-          </p>
-        </div>
-        <button
-          onClick={onCerrar}
-          className="w-6 h-6 flex items-center justify-center text-[#5a4636] hover:text-[#F2E6D8] transition-colors flex-shrink-0 mt-0.5"
-          style={{ border: "1px solid rgba(212,175,106,0.15)" }}
-        >
-          <span className="font-['DM_Sans'] text-[10px]">✕</span>
-        </button>
-      </div>
-
-      <div
-        className="px-5 py-5 flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
-      >
-        <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
-          Sucursal
-        </p>
-        <p className="font-['DM_Sans'] text-[15px] font-medium text-[#F2E6D8]">
-          {sucursal.nombre}
-        </p>
-        <p className="font-['DM_Sans'] text-[10px] text-[#5a4636] mt-0.5 leading-snug">
-          {sucursal.direccion}
-        </p>
-      </div>
-
-      <div
-        className="flex-1 overflow-y-auto px-5 py-5"
-        style={{ overscrollBehavior: "contain" }}
-      >
-        <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
-          Progreso
-        </p>
-        <div className="flex flex-col gap-2">
-          {ESTADOS.map((e, i) => {
-            const done = i < idxActual;
-            const activo = i === idxActual;
-            const futuro = i > idxActual;
-            return (
-              <div key={e.key} className="flex gap-3">
-                <div className="flex flex-col items-center flex-shrink-0">
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0"
-                    style={{
-                      background: activo
-                        ? "#9B2335"
-                        : done
-                          ? "#D4AF6A"
-                          : "rgba(212,175,106,0.15)",
-                      border: `1px solid ${futuro ? "rgba(212,175,106,0.15)" : "rgba(212,175,106,0.85)"}`,
-                      boxShadow: activo
-                        ? "0 0 10px rgba(155, 35, 53, 0.55)"
-                        : "none",
-                    }}
-                  >
-                    <span
-                      className="material-symbols-outlined"
-                      style={{
-                        fontSize: "12px",
-                        color: activo
-                          ? "#fff"
-                          : done
-                            ? "#3D3530"
-                            : "rgba(61,53,48,0.35)",
-                      }}
-                    >
-                      {e.icon}
-                    </span>
-                  </div>
-                  {i < ESTADOS.length - 1 && (
-                    <div
-                      className="w-px flex-1 my-1 transition-all duration-500"
-                      style={{
-                        minHeight: "36px",
-                        background: done
-                          ? "rgba(212,175,106,0.65)"
-                          : "rgba(212,175,106,0.15)",
-                      }}
-                    />
-                  )}
-                </div>
-                <div className="pb-5">
-                  <p
-                    className="font-['DM_Sans'] text-[9px] uppercase tracking-wider mb-0.5"
-                    style={{
-                      color: activo
-                        ? "#9B2335"
-                        : done
-                          ? "#D4AF6A"
-                          : "rgba(212,175,106,0.4)",
-                    }}
-                  >
-                    {e.label}
-                  </p>
-                  {activo && (
-                    <p
-                      className="font-['DM_Sans'] text-[11px] leading-snug"
-                      style={{ color: "rgba(242,230,216,0.55)" }}
-                    >
-                      {e.desc}
-                    </p>
-                  )}
-                  {done && (
-                    <p
-                      className="font-['DM_Sans'] text-[9px]"
-                      style={{ color: "rgba(90,70,54,0.5)" }}
-                    >
-                      Completado
-                    </p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <div
-        className="px-5 py-5 flex items-center justify-between flex-shrink-0"
+        className="fixed lg:absolute z-50 lg:z-20 flex flex-col overflow-hidden inset-x-4 bottom-4 top-24 lg:top-4 lg:right-4 lg:bottom-4 lg:left-auto lg:inset-y-auto w-auto lg:w-[260px] max-w-[340px] lg:max-w-none mx-auto lg:mx-0"
         style={{
-          borderTop: "1px solid rgba(212,175,106,0.08)",
-          background: "rgba(0,0,0,0.25)",
+          background: "rgba(10,6,3,0.96)",
+          border: "1px solid rgba(212,175,106,0.2)",
+          backdropFilter: "blur(14px)",
+          opacity: 0,
+          boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
+          animation: "panelSlideRight 0.3s ease 0.05s both",
         }}
       >
-        <div>
-          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
-            {(pedido.items || pedido.productos || []).reduce((a, i) => a + i.cantidad, 0)} productos
+        <div
+          className="px-5 py-5 flex items-start justify-between flex-shrink-0"
+          style={{ borderBottom: "1px solid rgba(212,175,106,0.1)" }}
+        >
+          <div>
+            <p className="font-['DM_Sans'] text-[9px] text-[#9B2335] uppercase tracking-[0.3em] mb-1">
+              #{String(pedido._id || pedido.id || '').slice(-4).padStart(4, "0")}
+            </p>
+            <p className="font-['EB_Garamond'] text-[17px] text-[#F2E6D8] leading-tight">
+              Estado del pedido
+            </p>
+          </div>
+          <button
+            onClick={onCerrar}
+            className="w-6 h-6 flex items-center justify-center text-[#5a4636] hover:text-[#F2E6D8] transition-colors flex-shrink-0 mt-0.5"
+            style={{ border: "1px solid rgba(212,175,106,0.15)" }}
+          >
+            <span className="font-['DM_Sans'] text-[10px]">✕</span>
+          </button>
+        </div>
+
+        <div
+          className="px-5 py-5 flex-shrink-0"
+          style={{ borderBottom: "1px solid rgba(212,175,106,0.08)" }}
+        >
+          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-1">
+            Sucursal
           </p>
-          <p className="font-['DM_Sans'] text-[11px] text-[#F2E6D8]/50 mt-0.5">
-            {pedido.fecha || (pedido.createdAt ? new Date(pedido.createdAt).toLocaleDateString() : '')}
+          <p className="font-['DM_Sans'] text-[15px] font-medium text-[#F2E6D8]">
+            {sucursal.nombre}
+          </p>
+          <p className="font-['DM_Sans'] text-[10px] text-[#5a4636] mt-0.5 leading-snug">
+            {sucursal.direccion}
           </p>
         </div>
-        <div className="text-right">
-          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
-            Total
+
+        <div
+          className="flex-1 overflow-y-auto px-5 py-5"
+          style={{ overscrollBehavior: "contain" }}
+        >
+          <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest mb-4">
+            Progreso
           </p>
-          <p className="font-['EB_Garamond'] text-xl text-[#D4AF6A]">
-            ${(pedido.total || 0).toFixed(2)}
-          </p>
+          <div className="flex flex-col gap-2">
+            {ESTADOS.map((e, i) => {
+              const done = i < idxActual;
+              const activo = i === idxActual;
+              const futuro = i > idxActual;
+              return (
+                <div key={e.key} className="flex gap-3">
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0"
+                      style={{
+                        background: activo
+                          ? "#9B2335"
+                          : done
+                            ? "#D4AF6A"
+                            : "rgba(212,175,106,0.15)",
+                        border: `1px solid ${futuro ? "rgba(212,175,106,0.15)" : "rgba(212,175,106,0.85)"}`,
+                        boxShadow: activo
+                          ? "0 0 10px rgba(155, 35, 53, 0.55)"
+                          : "none",
+                      }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: "12px",
+                          color: activo
+                            ? "#fff"
+                            : done
+                              ? "#3D3530"
+                              : "rgba(61,53,48,0.35)",
+                        }}
+                      >
+                        {e.icon}
+                      </span>
+                    </div>
+                    {i < ESTADOS.length - 1 && (
+                      <div
+                        className="w-px flex-1 my-1 transition-all duration-500"
+                        style={{
+                          minHeight: "36px",
+                          background: done
+                            ? "rgba(212,175,106,0.65)"
+                            : "rgba(212,175,106,0.15)",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div className="pb-5">
+                    <p
+                      className="font-['DM_Sans'] text-[9px] uppercase tracking-wider mb-0.5"
+                      style={{
+                        color: activo
+                          ? "#9B2335"
+                          : done
+                            ? "#D4AF6A"
+                            : "rgba(212,175,106,0.4)",
+                      }}
+                    >
+                      {e.label}
+                    </p>
+                    {activo && (
+                      <p
+                        className="font-['DM_Sans'] text-[11px] leading-snug"
+                        style={{ color: "rgba(242,230,216,0.55)" }}
+                      >
+                        {e.desc}
+                      </p>
+                    )}
+                    {done && (
+                      <p
+                        className="font-['DM_Sans'] text-[9px]"
+                        style={{ color: "rgba(90,70,54,0.5)" }}
+                      >
+                        Completado
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div
+          className="px-5 py-5 flex items-center justify-between flex-shrink-0"
+          style={{
+            borderTop: "1px solid rgba(212,175,106,0.08)",
+            background: "rgba(0,0,0,0.25)",
+          }}
+        >
+          <div>
+            <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+              {(pedido.items || pedido.productos || []).reduce((a, i) => a + i.cantidad, 0)} productos
+            </p>
+            <p className="font-['DM_Sans'] text-[11px] text-[#F2E6D8]/50 mt-0.5">
+              {pedido.fecha || (pedido.createdAt ? new Date(pedido.createdAt).toLocaleDateString() : '')}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-['DM_Sans'] text-[9px] text-[#5a4636] uppercase tracking-widest">
+              Total
+            </p>
+            <p className="font-['EB_Garamond'] text-xl text-[#D4AF6A]">
+              ${(pedido.total || 0).toFixed(2)}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -300,15 +308,13 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
         }
       `}</style>
 
-      <div className="flex pt-20" style={{ height: "calc(100vh - 5rem)" }}>
+      <div className="flex flex-col lg:flex-row pt-20" style={{ height: "calc(100vh - 5rem)" }}>
         {/* Sidebar izquierdo — entra desde la izquierda */}
         <div
-          className="flex-shrink-0 flex flex-col"
+          className="w-full lg:w-[400px] h-[280px] lg:h-full flex-shrink-0 flex flex-col border-b lg:border-b-0 lg:border-r border-[#D4AF6A]/14"
           style={{
-            width: "400px",
             background:
               "linear-gradient(180deg, rgba(20,16,14,0.98) 0%, rgba(12,10,9,0.98) 55%, rgba(10,10,10,0.98) 100%)",
-            borderRight: "1px solid rgba(212,175,106,0.14)",
             opacity: 0,
             animation: "sidebarSlideLeft 0.5s ease 0.1s both",
           }}
@@ -393,7 +399,7 @@ function VistaPedidos({ pedidos = [], onConfirmarPedido }) {
         {/* Panel derecho — mapa */}
         {pedidos.length > 0 && (
           <div
-            className="flex-1 flex flex-col relative"
+            className="flex-1 flex flex-col relative h-[calc(100%-280px)] lg:h-full"
             style={{
               background: "#0a0a0a",
               opacity: 0,

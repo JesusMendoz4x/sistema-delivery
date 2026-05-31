@@ -116,10 +116,13 @@ function LoginModal() {
           position: "relative",
           width: "100%",
           maxWidth: "320px",
-          margin: "0 16px",
+          maxHeight: "calc(100vh - 40px)",
+          margin: "20px 16px",
           padding: "28px 28px 32px",
           backgroundColor: "#1A1A1A",
           border: "1px solid rgba(212, 175, 106, 0.25)",
+          overflowY: "auto",
+          overscrollBehavior: "contain",
         }}
       >
         {/* Línea dorada superior */}

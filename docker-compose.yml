@@ -6,6 +6,8 @@ services:
     image: mongo:latest
     container_name: delivery_mongodb
     restart: always
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -47,6 +49,7 @@ services:
     environment:
       - PORT=3001
       - MONGODB_URI=mongodb://mongodb:27017/productosdb
+      - INVENTARIO_PUBLIC_URL=http://localhost:8109/api
     depends_on:
       - mongodb
     networks:
@@ -81,6 +84,7 @@ services:
       - INVENTARIO_SERVICE_URL=http://inventario-service:3001
       - REPARTIDORES_SERVICE_URL=http://repartidores-service:3004
       - ENRUTAMIENTO_SERVICE_URL=http://enrutamiento-service:3006
+      - API_GATEWAY_URL=http://api-gateway:5000
     depends_on:
       - mongodb
     networks:

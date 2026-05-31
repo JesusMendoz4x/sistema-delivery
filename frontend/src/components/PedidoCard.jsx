@@ -81,7 +81,7 @@ function PedidoCard({ pedido, index = 0 }) {
         </div>
 
         {/* Fila 2: pedido # + sucursal */}
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-3">
           <div className="min-w-0">
             <p
               className="font-['DM_Sans'] text-[10px] uppercase tracking-[0.28em]"
@@ -92,7 +92,7 @@ function PedidoCard({ pedido, index = 0 }) {
             <p
               className="font-['DM_Sans'] leading-none mt-2 font-medium"
               style={{
-                fontSize: "16px",
+                fontSize: "15px",
                 color: "#F2EDE4",
                 letterSpacing: "-0.01em",
               }}
@@ -100,9 +100,9 @@ function PedidoCard({ pedido, index = 0 }) {
               {SUCURSAL.nombre}
             </p>
           </div>
-          <div className="text-right flex-shrink-0">
+          <div className="text-left sm:text-right flex-shrink-0">
             <p
-              className="font-['DM_Sans'] text-[10px]"
+              className="font-['DM_Sans'] text-[9px] sm:text-[10px]"
               style={{ color: "rgba(242, 237, 228, 0.6)" }}
             >
               {SUCURSAL.direccion}
