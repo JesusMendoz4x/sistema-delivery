@@ -314,14 +314,8 @@ function ClienteHomeInner() {
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [estadoConfirmacion, setEstadoConfirmacion] = useState("confirmar");
 
-  const categoriasPublicas = ["Inicio", "Nuestras Sucursales", "Entradas"];
-  const categoriaActivaRender =
-    isLoggedIn || categoriasPublicas.includes(categoriaActiva)
-      ? categoriaActiva
-      : "Inicio";
-  const mostrarMenuRender = isLoggedIn
-    ? mostrarMenu
-    : categoriaActiva === "Entradas" && mostrarMenu;
+  const categoriaActivaRender = categoriaActiva;
+  const mostrarMenuRender = mostrarMenu;
 
   // Ubicación dinámica de entrega para el enrutamiento Haversine
   const [ubicacionCliente, setUbicacionCliente] = useState({
@@ -630,7 +624,7 @@ function ClienteHomeInner() {
               <Sucursales />
             ) : (
               <>
-                <Hero heroProgress={0} onVerMenu={() => setMostrarMenu(true)} />
+                <Hero heroProgress={0} onVerMenu={() => { setMostrarMenu(true); setCategoriaActiva("Entradas"); }} />
                 <Descripcion heroProgress={0} />
                 <Ubicacion heroProgress={0} />
                 <Footer heroProgress={0} />
