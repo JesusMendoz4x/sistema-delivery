@@ -209,15 +209,15 @@ function AdminProductos() {
           </div>
 
           <div>
-            <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Imagen del Producto</label>
+            <label className="block text-[#D4AF6A]/90 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Imagen del Producto</label>
             <input 
               type="file" 
               name="imagenArchivo"
               accept="image/*"
-              className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors" 
+              className="w-full rounded-lg border border-dashed border-[#D4AF6A]/35 bg-[#1a1a1a] px-4 py-3 text-sm text-[#F2EDE4]/90 font-['Nunito'] file:mr-4 file:rounded-md file:border-0 file:bg-[#D4AF6A] file:px-4 file:py-2 file:font-['JetBrains_Mono'] file:text-[10px] file:uppercase file:tracking-[0.18em] file:text-[#101010] hover:border-[#D4AF6A]/60 focus:outline-none focus:ring-1 focus:ring-[#D4AF6A]/50 transition-colors" 
             />
-            <p className="mt-2 text-[11px] text-[#F2EDE4]/40 font-['Nunito']">
-              Sube una imagen desde tu computadora. Se guardará en el backend y luego la verá el cliente.
+            <p className="mt-2 text-[11px] text-[#F2EDE4]/70 font-['Nunito'] leading-relaxed">
+              Carga una imagen del nuevo producto.
             </p>
           </div>
 
