@@ -6,8 +6,6 @@ services:
     image: mongo:latest
     container_name: delivery_mongodb
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
@@ -20,8 +18,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_api_gateway
     restart: always
-    ports:
-      - "5000:5000"
     environment:
       - NODE_ENV=desarrollo
       - PORT=5000
@@ -48,8 +44,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_inventario_service
     restart: always
-    ports:
-      - "3001:3001"
     environment:
       - PORT=3001
       - MONGODB_URI=mongodb://mongodb:27017/productosdb
@@ -65,8 +59,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_sucursales_service
     restart: always
-    ports:
-      - "3002:3002"
     environment:
       - NODE_ENV=desarrollo
       - PORT=3002
@@ -83,8 +75,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_pedidos_service
     restart: always
-    ports:
-      - "3003:3003"
     environment:
       - PORT=3003
       - MONGO_URI=mongodb://mongodb:27017/pedidosdb
@@ -103,8 +93,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_repartidores_service
     restart: always
-    ports:
-      - "3004:3004"
     environment:
       - PORT=3004
       - MONGO_URI=mongodb://mongodb:27017/repartidoresdb
@@ -120,8 +108,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_usuario_service
     restart: always
-    ports:
-      - "3005:3005"
     environment:
       - PORT=3005
       - MONGO_URI=mongodb://mongodb:27017/usuariosdb
@@ -137,8 +123,6 @@ services:
       dockerfile: Dockerfile
     container_name: delivery_enrutamiento_service
     restart: always
-    ports:
-      - "3006:3006"
     environment:
       - PORT=3006
       - MONGO_URI=mongodb://mongodb:27017/enrutamientodb
