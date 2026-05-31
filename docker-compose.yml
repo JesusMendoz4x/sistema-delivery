@@ -140,7 +140,7 @@ services:
     container_name: delivery_frontend
     restart: always
     ports:
-      - "80:80"
+      - "8109:80"
     depends_on:
       - api-gateway
     networks:

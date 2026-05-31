@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Instancia centralizada de Axios apuntando al puerto del API Gateway
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', 
+  baseURL: '/api', 
   timeout: 10000,
   headers: {}
 });
@@ -28,4 +28,4 @@ api.interceptors.request.use(
 );
 
 export default api;
-export const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = '/api';
