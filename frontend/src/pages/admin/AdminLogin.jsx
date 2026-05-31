@@ -3,21 +3,30 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function AdminLogin() {
-  const { loginAdmin } = useAuth();
+  const { iniciarSesion } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulamos validación simple
-    if (email === "admin@casablanca.com" && password === "admin123") {
-      loginAdmin();
-      navigate("/admin");
-    } else {
-      setError("Credenciales incorrectas. Usa admin@casablanca.com / admin123");
+    setError("");
+    setCargando(true);
+    const res = await iniciarSesion(email, password);
+    setCargando(false);
+
+    if (!res.ok) {
+      setError(res.error || "Credenciales incorrectas.");
+      return;
     }
+    // Solo el rol admin puede entrar al panel de control.
+    if (res.rol !== "admin") {
+      setError("Esta cuenta no tiene permisos de administrador.");
+      return;
+    }
+    navigate("/admin");
   };
 
   return (
@@ -44,11 +53,11 @@ function AdminLogin() {
           <div>
             <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Correo Electrónico</label>
             <input 
-              type="email" 
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-3 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors"
-              placeholder="admin@casablanca.com"
+              placeholder="admin@delivery.com"
             />
           </div>
           
@@ -65,11 +74,12 @@ function AdminLogin() {
 
           {error && <p className="text-[#9B2335] text-xs font-['Nunito']">{error}</p>}
 
-          <button 
+          <button
             type="submit"
-            className="w-full bg-[#9B2335] text-white py-3 rounded-lg font-['Nunito'] text-[14px] font-bold tracking-wide hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(155,35,53,0.4)] mt-4"
+            disabled={cargando}
+            className="w-full bg-[#9B2335] text-white py-3 rounded-lg font-['Nunito'] text-[14px] font-bold tracking-wide hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(155,35,53,0.4)] mt-4 disabled:opacity-60 disabled:cursor-wait"
           >
-            Ingresar al Sistema
+            {cargando ? "Verificando..." : "Ingresar al Sistema"}
           </button>
         </form>
 

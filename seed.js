@@ -79,16 +79,12 @@ async function seed() {
             estado: { type: String, default: 'activo' }
         });
 
-        // Cifrar contraseñas del seeder usando el mismo algoritmo que el microservicio
-        UsuarioSchema.pre('save', async function(next) {
-            if (!this.isModified('password')) return next();
-            try {
-                const salt = await bcrypt.genSalt(10);
-                this.password = await bcrypt.hash(this.password, salt);
-                next();
-            } catch (error) {
-                next(error);
-            }
+        // Cifrar contraseñas del seeder usando el mismo algoritmo que el microservicio.
+        // Hook async sin "next" (compatible con las versiones modernas de Mongoose).
+        UsuarioSchema.pre('save', async function() {
+            if (!this.isModified('password')) return;
+            const salt = await bcrypt.genSalt(10);
+            this.password = await bcrypt.hash(this.password, salt);
         });
 
         const UsuarioModel = userConn.model('Usuario', UsuarioSchema);

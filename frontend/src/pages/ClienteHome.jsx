@@ -8,7 +8,8 @@ import MenuGrid from "../components/MenuGrid";
 import CartPanel from "../components/CartPanel";
 import Sucursales from "../components/Sucursales";
 import VistaPedidos from "../components/VistaPedidos";
-import { AuthProvider, useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
+import { crearPedido } from "../services/pedidosService";
 import LoginModal from "../components/LoginModal";
 import AuthWall from "../components/AuthWall";
 
@@ -136,7 +137,7 @@ function ConfirmModal({ visible, estado, onConfirmar, onCerrar }) {
 }
 
 function ClienteHomeInner() {
-  const { isLoggedIn, openAuthWall } = useAuth();
+  const { isLoggedIn, user, openAuthWall } = useAuth();
 
   const [categoriaActiva, setCategoriaActiva] = useState("Inicio");
   const [carrito, setCarrito] = useState([]);
@@ -230,32 +231,80 @@ function ClienteHomeInner() {
     setMostrarCarrito(false);
   };
 
-  const ejecutarPedido = () => {
+  // Mapea el estado del backend a las claves que usa la línea de tiempo del cliente.
+  const mapearEstado = (estado) => {
+    switch (estado) {
+      case "preparando":
+        return "en_preparacion";
+      case "en_camino":
+        return "listo";
+      case "entregado":
+        return "entregado";
+      default:
+        return "pendiente";
+    }
+  };
+
+  const ejecutarPedido = async () => {
     if (carrito.length === 0) return;
+
     const subtotal = carrito.reduce(
       (a, i) => a + parseFloat(i.precio) * i.cantidad,
       0,
     );
     const servicio = subtotal * 0.1;
     const total = subtotal + servicio;
-    setPedidos((prev) => [
-      {
-        id: Date.now(),
-        fecha: new Date().toLocaleDateString("es-MX", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
-        estado: "pendiente",
-        items: carrito,
-        subtotal,
-        servicio,
-        total,
-      },
-      ...prev,
-    ]);
-    setCarrito([]);
-    setMostrarCarrito(false);
+
+    // Construye el payload real para el orquestador de pedidos.
+    const payload = {
+      clienteId: user?.id || user?._id || "cliente-anonimo",
+      productos: carrito.map((item) => ({
+        productoId: item.id,
+        nombre: item.nombre,
+        precioUnitario: parseFloat(item.precio) || 0,
+        cantidad: item.cantidad,
+      })),
+      total: parseFloat(total.toFixed(2)),
+      direccionEntrega: user?.direccion || "Sucursal Centro, Oaxaca",
+      metodoPago: "efectivo",
+    };
+
+    const fecha = new Date().toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    try {
+      const pedido = await crearPedido(payload);
+      // El pedido se creó realmente en el backend (descontó stock y asignó sucursal/repartidor).
+      setPedidos((prev) => [
+        {
+          id: pedido.id,
+          fecha,
+          estado: mapearEstado(pedido.estado),
+          items: carrito,
+          subtotal,
+          servicio,
+          total: pedido.total ?? total,
+        },
+        ...prev,
+      ]);
+      setCarrito([]);
+      setMostrarCarrito(false);
+      setToastMensaje("Pedido enviado a la sucursal");
+      setToastVisible(true);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => setToastVisible(false), 2400);
+    } catch (error) {
+      const msg =
+        error.response?.data?.message ||
+        "No se pudo registrar el pedido. Intenta de nuevo.";
+      setToastMensaje(msg);
+      setToastVisible(true);
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => setToastVisible(false), 3000);
+    }
   };
 
   const abrirConfirmacion = () => {
@@ -264,8 +313,8 @@ function ClienteHomeInner() {
     setMostrarConfirmacion(true);
   };
 
-  const confirmarPedido = () => {
-    ejecutarPedido();
+  const confirmarPedido = async () => {
+    await ejecutarPedido();
     setEstadoConfirmacion("confirmado");
     setTimeout(() => {
       setMostrarConfirmacion(false);
@@ -381,11 +430,7 @@ function ClienteHomeInner() {
 }
 
 function ClienteHome() {
-  return (
-    <AuthProvider>
-      <ClienteHomeInner />
-    </AuthProvider>
-  );
+  return <ClienteHomeInner />;
 }
 
 export default ClienteHome;

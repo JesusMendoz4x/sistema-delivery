@@ -2,9 +2,13 @@ import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import MenuCard from "./MenuCard";
 import { useAuth } from "../context/AuthContext";
+import { getProductos } from "../services/productosService";
 import fondoMenu from "../assets/fondoMenu.png";
 
-const productos = [
+// Catálogo visual de respaldo: se usa SOLO para reutilizar foto/badge/descripción
+// por nombre cuando el producto existe en el backend. La fuente de verdad de qué
+// productos se muestran (y sus IDs/precios) es siempre el backend.
+const CATALOGO_VISUAL = [
   // ENTRADAS
   {
     id: 1,
@@ -368,13 +372,38 @@ const productos = [
   },
 ];
 
-const categorias = [
+// Orden preferido de las secciones del menú.
+const CATEGORIAS_ORDEN = [
   "Entradas",
   "Sushi & Sashimi",
   "Dumplings",
   "Especialidades",
   "Postres",
 ];
+
+// Índice de assets visuales por nombre de producto (normalizado) para reusar foto/badge.
+const VISUAL_POR_NOMBRE = CATALOGO_VISUAL.reduce((acc, p) => {
+  acc[p.nombre.trim().toLowerCase()] = p;
+  return acc;
+}, {});
+
+// Imagen genérica para productos del backend que no tienen foto en el catálogo visual.
+const IMAGEN_PLACEHOLDER =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=400&fit=crop";
+
+// Combina un producto real del backend con sus assets visuales (si existen por nombre).
+function combinarConVisual(prod) {
+  const visual = VISUAL_POR_NOMBRE[(prod.nombre || "").trim().toLowerCase()];
+  return {
+    id: prod.id,
+    nombre: prod.nombre,
+    categoria: prod.categoria || "Otros",
+    precio: Number(prod.precio).toFixed(2),
+    descripcion: prod.descripcion || visual?.descripcion || "",
+    imagen: visual?.imagen || IMAGEN_PLACEHOLDER,
+    badge: visual?.badge,
+  };
+}
 
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
@@ -916,6 +945,43 @@ function ProductModal({ item, onClose, onAgregar, variant = "gold" }) {
 // ─── MenuGrid principal ───────────────────────────────────────────────────────
 function MenuGrid({ categoriaActiva, onAgregar }) {
   const [detalleActivo, setDetalleActivo] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+
+  // Carga el catálogo real desde el backend (vía API Gateway).
+  useEffect(() => {
+    let activo = true;
+    (async () => {
+      try {
+        const data = await getProductos();
+        if (!activo) return;
+        // Solo mostramos productos disponibles, combinados con sus assets visuales.
+        setProductos(
+          data
+            .filter((p) => p.disponible !== false)
+            .map(combinarConVisual),
+        );
+        setError("");
+      } catch {
+        if (activo) setError("No se pudo cargar el menú desde el servidor.");
+      } finally {
+        if (activo) setCargando(false);
+      }
+    })();
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  // Categorías presentes en los datos, respetando el orden preferido y
+  // agregando al final cualquier categoría nueva creada desde el panel admin.
+  const categoriasPresentes = [
+    ...CATEGORIAS_ORDEN.filter((c) => productos.some((p) => p.categoria === c)),
+    ...[...new Set(productos.map((p) => p.categoria))].filter(
+      (c) => !CATEGORIAS_ORDEN.includes(c),
+    ),
+  ];
 
   const getVariantByCategory = (categoria) => {
     if (categoria === "Especialidades") return "gold";
@@ -1000,34 +1066,63 @@ function MenuGrid({ categoriaActiva, onAgregar }) {
             />
           </header>
 
-          {categorias.map((cat) => {
-            const items = productos.filter((p) => p.categoria === cat);
-            if (items.length === 0) return null;
+          {cargando && (
+            <p
+              className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.25em] text-center py-20"
+              style={{ color: "rgba(212, 175, 106, 0.6)" }}
+            >
+              Cargando menú...
+            </p>
+          )}
 
-            if (cat === "Especialidades") {
+          {!cargando && error && (
+            <p
+              className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.25em] text-center py-20"
+              style={{ color: "#E57474" }}
+            >
+              {error}
+            </p>
+          )}
+
+          {!cargando && !error && productos.length === 0 && (
+            <p
+              className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.25em] text-center py-20"
+              style={{ color: "rgba(242, 237, 228, 0.5)" }}
+            >
+              No hay productos disponibles por el momento.
+            </p>
+          )}
+
+          {!cargando &&
+            !error &&
+            categoriasPresentes.map((cat) => {
+              const items = productos.filter((p) => p.categoria === cat);
+              if (items.length === 0) return null;
+
+              if (cat === "Especialidades") {
+                return (
+                  <EspecialidadesSeccion
+                    key={cat}
+                    items={items}
+                    onAgregar={onAgregar}
+                    onOpen={setDetalleActivo}
+                  />
+                );
+              }
+
+              const variant = getVariantByCategory(cat);
+
               return (
-                <EspecialidadesSeccion
+                <CarruselSeccion
                   key={cat}
+                  categoria={cat}
                   items={items}
                   onAgregar={onAgregar}
                   onOpen={setDetalleActivo}
+                  variant={variant}
                 />
               );
-            }
-
-            const variant = getVariantByCategory(cat);
-
-            return (
-              <CarruselSeccion
-                key={cat}
-                categoria={cat}
-                items={items}
-                onAgregar={onAgregar}
-                onOpen={setDetalleActivo}
-                variant={variant}
-              />
-            );
-          })}
+            })}
         </div>
       </main>
 

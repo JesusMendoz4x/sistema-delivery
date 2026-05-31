@@ -6,7 +6,8 @@ function LoginModal() {
   const {
     showLoginModal,
     closeLoginModal,
-    login,
+    iniciarSesion,
+    registrar,
     loginModalModo,
     openLoginModal,
     openRegisterModal,
@@ -19,19 +20,40 @@ function LoginModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mostrarPassword, setMostrarPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   const esRegistro = loginModalModo === "register";
 
   if (!showLoginModal) return null;
 
-  const handleLogin = () => {
-    if (!email || !password) return;
-    login({ nombre: email.split("@")[0], email });
+  const limpiarCampos = () => {
+    setNombre("");
+    setTelefono("");
+    setCalle("");
+    setColonia("");
+    setCodigoPostal("");
     setEmail("");
     setPassword("");
   };
 
-  const handleRegister = () => {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Ingresa tu correo y contraseña.");
+      return;
+    }
+    setError("");
+    setCargando(true);
+    const res = await iniciarSesion(email, password);
+    setCargando(false);
+    if (res.ok) {
+      limpiarCampos();
+    } else {
+      setError(res.error || "No se pudo iniciar sesión.");
+    }
+  };
+
+  const handleRegister = async () => {
     if (
       !nombre ||
       !telefono ||
@@ -41,21 +63,24 @@ function LoginModal() {
       !email ||
       !password
     ) {
+      setError("Completa todos los campos para registrarte.");
       return;
     }
-    login({
-      nombre,
-      telefono,
-      direccion: { calle, colonia, codigoPostal },
-      email,
-    });
-    setNombre("");
-    setTelefono("");
-    setCalle("");
-    setColonia("");
-    setCodigoPostal("");
-    setEmail("");
-    setPassword("");
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+    setError("");
+    setCargando(true);
+    // El backend guarda la dirección como texto: la unimos en una sola línea.
+    const direccion = `${calle}, ${colonia}, C.P. ${codigoPostal}`;
+    const res = await registrar({ nombre, telefono, direccion, email, password });
+    setCargando(false);
+    if (res.ok) {
+      limpiarCampos();
+    } else {
+      setError(res.error || "No se pudo completar el registro.");
+    }
   };
 
   const handleBackdropClick = (e) => {
@@ -448,9 +473,25 @@ function LoginModal() {
           </div>
         </div>
 
+        {/* Mensaje de error */}
+        {error && (
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "12px",
+              color: "#E57474",
+              textAlign: "center",
+              marginBottom: "12px",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
         {/* Botón */}
         <button
           onClick={esRegistro ? handleRegister : handleLogin}
+          disabled={cargando}
           style={{
             width: "100%",
             padding: "10px",
@@ -461,13 +502,18 @@ function LoginModal() {
             color: "#F2EDE4",
             backgroundColor: "#9B2335",
             border: "none",
-            cursor: "pointer",
+            cursor: cargando ? "wait" : "pointer",
+            opacity: cargando ? 0.7 : 1,
             transition: "opacity 0.2s",
           }}
-          onMouseEnter={(e) => (e.target.style.opacity = "0.8")}
-          onMouseLeave={(e) => (e.target.style.opacity = "1")}
+          onMouseEnter={(e) => !cargando && (e.target.style.opacity = "0.8")}
+          onMouseLeave={(e) => !cargando && (e.target.style.opacity = "1")}
         >
-          {esRegistro ? "Registrarme" : "Iniciar sesion"}
+          {cargando
+            ? "Procesando..."
+            : esRegistro
+              ? "Registrarme"
+              : "Iniciar sesion"}
         </button>
 
         <div

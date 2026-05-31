@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Patrón de carga de datos al montar (useEffect -> fetch -> setState).
+      // La regla lo desaconseja por rendimiento, pero aquí es intencional y seguro,
+      // así que lo dejamos como advertencia en lugar de error.
+      'react-hooks/set-state-in-effect': 'warn',
+    },
   },
 ])

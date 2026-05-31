@@ -21,7 +21,9 @@ services:
     container_name: delivery_api_gateway
     restart: always
     ports:
-      - "5000:5000"
+      # Puerto del host parametrizable (default 5000). En equipos donde el 5000
+      # está reservado por el sistema, define GATEWAY_PORT en el .env de la raíz.
+      - "${GATEWAY_PORT:-5000}:5000"
     environment:
       - NODE_ENV=desarrollo
       - PORT=5000
