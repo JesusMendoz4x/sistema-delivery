@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AdminModal from "../../components/AdminModal";
 import api from "../../services/api";
 import { getInventarioSucursal, actualizarStock } from "../../services/inventarioService";
+import { getProductos } from "../../services/productosService";
 
 function AdminInventario() {
   const [sucursales, setSucursales] = useState([]);
@@ -11,24 +12,31 @@ function AdminInventario() {
   const [currentItem, setCurrentItem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Consultar el listado de sucursales reales de MongoDB al montar el panel
+  // Estados para modal de adición de nuevos productos
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [catalogoProductos, setCatalogoProductos] = useState([]);
+  const [selectedAddProductoId, setSelectedAddProductoId] = useState("");
+  const [initialStock, setInitialStock] = useState(0);
+
+  // 1. Consultar sucursales y el catálogo maestro de productos de MongoDB
   useEffect(() => {
-    const fetchSucursales = async () => {
+    const fetchDatosIniciales = async () => {
       try {
         const response = await api.get("/sucursales");
-        // El microservicio encapsula el arreglo en response.data.data
         const listaSucursales = response.data.data || [];
         setSucursales(listaSucursales);
         
-        // Seleccionamos la primera por defecto si existen
         if (listaSucursales.length > 0) {
           setSelectedSucursalId(listaSucursales[0]._id);
         }
+
+        const products = await getProductos();
+        setCatalogoProductos(products || []);
       } catch (error) {
-        console.error("Error al obtener la lista de sucursales:", error);
+        console.error("Error al obtener datos iniciales:", error);
       }
     };
-    fetchSucursales();
+    fetchDatosIniciales();
   }, []);
 
   // 2. Consultar el stock físico real cada vez que el usuario cambie la sucursal seleccionada
@@ -90,6 +98,50 @@ function AdminInventario() {
     }
   };
 
+  const productosDisponibles = catalogoProductos.filter(prod => {
+    return !inventario.some(item => {
+      const prodId = item.productoId?._id || item.productoId;
+      return prodId === prod._id;
+    });
+  });
+
+  const handleOpenAddModal = () => {
+    const filtered = catalogoProductos.filter(prod => {
+      return !inventario.some(item => {
+        const prodId = item.productoId?._id || item.productoId;
+        return prodId === prod._id;
+      });
+    });
+    
+    if (filtered.length > 0) {
+      setSelectedAddProductoId(filtered[0]._id);
+    } else {
+      setSelectedAddProductoId("");
+    }
+    setInitialStock(0);
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedAddProductoId || !selectedSucursalId) {
+      alert("Por favor selecciona un producto válido.");
+      return;
+    }
+
+    try {
+      await actualizarStock(selectedAddProductoId, selectedSucursalId, initialStock);
+      setIsAddModalOpen(false);
+      
+      // Recargar inventario actual de la sucursal
+      const data = await getInventarioSucursal(selectedSucursalId);
+      setInventario(data);
+    } catch (error) {
+      console.error("Error al asociar el producto al inventario:", error);
+      alert("No se pudo añadir el producto al inventario de esta sucursal.");
+    }
+  };
+
   return (
     <div>
       {/* Encabezado dinámico con selector de Sucursales reales de MongoDB */}
@@ -98,21 +150,31 @@ function AdminInventario() {
           Gestión de Inventario Real
         </h2>
         
-        <div className="flex items-center gap-3 bg-[#141414]/40 border border-[#D4AF6A]/20 px-4 py-2 rounded-lg backdrop-blur-md">
-          <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A] uppercase tracking-[0.2em]">
-            Sucursal:
-          </span>
-          <select 
-            value={selectedSucursalId} 
-            onChange={(e) => setSelectedSucursalId(e.target.value)}
-            className="bg-transparent border-none text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none cursor-pointer pr-4"
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3 bg-[#141414]/40 border border-[#D4AF6A]/20 px-4 py-2 rounded-lg backdrop-blur-md">
+            <span className="font-['JetBrains_Mono'] text-[10px] text-[#D4AF6A] uppercase tracking-[0.2em]">
+              Sucursal:
+            </span>
+            <select 
+              value={selectedSucursalId} 
+              onChange={(e) => setSelectedSucursalId(e.target.value)}
+              className="bg-transparent border-none text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none cursor-pointer pr-4"
+            >
+              {sucursales.map(suc => (
+                <option key={suc._id} value={suc._id} className="bg-[#101010] text-[#F2EDE4]">
+                  {suc.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center gap-2 bg-[#D4AF6A] text-[#101010] hover:bg-[#D4AF6A]/90 px-5 py-2.5 rounded-lg font-['Nunito'] text-[13px] font-bold transition-all duration-300 shadow-[0_4px_14px_rgba(212,175,106,0.2)] hover:shadow-[0_6px_20px_rgba(212,175,106,0.3)] hover:-translate-y-0.5"
           >
-            {sucursales.map(suc => (
-              <option key={suc._id} value={suc._id} className="bg-[#101010] text-[#F2EDE4]">
-                {suc.nombre}
-              </option>
-            ))}
-          </select>
+            <span className="material-symbols-outlined text-[16px] font-bold">add</span>
+            Añadir Producto
+          </button>
         </div>
       </div>
 
@@ -238,6 +300,86 @@ function AdminInventario() {
             </button>
           </div>
         </form>
+      </AdminModal>
+
+      {/* Modal para añadir nuevo producto al inventario */}
+      <AdminModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title={`Añadir Producto a ${sucursales.find(s => s._id === selectedSucursalId)?.nombre || "la Sucursal"}`}
+      >
+        {productosDisponibles.length === 0 ? (
+          <div className="text-center py-6">
+            <span className="material-symbols-outlined text-[#D4AF6A] text-[48px] mb-3 block font-light">
+              info
+            </span>
+            <p className="text-[#F2EDE4] font-['Outfit'] text-[16px] font-semibold mb-2">
+              Sin productos disponibles
+            </p>
+            <p className="text-[#F2EDE4]/60 font-['Nunito'] text-sm max-w-xs mx-auto">
+              Todos los productos del catálogo general ya se encuentran registrados en el inventario de esta sucursal.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <button 
+                type="button" 
+                onClick={() => setIsAddModalOpen(false)} 
+                className="bg-[#D4AF6A] text-[#101010] px-6 py-2.5 rounded-lg font-['Nunito'] text-[13px] font-bold hover:opacity-90 transition-opacity"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleAddSubmit} className="space-y-5">
+            <div>
+              <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">
+                Seleccionar Producto del Catálogo
+              </label>
+              <select
+                value={selectedAddProductoId}
+                onChange={(e) => setSelectedAddProductoId(e.target.value)}
+                required
+                className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors"
+              >
+                {productosDisponibles.map(prod => (
+                  <option key={prod._id} value={prod._id} className="bg-[#101010] text-[#F2EDE4]">
+                    {prod.nombre} - {prod.categoria || "Menú"} (${prod.precio || 0})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">
+                Stock Inicial (Unidades)
+              </label>
+              <input 
+                type="number" 
+                value={initialStock}
+                onChange={(e) => setInitialStock(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                required 
+                min="0"
+                className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors" 
+              />
+            </div>
+
+            <div className="pt-6 mt-6 flex justify-end gap-3 border-t border-[#D4AF6A]/10">
+              <button 
+                type="button" 
+                onClick={() => setIsAddModalOpen(false)} 
+                className="px-5 py-2.5 rounded-lg font-['Nunito'] text-[13px] text-[#F2EDE4]/70 hover:bg-[#F2EDE4]/10 hover:text-[#F2EDE4] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                className="bg-[#D4AF6A] text-[#101010] px-6 py-2.5 rounded-lg font-['Nunito'] text-[13px] font-bold hover:opacity-90 transition-opacity shadow-[0_4px_14px_rgba(212,175,106,0.3)]"
+              >
+                Añadir al Inventario
+              </button>
+            </div>
+          </form>
+        )}
       </AdminModal>
     </div>
   );
