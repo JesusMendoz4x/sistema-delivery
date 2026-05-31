@@ -1,7 +1,17 @@
 const Producto = require('../models/Producto');
 const Inventario = require('../models/Inventario');
 
-function normalizarProductoPayload(body = {}) {
+const INVENTARIO_PUBLIC_URL = process.env.INVENTARIO_PUBLIC_URL || 'http://localhost:3001';
+
+function resolverImagenDeArchivo(file) {
+    if (!file) {
+        return '';
+    }
+
+    return `${INVENTARIO_PUBLIC_URL}/uploads/${file.filename}`;
+}
+
+function normalizarProductoPayload(body = {}, file = null, productoActual = null) {
     const {
         nombre,
         descripcion,
@@ -15,15 +25,20 @@ function normalizarProductoPayload(body = {}) {
         destacado
     } = body;
 
+    const imagenArchivo = resolverImagenDeArchivo(file);
+    const imagenTexto = imagen || imagenUrl || foto || '';
+
     return {
-        nombre,
-        descripcion,
-        categoria,
-        precio,
-        disponible,
-        imagen: imagen || imagenUrl || foto || '',
-        icono: icono || 'restaurant',
-        destacado: destacado === true || destacado === 'true' || destacado === 'on' || destacado === 1 || destacado === '1'
+        nombre: nombre ?? productoActual?.nombre ?? '',
+        descripcion: descripcion ?? productoActual?.descripcion ?? '',
+        categoria: categoria ?? productoActual?.categoria ?? 'general',
+        precio: precio ?? productoActual?.precio ?? 0,
+        disponible: disponible ?? productoActual?.disponible ?? true,
+        imagen: imagenArchivo || imagenTexto || productoActual?.imagen || '',
+        icono: icono || productoActual?.icono || 'restaurant',
+        destacado: destacado === undefined
+            ? (productoActual?.destacado ?? false)
+            : (destacado === true || destacado === 'true' || destacado === 'on' || destacado === 1 || destacado === '1')
     };
 }
 
@@ -55,7 +70,7 @@ async function obtenerProductoPorId(req, res) {
 // 3. Crear nuevo producto en el catálogo general (Sin stock global)
 async function crearProducto(req, res) {
     try {
-        const productoData = normalizarProductoPayload(req.body);
+        const productoData = normalizarProductoPayload(req.body, req.file);
 
         const producto = await Producto.create({
             ...productoData
@@ -70,14 +85,16 @@ async function crearProducto(req, res) {
 // 4. Actualizar producto del catálogo general
 async function actualizarProducto(req, res) {
     try {
-        const producto = await Producto.findByIdAndUpdate(req.params.id, normalizarProductoPayload(req.body), {
+        const productoActual = await Producto.findById(req.params.id);
+
+        if (!productoActual) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        const producto = await Producto.findByIdAndUpdate(req.params.id, normalizarProductoPayload(req.body, req.file, productoActual), {
             returnDocument: 'after',
             runValidators: true
         });
-
-        if (!producto) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
-        }
 
         res.json(producto);
     } catch (error) {

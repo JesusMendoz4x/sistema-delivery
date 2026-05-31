@@ -21,7 +21,26 @@ function AdminProductos() {
   };
 
   useEffect(() => {
-    fetchProductos();
+    let activo = true;
+
+    (async () => {
+      try {
+        const data = await getProductos();
+        if (activo) {
+          setProductos(data);
+        }
+      } catch (error) {
+        console.error("Error al cargar productos", error);
+      } finally {
+        if (activo) {
+          setIsLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      activo = false;
+    };
   }, []);
 
   const handleAdd = () => {
@@ -44,19 +63,30 @@ function AdminProductos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Recolección automática de datos para el Backend
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    
-    // Transformaciones de tipo de datos
-    data.precio = parseFloat(data.precio);
-    data.destacado = formData.get("destacado") === "on";
+    const payload = new FormData();
+
+    payload.append("nombre", formData.get("nombre") || "");
+    payload.append("precio", String(parseFloat(formData.get("precio") || "0")));
+    payload.append("categoria", formData.get("categoria") || "");
+    payload.append("icono", formData.get("icono") || "restaurant");
+    payload.append("destacado", formData.get("destacado") === "on" ? "on" : "off");
+
+    const imagenArchivo = formData.get("imagenArchivo");
+    if (imagenArchivo && imagenArchivo.size > 0) {
+      payload.append("imagenArchivo", imagenArchivo);
+    }
+
+    const descripcion = formData.get("descripcion") || "";
+    if (descripcion) {
+      payload.append("descripcion", descripcion);
+    }
 
     try {
       if (currentProduct) {
-        await updateProducto(currentProduct._id || currentProduct.id, data);
+        await updateProducto(currentProduct._id || currentProduct.id, payload);
       } else {
-        await createProducto(data);
+        await createProducto(payload);
       }
       setIsModalOpen(false);
       await fetchProductos();
@@ -109,8 +139,17 @@ function AdminProductos() {
               </div>
 
               <div className="flex items-center gap-5 mt-2 mb-6">
-                <div className="w-16 h-16 bg-[#1a1a1a] rounded-lg flex items-center justify-center text-[#D4AF6A] border border-[#D4AF6A]/20 shadow-inner">
-                  <span className="material-symbols-outlined text-3xl font-light opacity-90">{prod.icono}</span>
+                <div className="w-16 h-16 bg-[#1a1a1a] rounded-lg overflow-hidden border border-[#D4AF6A]/20 shadow-inner flex items-center justify-center">
+                  {prod.imagen ? (
+                    <img
+                      src={prod.imagen}
+                      alt={prod.nombre}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-3xl font-light text-[#D4AF6A] opacity-90">{prod.icono}</span>
+                  )}
                 </div>
                 <div className="flex-1">
                   <h3 className="font-['Outfit'] text-[16px] text-[#F2EDE4] font-semibold">{prod.nombre}</h3>
@@ -157,6 +196,40 @@ function AdminProductos() {
               placeholder="Ej. Sushi Mix"
             />
           </div>
+
+          <div>
+            <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Descripción</label>
+            <textarea
+              name="descripcion"
+              defaultValue={currentProduct?.descripcion || ""}
+              rows="4"
+              className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors resize-none"
+              placeholder="Describe el producto..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-[#D4AF6A]/70 font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] mb-2">Imagen del Producto</label>
+            <input 
+              type="file" 
+              name="imagenArchivo"
+              accept="image/*"
+              className="w-full bg-[#1a1a1a] border border-[#D4AF6A]/20 rounded-lg px-4 py-2.5 text-[#F2EDE4] font-['Nunito'] text-sm focus:outline-none focus:border-[#D4AF6A]/50 transition-colors" 
+            />
+            <p className="mt-2 text-[11px] text-[#F2EDE4]/40 font-['Nunito']">
+              Sube una imagen desde tu computadora. Se guardará en el backend y luego la verá el cliente.
+            </p>
+          </div>
+
+          {currentProduct?.imagen && (
+            <div className="rounded-xl overflow-hidden border border-[#D4AF6A]/15 bg-[#111111]">
+              <img
+                src={currentProduct.imagen}
+                alt={currentProduct.nombre || "Vista previa del producto"}
+                className="w-full h-44 object-cover"
+              />
+            </div>
+          )}
           
           <div className="grid grid-cols-2 gap-5">
             <div>
