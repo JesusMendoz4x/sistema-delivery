@@ -1,6 +1,8 @@
 import { Outlet, NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function AdminLayout() {
+  const { logout } = useAuth();
   const navLinks = [
     { to: "/admin", label: "Dashboard", icon: "dashboard" },
     { to: "/admin/productos", label: "Catálogo", icon: "restaurant_menu" },
@@ -81,7 +83,10 @@ function AdminLayout() {
         </nav>
         
         <div className="p-8 border-t border-[#D4AF6A]/10">
-          <button className="flex items-center gap-4 text-[#F2EDE4]/50 hover:text-[#9B2335] transition-colors w-full group">
+          <button 
+            onClick={logout}
+            className="flex items-center gap-4 text-[#F2EDE4]/50 hover:text-[#9B2335] transition-colors w-full group"
+          >
             <span className="material-symbols-outlined text-[20px] group-hover:text-[#9B2335] transition-colors font-light">logout</span>
             <span className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.2em] group-hover:text-[#9B2335] transition-colors">Cerrar Sesión</span>
           </button>
