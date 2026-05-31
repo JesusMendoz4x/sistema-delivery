@@ -1,6 +1,32 @@
 const Producto = require('../models/Producto');
 const Inventario = require('../models/Inventario');
 
+function normalizarProductoPayload(body = {}) {
+    const {
+        nombre,
+        descripcion,
+        categoria,
+        precio,
+        disponible,
+        imagen,
+        imagenUrl,
+        foto,
+        icono,
+        destacado
+    } = body;
+
+    return {
+        nombre,
+        descripcion,
+        categoria,
+        precio,
+        disponible,
+        imagen: imagen || imagenUrl || foto || '',
+        icono: icono || 'restaurant',
+        destacado: destacado === true || destacado === 'true' || destacado === 'on' || destacado === 1 || destacado === '1'
+    };
+}
+
 // 1. Listar catálogo de productos general
 async function listarProductos(req, res) {
     try {
@@ -29,14 +55,10 @@ async function obtenerProductoPorId(req, res) {
 // 3. Crear nuevo producto en el catálogo general (Sin stock global)
 async function crearProducto(req, res) {
     try {
-        const { nombre, descripcion, categoria, precio, disponible } = req.body;
+        const productoData = normalizarProductoPayload(req.body);
 
         const producto = await Producto.create({
-            nombre,
-            descripcion,
-            categoria,
-            precio,
-            disponible
+            ...productoData
         });
 
         res.status(201).json(producto);
@@ -48,7 +70,7 @@ async function crearProducto(req, res) {
 // 4. Actualizar producto del catálogo general
 async function actualizarProducto(req, res) {
     try {
-        const producto = await Producto.findByIdAndUpdate(req.params.id, req.body, {
+        const producto = await Producto.findByIdAndUpdate(req.params.id, normalizarProductoPayload(req.body), {
             returnDocument: 'after',
             runValidators: true
         });

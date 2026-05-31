@@ -12,49 +12,56 @@ const productosSeed = [
     descripcion: "Selladas al vacío y terminadas al fuego con reducción de soja añeja y cebollino fino.",
     categoria: "Entradas",
     precio: 24.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Tartar de Atún Rojo",
     descripcion: "Atún Bluefin con emulsión de chile serrano, aguacate y perlas de yuzu.",
     categoria: "Entradas",
     precio: 32.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Rock Shrimp Tempura",
     descripcion: "Camarones de roca en tempura ligera con mayonesa de sriracha casera.",
     categoria: "Entradas",
     precio: 28.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Roll Oaxaca-Maki",
     descripcion: "Roll de cangrejo real, aguacate y chapulín tostado con mayonesa de mole negro.",
     categoria: "Sushi & Sashimi",
     precio: 29.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Xiao Long Bao",
     descripcion: "Bolsas de masa fina rellenas de cerdo y caldo concentrado de jengibre.",
     categoria: "Dumplings",
     precio: 26.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1512003867696-6d5ce6835040?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Ramen de Mole",
     descripcion: "Caldo de pollo 12 horas infusionado con mole negro oaxaqueño, chashu y huevo marinado.",
     categoria: "Especialidades",
     precio: 52.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80"
   },
   {
     nombre: "Mochi de Chocolate Oaxaqueño",
     descripcion: "Mochi artesanal relleno de ganache de cacao 70% con sal de mar y polvo de matcha.",
     categoria: "Postres",
     precio: 16.00,
-    disponible: true
+        disponible: true,
+        imagen: "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=1200&q=80"
   }
 ];
 

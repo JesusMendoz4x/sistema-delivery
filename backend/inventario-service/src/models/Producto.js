@@ -12,6 +12,20 @@ const productoSchema = new mongoose.Schema(
             trim: true,
             default: ''
         },
+        imagen: {
+            type: String,
+            trim: true,
+            default: ''
+        },
+        icono: {
+            type: String,
+            trim: true,
+            default: 'restaurant'
+        },
+        destacado: {
+            type: Boolean,
+            default: false
+        },
         categoria: {
             type: String,
             trim: true,
