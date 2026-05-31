@@ -7,6 +7,7 @@ function AdminProductos() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [imagePreview, setImagePreview] = useState("");
 
   const fetchProductos = async () => {
     setIsLoading(true);
@@ -45,11 +46,13 @@ function AdminProductos() {
 
   const handleAdd = () => {
     setCurrentProduct(null);
+    setImagePreview("");
     setIsModalOpen(true);
   };
 
   const handleEdit = (prod) => {
     setCurrentProduct(prod);
+    setImagePreview(prod?.imagen || "");
     setIsModalOpen(true);
   };
 
@@ -94,6 +97,26 @@ function AdminProductos() {
       console.error("Error al guardar", error);
     }
   };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setImagePreview(currentProduct?.imagen || "");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <div>
@@ -214,6 +237,7 @@ function AdminProductos() {
               type="file" 
               name="imagenArchivo"
               accept="image/*"
+              onChange={handleImageChange}
               className="w-full rounded-lg border border-dashed border-[#D4AF6A]/35 bg-[#1a1a1a] px-4 py-3 text-sm text-[#F2EDE4]/90 font-['Nunito'] file:mr-4 file:rounded-md file:border-0 file:bg-[#D4AF6A] file:px-4 file:py-2 file:font-['JetBrains_Mono'] file:text-[10px] file:uppercase file:tracking-[0.18em] file:text-[#101010] hover:border-[#D4AF6A]/60 focus:outline-none focus:ring-1 focus:ring-[#D4AF6A]/50 transition-colors" 
             />
             <p className="mt-2 text-[11px] text-[#F2EDE4]/70 font-['Nunito'] leading-relaxed">
@@ -221,11 +245,11 @@ function AdminProductos() {
             </p>
           </div>
 
-          {currentProduct?.imagen && (
+          {imagePreview && (
             <div className="rounded-xl overflow-hidden border border-[#D4AF6A]/15 bg-[#111111]">
               <img
-                src={currentProduct.imagen}
-                alt={currentProduct.nombre || "Vista previa del producto"}
+                src={imagePreview}
+                alt={currentProduct?.nombre || "Vista previa del producto"}
                 className="w-full h-44 object-cover"
               />
             </div>
