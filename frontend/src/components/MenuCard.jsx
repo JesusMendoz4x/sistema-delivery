@@ -166,11 +166,17 @@ function MenuCard({
             border: `2px solid ${palette.accentSoft}`,
           }}
         >
-          <img
-            src={imagen}
-            alt={nombre}
-            className="w-full h-full object-cover transition-all duration-500 grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105"
-          />
+          {imagen ? (
+            <img
+              src={imagen}
+              alt={nombre}
+              className="w-full h-full object-cover transition-all duration-500 grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[#111111] text-[#D4AF6A]">
+              <span className="material-symbols-outlined text-[42px]">restaurant</span>
+            </div>
+          )}
         </div>
 
         {/* Info */}

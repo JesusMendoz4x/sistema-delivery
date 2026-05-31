@@ -489,11 +489,17 @@ function ProductModal({ item, onClose, onAgregar, variant = "gold" }) {
             className="w-full md:w-[220px] shrink-0 overflow-hidden rounded-[14px]"
             style={{ border: `1px solid ${palette.accentSoft}` }}
           >
-            <img
-              src={item.imagen}
-              alt={item.nombre}
-              className="w-full h-full object-cover"
-            />
+            {item.imagen ? (
+              <img
+                src={item.imagen}
+                alt={item.nombre}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex min-h-[220px] items-center justify-center bg-[#111111] text-[#D4AF6A]">
+                <span className="material-symbols-outlined text-[54px]">restaurant</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col flex-1">
