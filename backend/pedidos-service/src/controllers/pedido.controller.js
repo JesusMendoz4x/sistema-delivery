@@ -4,7 +4,7 @@ const { crearRuta, obtenerSucursalMasCercana } = require('../services/enrutamien
 const { validarYDescontarStock } = require('../services/inventarioClient');
 const axios = require('axios');
 
-const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://api-gateway:5000';
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:5000';
 
 const notificarCambioEstado = async (pedidoId, datos) => {
     try {
@@ -238,7 +238,9 @@ exports.crearPedido = async (req, res) => {
             total,
             direccionEntrega: direccionTexto,
             metodoPago: metodoPago || 'efectivo',
-            estado: estadoInicial
+            estado: estadoInicial,
+            latitud,
+            longitud
         });
 
         await nuevoPedido.save();
