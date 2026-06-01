@@ -8,7 +8,7 @@ function resolverImagenDeArchivo(file) {
         return '';
     }
 
-    return `${INVENTARIO_PUBLIC_URL}/uploads/${file.filename}`;
+    return `/uploads/${file.filename}`;
 }
 
 function normalizarProductoPayload(body = {}, file = null, productoActual = null) {
