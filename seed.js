@@ -1,3 +1,7 @@
+if (typeof global.crypto === 'undefined' || !global.crypto.getRandomValues) {
+    const nodeCrypto = require('crypto');
+    global.crypto = nodeCrypto.webcrypto || nodeCrypto;
+}
 const mongoose = require('mongoose');
 
 const mongoHost = process.env.MONGO_URI 
@@ -146,8 +150,8 @@ async function seed() {
         await SucursalModel.deleteMany({});
         console.log(' Limpiadas sucursales previas.');
 
-        const sucursalOaxaca = await SucursalModel.create({
-            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890a'), // Forzar ID fijo para consistencia
+        const sucursalCentro = await SucursalModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890a'),
             nombre: 'Sucursal Centro',
             direccion: 'Macedonio Alcalá 402, Centro Histórico, Oaxaca',
             ubicacion: {
@@ -157,7 +161,44 @@ async function seed() {
             capacidadOperativa: 50,
             estado: true
         });
-        console.log(` Creada sucursal principal: ${sucursalOaxaca.nombre} (ID: ${sucursalOaxaca._id})`);
+
+        const sucursalReforma = await SucursalModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890e'),
+            nombre: 'Sucursal Reforma',
+            direccion: 'Av. Fuerza Aérea Mexicana 900, esq. Azucenas, Col. Reforma, Oaxaca',
+            ubicacion: {
+                latitud: 17.0818,
+                longitud: -96.7135
+            },
+            capacidadOperativa: 50,
+            estado: true
+        });
+
+        const sucursalMacroplaza = await SucursalModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890f'),
+            nombre: 'Sucursal Macroplaza',
+            direccion: 'Carretera Internacional Km 1.5, Santa Lucía del Camino, Oaxaca',
+            ubicacion: {
+                latitud: 17.0652,
+                longitud: -96.6961
+            },
+            capacidadOperativa: 50,
+            estado: true
+        });
+
+        const sucursalMonteAlban = await SucursalModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b12345678910'),
+            nombre: 'Sucursal Monte Alban',
+            direccion: 'Carretera a Monte Albán 860, Montoya, Oaxaca',
+            ubicacion: {
+                latitud: 17.0655,
+                longitud: -96.7570
+            },
+            capacidadOperativa: 50,
+            estado: true
+        });
+
+        console.log(' Creadas las 4 sucursales activas en base de datos.');
         await sucConn.close();
 
         // --- 3. SEED DE PRODUCTOS (CATÁLOGO MAESTRO) ---
@@ -184,7 +225,7 @@ async function seed() {
         console.log(` Creados ${createdProducts.length} productos en el catálogo maestro.`);
 
         // --- 4. SEED DE INVENTARIO (EXISTENCIAS EN SUCURSAL) ---
-        console.log('\n[4/5] Creando stock para los productos en la Sucursal Centro...');
+        console.log('\n[4/5] Creando stock para los productos en todas las sucursales...');
         const InventarioSchema = new mongoose.Schema({
             productoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Producto' },
             sucursalId: String,
@@ -194,14 +235,23 @@ async function seed() {
         
         await InventarioModel.deleteMany({});
         
-        for (const prod of createdProducts) {
-            await InventarioModel.create({
-                productoId: prod._id,
-                sucursalId: sucursalOaxaca._id.toString(),
-                stock: 100 // 100 unidades de stock por defecto
-            });
+        const idsSucursales = [
+            '6650dbf7f1a0b1234567890a',
+            '6650dbf7f1a0b1234567890e',
+            '6650dbf7f1a0b1234567890f',
+            '6650dbf7f1a0b12345678910'
+        ];
+
+        for (const sucId of idsSucursales) {
+            for (const prod of createdProducts) {
+                await InventarioModel.create({
+                    productoId: prod._id,
+                    sucursalId: sucId,
+                    stock: 100 // 100 unidades de stock por defecto
+                });
+            }
         }
-        console.log(` Creadas existencias de stock (100 unidades c/u) asociadas a la sucursal.`);
+        console.log(` Creadas existencias de stock (100 unidades c/u) para todas las sucursales.`);
         await prodConn.close();
 
         // --- 5. SEED DE REPARTIDORES ---
@@ -245,6 +295,43 @@ async function seed() {
             estado: 'disponible'
         });
         console.log(` Creado repartidor de prueba: ${repartidor1.nombre} (ID: ${repartidor1._id})`);
+
+        const repartidor2 = await RepartidorModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890c'), // ID fijo
+            nombre: 'Sofía Veloz',
+            email: 'sofia@repartidor.com',
+            telefono: '9512223333',
+            vehiculo: {
+                tipo: 'motocicleta',
+                placa: 'MX-54321'
+            },
+            ubicacion: {
+                latitud: 17.0620,
+                longitud: -96.7280
+            },
+            capacidadOperativa: 3,
+            estado: 'disponible'
+        });
+        console.log(` Creado repartidor de prueba: ${repartidor2.nombre} (ID: ${repartidor2._id})`);
+
+        const repartidor3 = await RepartidorModel.create({
+            _id: new mongoose.Types.ObjectId('6650dbf7f1a0b1234567890d'), // ID fijo
+            nombre: 'Miguel Rutas',
+            email: 'miguel@repartidor.com',
+            telefono: '9513334444',
+            vehiculo: {
+                tipo: 'automóvil',
+                placa: 'MX-98765'
+            },
+            ubicacion: {
+                latitud: 17.0580,
+                longitud: -96.7240
+            },
+            capacidadOperativa: 3,
+            estado: 'disponible'
+        });
+        console.log(` Creado repartidor de prueba: ${repartidor3.nombre} (ID: ${repartidor3._id})`);
+
         await repConn.close();
 
         console.log('\n==================================================');

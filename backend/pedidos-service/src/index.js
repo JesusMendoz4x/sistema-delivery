@@ -36,7 +36,12 @@ const conectarDB = require('./config/database');
 
 const PORT = process.env.PORT || 3003;
 
-conectarDB();
+conectarDB().then(() => {
+    const { recuperarSimulacionesActivas } = require('./controllers/pedido.controller');
+    recuperarSimulacionesActivas().catch(err => {
+        console.error('[Startup] Error al iniciar la recuperación de simulaciones:', err.message);
+    });
+});
 
 const server = app.listen(PORT, () => {
     console.log(`Servicio de Pedidos ejecutándose en el puerto ${PORT}`);

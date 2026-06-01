@@ -11,6 +11,9 @@ const io = new Server(server, {
     cors: {
         origin: [
             'http://localhost', 'http://127.0.0.1', // Puerto 80 del Frontend Dockerizado
+            'http://localhost:8109', 'http://127.0.0.1:8109', // Puerto expuesto por el Frontend Dockerizado
+            'http://equipo1c.itolab.lat',
+            'https://equipo1c.itolab.lat',
             'http://localhost:5173', 'http://127.0.0.1:5173',
             'http://localhost:5174', 'http://127.0.0.1:5174',
             'http://localhost:5175', 'http://127.0.0.1:5175'
@@ -29,6 +32,12 @@ io.on('connection', (socket) => {
     socket.on('join_pedido', (pedidoId) => {
         socket.join(`pedido_${pedidoId}`);
         console.log(`[API Gateway] [WS] Cliente ${socket.id} se unió al pedido_${pedidoId}`);
+    });
+
+    // Unirse a sala de administradores para actualizaciones globales
+    socket.on('join_admin', () => {
+        socket.join('admins');
+        console.log(`[API Gateway] [WS] Administrador ${socket.id} se unió a la sala de admins`);
     });
 
     socket.on('disconnect', () => {

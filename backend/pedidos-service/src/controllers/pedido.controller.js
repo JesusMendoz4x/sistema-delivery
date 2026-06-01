@@ -4,7 +4,7 @@ const { crearRuta, obtenerSucursalMasCercana } = require('../services/enrutamien
 const { validarYDescontarStock } = require('../services/inventarioClient');
 const axios = require('axios');
 
-const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://api-gateway:5000';
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:5000';
 
 const notificarCambioEstado = async (pedidoId, datos) => {
     try {
@@ -15,6 +15,138 @@ const notificarCambioEstado = async (pedidoId, datos) => {
         }, { timeout: 1500 });
     } catch (error) {
         console.warn(`[Pedidos] Advertencia: No se pudo notificar cambio de estado a través de WebSockets: ${error.message}`);
+    }
+};
+
+const resuscitarSimulacion = async (pedido, correlationId = 'N/A', debeNotificarEnCamino = true) => {
+    try {
+        const pedidoId = pedido._id;
+        const estado = pedido.estado;
+        const repartidorId = pedido.repartidorId;
+
+        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Resucitando simulación (Estado: ${estado}, Repartidor: ${repartidorId}, debeNotificar: ${debeNotificarEnCamino})`);
+
+        if (estado === 'pendiente') {
+            console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Iniciando bucle de asignación de repartidor cada 30 segundos...`);
+            const intervalId = setInterval(async () => {
+                try {
+                    const pedidoActual = await Pedido.findById(pedidoId);
+                    if (!pedidoActual) {
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] El pedido fue eliminado. Deteniendo bucle.`);
+                        clearInterval(intervalId);
+                        return;
+                    }
+                    if (pedidoActual.estado !== 'pendiente') {
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] El pedido ya no está en estado 'pendiente' (Estado actual: ${pedidoActual.estado}). Deteniendo bucle.`);
+                        clearInterval(intervalId);
+                        return;
+                    }
+
+                    console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Reintentando asignar repartidor en bucle...`);
+                    const reintentoRepartidor = await asignarRepartidorDisponible(correlationId);
+                    if (reintentoRepartidor && reintentoRepartidor.repartidor) {
+                        const currentRepartidorId = reintentoRepartidor.repartidor._id;
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Repartidor asignado con éxito: ${reintentoRepartidor.repartidor.nombre}`);
+                        clearInterval(intervalId);
+
+                        const pedidoActualizado = await Pedido.findByIdAndUpdate(
+                            pedidoId,
+                            { estado: 'en_camino', repartidorId: currentRepartidorId },
+                            { new: true }
+                        );
+
+                        resuscitarSimulacion(pedidoActualizado, correlationId, true);
+                    } else {
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Sigue sin haber repartidores disponibles. Se reintentará en 30 segundos.`);
+                    }
+                } catch (err) {
+                    console.error(`[Pedidos Simulator] [Pedido: ${pedidoId}] Error durante el reintento de asignación:`, err.message);
+                }
+            }, 30000);
+        } 
+        else if (estado === 'preparando') {
+            const tiempoTranscurrido = Date.now() - new Date(pedido.updatedAt).getTime();
+            const delay = Math.max(0, 15000 - tiempoTranscurrido);
+            console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] En preparación. Programando transición a 'en_camino' en ${delay}ms...`);
+
+            setTimeout(async () => {
+                try {
+                    const pedidoActual = await Pedido.findById(pedidoId);
+                    if (!pedidoActual || pedidoActual.estado !== 'preparando') {
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] El pedido ya no está en estado 'preparando'. Cancelando transición.`);
+                        return;
+                    }
+
+                    console.log(`\n[Pedidos Simulator] [Pedido: ${pedidoId}] Progresando a estado 'en_camino'...`);
+                    const pedidoEnRuta = await Pedido.findByIdAndUpdate(
+                        pedidoId,
+                        { estado: 'en_camino' },
+                        { new: true }
+                    );
+
+                    resuscitarSimulacion(pedidoEnRuta, correlationId, true);
+                } catch (err) {
+                    console.error(`[Pedidos Simulator] [Pedido: ${pedidoId}] Error al transicionar de 'preparando' a 'en_camino':`, err.message);
+                }
+            }, delay);
+        } 
+        else if (estado === 'en_camino') {
+            const tiempoTranscurrido = Date.now() - new Date(pedido.updatedAt).getTime();
+            const delay = Math.max(0, 30000 - tiempoTranscurrido);
+            console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] En camino. Programando entrega en ${delay}ms...`);
+
+            if (debeNotificarEnCamino) {
+                try {
+                    console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] Asegurando ruta para el repartidor ${repartidorId}...`);
+                    const infoRuta = await crearRuta(pedidoId, repartidorId, correlationId);
+                    await notificarCambioEstado(pedidoId, {
+                        estado: 'en_camino',
+                        repartidorId,
+                        ruta: infoRuta
+                    });
+                } catch (err) {
+                    console.warn(`[Pedidos Simulator] [Pedido: ${pedidoId}] Advertencia al crear ruta:`, err.message);
+                }
+            }
+
+            setTimeout(async () => {
+                try {
+                    const pedidoActual = await Pedido.findById(pedidoId);
+                    if (!pedidoActual || pedidoActual.estado !== 'en_camino') {
+                        console.log(`[Pedidos Simulator] [Pedido: ${pedidoId}] El pedido ya no está en estado 'en_camino'. Cancelando entrega.`);
+                        return;
+                    }
+
+                    console.log(`\n[Pedidos Simulator] [Pedido: ${pedidoId}] Progresando a estado 'entregado'...`);
+                    await Pedido.findByIdAndUpdate(
+                        pedidoId,
+                        { estado: 'entregado' },
+                        { new: true }
+                    );
+
+                    try {
+                        console.log(`[Pedidos Simulator] Liberando repartidor ${repartidorId} en repartidores-service...`);
+                        const REPARTIDORES_SERVICE_URL = process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004';
+                        await axios.put(`${REPARTIDORES_SERVICE_URL}/api/repartidores/${repartidorId}/activar`, {}, {
+                            headers: { 'x-correlation-id': correlationId || 'N/A' },
+                            timeout: 2000
+                        });
+                        console.log(`[Pedidos Simulator] Repartidor ${repartidorId} liberado y listo para nuevos pedidos.`);
+                    } catch (err) {
+                        console.warn(`[Pedidos Simulator] Advertencia al liberar repartidor: ${err.message}`);
+                    }
+
+                    await notificarCambioEstado(pedidoId, {
+                        estado: 'entregado',
+                        repartidorId
+                    });
+                } catch (err) {
+                    console.error(`[Pedidos Simulator] [Pedido: ${pedidoId}] Error al transicionar a 'entregado':`, err.message);
+                }
+            }, delay);
+        }
+    } catch (error) {
+        console.error(`[Pedidos Simulator] Error general en resuscitarSimulacion para pedido ${pedido?._id}:`, error.message);
     }
 };
 
@@ -106,7 +238,9 @@ exports.crearPedido = async (req, res) => {
             total,
             direccionEntrega: direccionTexto,
             metodoPago: metodoPago || 'efectivo',
-            estado: estadoInicial
+            estado: estadoInicial,
+            latitud,
+            longitud
         });
 
         await nuevoPedido.save();
@@ -115,88 +249,13 @@ exports.crearPedido = async (req, res) => {
         // Responder inmediatamente al cliente
         res.status(201).json(nuevoPedido);
 
+        // Notificar la creación en tiempo real a los administradores
+        notificarCambioEstado(nuevoPedido._id, { nuevoPedido });
+
         // ==========================================
         // PASO 5: MÁQUINA DE ESTADOS EN SEGUNDO PLANO (WS SIMULADOR)
         // ==========================================
-        // A los 15 segundos pasa a 'en_camino'
-        setTimeout(async () => {
-            try {
-                console.log(`\n[Pedidos Simulator] [Pedido: ${nuevoPedido._id}] Progresando a estado 'en_camino'...`);
-                
-                let currentRepartidorId = repartidorAsignadoId;
-
-                // Si no se asignó conductor originalmente, reintentar ahora
-                if (!currentRepartidorId) {
-                    console.log(`[Pedidos Simulator] [Pedido: ${nuevoPedido._id}] Reintentando asignar repartidor...`);
-                    const reintentoRepartidor = await asignarRepartidorDisponible(correlationId);
-                    if (reintentoRepartidor && reintentoRepartidor.repartidor) {
-                        currentRepartidorId = reintentoRepartidor.repartidor._id;
-                        console.log(`[Pedidos Simulator] [Pedido: ${nuevoPedido._id}] Repartidor asignado con éxito en reintento: ${reintentoRepartidor.repartidor.nombre}`);
-                    }
-                }
-
-                // Si seguimos sin repartidor, el pedido no puede salir en camino, esperará en preparación
-                if (!currentRepartidorId) {
-                    console.log(`[Pedidos Simulator] [Pedido: ${nuevoPedido._id}] Aún no hay repartidor, permanece en 'pendiente/preparando'.`);
-                    return;
-                }
-
-                // Cambiar estado del pedido
-                const pedidoEnRuta = await Pedido.findByIdAndUpdate(
-                    nuevoPedido._id,
-                    { estado: 'en_camino', repartidorId: currentRepartidorId },
-                    { new: true }
-                );
-
-                // Crear ruta física geolocalizada en el servicio de enrutamiento
-                const infoRuta = await crearRuta(nuevoPedido._id, currentRepartidorId, correlationId);
-
-                // Notificar vía WebSocket a través del Gateway
-                await notificarCambioEstado(nuevoPedido._id, {
-                    estado: 'en_camino',
-                    repartidorId: currentRepartidorId,
-                    ruta: infoRuta
-                });
-
-                // A los 30 segundos del estado 'en_camino' (total 45s), pasa a 'entregado'
-                setTimeout(async () => {
-                    try {
-                        console.log(`\n[Pedidos Simulator] [Pedido: ${nuevoPedido._id}] Progresando a estado 'entregado'...`);
-                        
-                        await Pedido.findByIdAndUpdate(
-                            nuevoPedido._id,
-                            { estado: 'entregado' },
-                            { new: true }
-                        );
-
-                        // Liberar al repartidor (cambiar su estado a 'disponible' en repartidores-service)
-                        try {
-                            console.log(`[Pedidos Simulator] Liberando repartidor ${currentRepartidorId} en repartidores-service...`);
-                            const REPARTIDORES_SERVICE_URL = process.env.REPARTIDORES_SERVICE_URL || 'http://localhost:3004';
-                            await axios.put(`${REPARTIDORES_SERVICE_URL}/api/repartidores/${currentRepartidorId}/activar`, {}, {
-                                headers: { 'x-correlation-id': correlationId || 'N/A' },
-                                timeout: 2000
-                            });
-                            console.log(`[Pedidos Simulator] Repartidor ${currentRepartidorId} liberado y listo para nuevos pedidos.`);
-                        } catch (err) {
-                            console.warn(`[Pedidos Simulator] Advertencia al liberar repartidor: ${err.message}`);
-                        }
-
-                        // Notificar entrega al API Gateway
-                        await notificarCambioEstado(nuevoPedido._id, {
-                            estado: 'entregado',
-                            repartidorId: currentRepartidorId
-                        });
-
-                    } catch (error) {
-                        console.error(`[Pedidos Simulator] Error en fase 'entregado': ${error.message}`);
-                    }
-                }, 30000);
-
-            } catch (error) {
-                console.error(`[Pedidos Simulator] Error en fase 'en_camino': ${error.message}`);
-            }
-        }, 15000);
+        resuscitarSimulacion(nuevoPedido, correlationId);
 
     } catch (error) {
         console.error(`[Pedidos Orquestador] Error al procesar pedido: ${error.message}`);
@@ -279,6 +338,9 @@ exports.asignarRepartidor = async (req, res) => {
             ruta: infoRuta
         });
 
+        // Registrar simulación de entrega para el pedido asignado manualmente
+        resuscitarSimulacion(pedido, req.correlationId, false);
+
         res.json({
             message: 'Repartidor asignado con éxito',
             pedido,
@@ -324,5 +386,24 @@ exports.obtenerMetricasDashboard = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+// Recuperación de desastres: busca pedidos activos al iniciar y reanuda sus simulaciones
+exports.recuperarSimulacionesActivas = async () => {
+    try {
+        console.log('[Pedidos Simulator] Recuperando simulaciones activas para recuperación de desastres...');
+        const pedidosActivos = await Pedido.find({
+            estado: { $in: ['pendiente', 'preparando', 'en_camino'] }
+        });
+        
+        console.log(`[Pedidos Simulator] Se encontraron ${pedidosActivos.length} pedidos activos para reanudar.`);
+        
+        for (const pedido of pedidosActivos) {
+            const correlationId = `recovery-${pedido._id}-${Date.now()}`;
+            resuscitarSimulacion(pedido, correlationId, true);
+        }
+    } catch (error) {
+        console.error('[Pedidos Simulator] Error al recuperar simulaciones activas:', error.message);
     }
 };

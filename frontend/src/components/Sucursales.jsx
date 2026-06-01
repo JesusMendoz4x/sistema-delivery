@@ -104,13 +104,8 @@ function SucursalCard({ sucursal, index, visible }) {
 
   return (
     <section
+      className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 pb-16 border-b border-[#D4AF6A]/12"
       style={{
-        display: "grid",
-        gridTemplateColumns: "1.1fr 0.9fr",
-        gap: "48px",
-        alignItems: "start",
-        paddingBottom: "64px",
-        borderBottom: "1px solid rgba(212,175,106,0.12)",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",
         transition: `opacity 0.65s ease ${delay}, transform 0.65s ease ${delay}`,
@@ -118,12 +113,7 @@ function SucursalCard({ sucursal, index, visible }) {
     >
       {/* Info */}
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          order: esInvertido ? 2 : 1,
-        }}
+        className={`flex flex-col gap-5 ${esInvertido ? "order-2 lg:order-2" : "order-2 lg:order-1"}`}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
           <div
@@ -312,8 +302,8 @@ function SucursalCard({ sucursal, index, visible }) {
 
       {/* Imagen con animación de caída */}
       <div
+        className={`${esInvertido ? "order-1 lg:order-1" : "order-1 lg:order-2"}`}
         style={{
-          order: esInvertido ? 1 : 2,
           animation: visible
             ? `caida 0.75s cubic-bezier(0.22,1,0.36,1) ${delay} both`
             : "none",
@@ -329,11 +319,8 @@ function SucursalCard({ sucursal, index, visible }) {
           <img
             src={sucursal.foto.src}
             alt={sucursal.foto.alt}
+            className="w-full h-[240px] sm:h-[350px] lg:h-[400px] object-cover block"
             style={{
-              width: "100%",
-              height: "400px",
-              objectFit: "cover",
-              display: "block",
               filter: "saturate(1.05) contrast(1.04)",
             }}
           />
@@ -514,7 +501,7 @@ function Sucursales() {
             flexDirection: "column",
           }}
         >
-          <header style={{ padding: "32px 64px 28px" }}>
+          <header className="px-6 md:px-16 pt-8 pb-7">
             <p
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
@@ -568,13 +555,7 @@ function Sucursales() {
             />
           </header>
 
-          <main
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              padding: "0 64px 80px",
-            }}
-          >
+          <main className="flex flex-col px-6 md:px-16 pb-20">
             {sucursales.map((sucursal, index) => (
               <div
                 key={sucursal._id || sucursal.id}
