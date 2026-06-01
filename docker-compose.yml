@@ -6,8 +6,6 @@ services:
     image: mongo:latest
     container_name: delivery_mongodb
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
