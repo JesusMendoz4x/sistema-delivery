@@ -88,6 +88,7 @@ app.use(cors({
         'http://localhost', 'http://127.0.0.1', // Puerto 80 del Frontend Dockerizado
         'http://equipo1c.itolab.lat',
         'https://equipo1c.itolab.lat',
+        'http://localhost:8109', 'http://127.0.0.1:8109', // Puerto expuesto por el Frontend Dockerizado
         'http://localhost:5173', 'http://127.0.0.1:5173',
         'http://localhost:5174', 'http://127.0.0.1:5174',
         'http://localhost:5175', 'http://127.0.0.1:5175'
@@ -226,6 +227,16 @@ app.use('/uploads', createProxyMiddleware({
     onProxyRes: cleanCorsHeaders
 }));
 
+app.use('/api/uploads', createProxyMiddleware({
+    target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api/uploads': '/uploads'
+    },
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
+}));
+
 // Rutas de Pedidos (Cualquier operación requiere autenticación)
 app.use('/api/pedidos', verifyJWT(['cliente', 'admin', 'sucursal']), createProxyMiddleware({
     target: process.env.PEDIDOS_SERVICE_URL || 'http://localhost:3003',
@@ -294,16 +305,26 @@ app.use('/api/enrutamiento', verifyJWT(['admin', 'sucursal']), createProxyMiddle
 
 // Endpoint interno para recibir actualizaciones de pedidos desde el pedidos-service y emitirlas vía WebSockets
 app.post('/api-internal/pedido-update', express.json(), (req, res) => {
-    const { pedidoId, estado, repartidorId, ruta } = req.body;
+    const { pedidoId, estado, repartidorId, ruta, nuevoPedido } = req.body;
     const io = req.app.get('io');
     if (io) {
+        // Notificar al cliente específico del pedido
         io.to(`pedido_${pedidoId}`).emit('pedido_actualizado', {
             pedidoId,
             estado,
             repartidorId,
-            ruta
+            ruta,
+            nuevoPedido
         });
-        console.log(`[API Gateway] [WS] Evento emitido para pedido_${pedidoId}: estado=${estado}`);
+        // Notificar a todos los administradores en la sala global
+        io.to('admins').emit('pedido_actualizado', {
+            pedidoId,
+            estado,
+            repartidorId,
+            ruta,
+            nuevoPedido
+        });
+        console.log(`[API Gateway] [WS] Evento emitido para pedido_${pedidoId} y admins: estado=${estado || (nuevoPedido ? nuevoPedido.estado : 'creado')}`);
         return res.json({ ok: true });
     }
     res.status(500).json({ ok: false, message: 'Servidor WebSocket no disponible' });

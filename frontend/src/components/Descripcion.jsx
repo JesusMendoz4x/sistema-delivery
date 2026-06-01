@@ -78,9 +78,9 @@ function Descripcion() {
   const [sectionRef, inView] = useInView(0.2);
 
   return (
-    <section id="info" className="py-32 px-16" ref={sectionRef}>
+    <section id="info" className="py-16 md:py-32 px-6 md:px-16" ref={sectionRef}>
       {/* Separador — líneas crecen desde el centro */}
-      <div className="flex items-center gap-6 mb-16">
+      <div className="flex items-center gap-4 md:gap-6 mb-12 md:mb-16">
         <div
           className="h-px flex-grow origin-right"
           style={{
@@ -91,11 +91,10 @@ function Descripcion() {
           }}
         />
         <span
-          className="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.4em]"
+          className="font-['JetBrains_Mono'] text-[10px] md:text-[11px] uppercase tracking-[0.4em] whitespace-nowrap px-4 py-1.5 md:px-5"
           style={{
             color: "#D4AF6A",
             border: "1px solid rgba(212, 175, 106, 0.4)",
-            padding: "6px 20px",
             textShadow:
               "0 0 12px rgba(212,175,106,0.6), 0 0 24px rgba(212,175,106,0.3)",
             opacity: inView ? 1 : 0,
@@ -117,12 +116,12 @@ function Descripcion() {
 
       {/* Contenido */}
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-2 gap-24 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center">
           {/* Columna izquierda */}
           <div>
             {/* Título slide desde izquierda */}
             <h2
-              className="font-['EB_Garamond'] text-[52px] leading-tight text-[#F2EDE4] mb-8"
+              className="font-['EB_Garamond'] text-[36px] sm:text-[44px] md:text-[52px] leading-tight text-[#F2EDE4] mb-6 md:mb-8"
               style={{
                 fontWeight: 400,
                 opacity: inView ? 1 : 0,

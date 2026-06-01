@@ -88,7 +88,7 @@ function CartPanel({
 
   return createPortal(
     <aside
-      className="fixed right-0 top-0 w-[350px] text-[#F2F2F4] border-l border-white/10 flex flex-col z-40"
+      className="fixed right-0 top-0 w-full sm:w-[350px] text-[#F2F2F4] border-l border-white/10 flex flex-col z-40"
       style={{
         height: "100vh",
         overscrollBehavior: "contain",

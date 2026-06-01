@@ -1,7 +1,11 @@
 # Ignore dependencies and local env files everywhere in the repo
 /node_modules/
+**/node_modules/
 **/.env
 **/.env.*
+# ...pero sí versionamos la plantilla de ejemplo (sin secretos)
+!.env.example
+!**/.env.example
 *.log
 dist/
 .DS_Store

@@ -27,12 +27,12 @@ function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="py-12 px-16 border-t border-[#D4AF6A]/10"
+      className="py-8 md:py-12 px-6 md:px-16 border-t border-[#D4AF6A]/10"
     >
-      <div className="max-w-5xl mx-auto flex justify-between items-center">
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-center text-center">
         {/* Logo — slide desde izquierda */}
         <div
-          className="flex flex-col"
+          className="flex flex-col items-center md:items-start"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(20px)",
@@ -58,14 +58,14 @@ function Footer() {
               "opacity 0.6s ease-out 0.3s, transform 0.6s ease-out 0.3s",
           }}
         >
-          <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/20 uppercase tracking-widest">
+          <span className="font-['JetBrains_Mono'] text-[9px] text-[#F2EDE4]/20 uppercase tracking-widest leading-relaxed">
             © 2025 Casablanca. Todos los derechos reservados.
           </span>
         </div>
 
         {/* Desarrollador — slide desde derecha */}
         <div
-          className="flex flex-col items-end"
+          className="flex flex-col items-center md:items-end"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(20px)",

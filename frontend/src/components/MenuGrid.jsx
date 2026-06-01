@@ -108,7 +108,7 @@ function CarruselSeccion({ categoria, items, onAgregar, onOpen, variant }) {
           type="button"
           aria-label="Anterior"
           onClick={() => handleScroll(-1)}
-          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+          className="hidden md:flex absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors items-center justify-center hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
         >
           &#8592;
         </button>
@@ -116,7 +116,7 @@ function CarruselSeccion({ categoria, items, onAgregar, onOpen, variant }) {
           type="button"
           aria-label="Siguiente"
           onClick={() => handleScroll(1)}
-          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
+          className="hidden md:flex absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full border border-[#D4AF6A]/40 bg-[#141414]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors items-center justify-center hover:border-[#D4AF6A] hover:bg-[#1a1a1a]"
         >
           &#8594;
         </button>
@@ -302,7 +302,7 @@ function EspecialidadesSeccion({ items, onAgregar, onOpen }) {
           type="button"
           aria-label="Anterior"
           onClick={() => handleScroll(-1)}
-          className="absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:bg-[#251e00]"
+          className="hidden md:flex absolute left-0 top-1/2 -translate-x-[120%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors items-center justify-center hover:bg-[#251e00]"
           style={{ border: "1px solid rgba(212,175,106,0.6)" }}
         >
           &#8592;
@@ -311,7 +311,7 @@ function EspecialidadesSeccion({ items, onAgregar, onOpen }) {
           type="button"
           aria-label="Siguiente"
           onClick={() => handleScroll(1)}
-          className="absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors hover:bg-[#251e00]"
+          className="hidden md:flex absolute right-0 top-1/2 translate-x-[70%] -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-[#1a1500]/90 text-[#D4AF6A] shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-colors items-center justify-center hover:bg-[#251e00]"
           style={{ border: "1px solid rgba(212,175,106,0.6)" }}
         >
           &#8594;
@@ -486,7 +486,7 @@ function ProductModal({ item, onClose, onAgregar, variant = "gold" }) {
 
         <div className="flex flex-col gap-5 md:flex-row">
           <div
-            className="w-full md:w-[220px] shrink-0 overflow-hidden rounded-[14px]"
+            className="w-full md:w-[220px] h-48 md:h-[220px] shrink-0 overflow-hidden rounded-[14px]"
             style={{ border: `1px solid ${palette.accentSoft}` }}
           >
             {item.imagen ? (

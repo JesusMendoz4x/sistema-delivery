@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AdminModal from "../../components/AdminModal";
 import api from "../../services/api";
 import { getPedidosCliente } from "../../services/pedidosService";
+import { io } from "socket.io-client";
 
 function AdminPedidos() {
   const [pedidos, setPedidos] = useState([]);
@@ -48,6 +49,50 @@ function AdminPedidos() {
       await fetchUsuarios();
     };
     initializeData();
+
+    // Conectar WebSocket para actualizaciones en tiempo real globales del administrador
+    const socket = io();
+
+    socket.on("connect", () => {
+      console.log("[WS Admin] Conectado al API Gateway, uniéndose a sala de admins...");
+      socket.emit("join_admin");
+    });
+
+    socket.on("pedido_actualizado", (data) => {
+      console.log("[WS Admin] Actualización de pedido recibida:", data);
+      
+      if (data.nuevoPedido) {
+        // Es una creación de pedido nuevo
+        setPedidos((prev) => {
+          const exists = prev.some((p) => String(p._id || p.id) === String(data.nuevoPedido._id || data.nuevoPedido.id));
+          if (exists) return prev;
+          return [data.nuevoPedido, ...prev];
+        });
+        fetchUsuarios(); // Refrescar nombres de usuarios por si es nuevo cliente
+      } else {
+        // Es una actualización de estado de un pedido existente
+        setPedidos((prev) =>
+          prev.map((p) => {
+            const pId = String(p._id || p.id);
+            if (pId === String(data.pedidoId)) {
+              return {
+                ...p,
+                estado: data.estado !== undefined ? data.estado : p.estado,
+                repartidorId: data.repartidorId !== undefined ? data.repartidorId : p.repartidorId,
+              };
+            }
+            return p;
+          }),
+        );
+      }
+      
+      // Siempre refrescar repartidores para mantener los estados (disponible/ocupado) de la flotilla en sincronía
+      fetchRepartidores();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const getEstadoEstilo = (estado) => {

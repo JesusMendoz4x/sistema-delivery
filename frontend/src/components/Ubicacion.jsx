@@ -44,10 +44,10 @@ function Ubicacion() {
   ];
 
   return (
-    <section className="py-32 px-16" ref={sectionRef}>
+    <section className="py-16 md:py-32 px-6 md:px-16" ref={sectionRef}>
       {/* Separador — líneas crecen desde el centro */}
-      <div className="mb-16">
-        <div className="flex items-center gap-6 mb-4">
+      <div className="mb-12 md:mb-16">
+        <div className="flex items-center gap-4 md:gap-6 mb-4">
           <div
             className="h-px flex-grow"
             style={{
@@ -58,11 +58,10 @@ function Ubicacion() {
             }}
           />
           <span
-            className="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.4em]"
+            className="font-['JetBrains_Mono'] text-[10px] md:text-[11px] uppercase tracking-[0.4em] px-4 py-1.5 md:px-5"
             style={{
               color: "#D4AF6A",
               border: "1px solid rgba(212, 175, 106, 0.4)",
-              padding: "6px 20px",
               textShadow:
                 "0 0 12px rgba(212,175,106,0.6), 0 0 24px rgba(212,175,106,0.3)",
               opacity: inView ? 1 : 0,
@@ -83,7 +82,7 @@ function Ubicacion() {
         </div>
 
         {/* Título slide desde izquierda */}
-        <div className="flex items-stretch gap-5">
+        <div className="flex items-stretch gap-4 md:gap-5">
           <div className="w-[3px] bg-[#9B2335] rounded-sm flex-shrink-0" />
           <div
             className="flex flex-col gap-2"
@@ -94,17 +93,17 @@ function Ubicacion() {
                 "opacity 0.7s ease-out 0.3s, transform 0.7s ease-out 0.3s",
             }}
           >
-            <p className="font-['EB_Garamond'] text-[40px] text-[#F2EDE4] font-normal m-0 cursor-default transition-all duration-300 hover:text-[#D4AF6A] hover:tracking-wide">
+            <p className="font-['EB_Garamond'] text-[28px] sm:text-[34px] md:text-[40px] text-[#F2EDE4] font-normal m-0 cursor-default transition-all duration-300 hover:text-[#D4AF6A] hover:tracking-wide">
               Visítanos
             </p>
-            <span className="font-['DM_Sans'] text-[13px] text-[#F2EDE4]/40">
+            <span className="font-['DM_Sans'] text-[12px] md:text-[13px] text-[#F2EDE4]/40">
               en cualquiera de nuestras 4 ubicaciones en Oaxaca
             </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-24 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 max-w-5xl mx-auto">
         {/* Sucursales — aparecen una por una */}
         <div className="flex flex-col gap-12">
           <div>

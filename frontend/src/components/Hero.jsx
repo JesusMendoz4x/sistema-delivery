@@ -93,7 +93,7 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
 
         {/* Título letra por letra */}
         <h1
-          className="font-['EB_Garamond'] text-[72px] leading-none tracking-tight text-[#F2EDE4] mb-4 flex"
+          className="font-['EB_Garamond'] text-[40px] sm:text-[56px] md:text-[72px] leading-none tracking-tight text-[#F2EDE4] mb-4 flex flex-wrap justify-center"
           style={{ fontWeight: 600 }}
         >
           {titulo.split("").map((letra, i) => (
@@ -105,14 +105,14 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
                 animation: `slideUp 0.4s ease-out ${2.4 + i * 0.06}s forwards`,
               }}
             >
-              {letra}
+              {letra === " " ? "\u00A0" : letra}
             </span>
           ))}
         </h1>
 
         {/* Subtítulo */}
         <p
-          className="font-['EB_Garamond'] text-[22px] text-[#F2EDE4]/50 italic mb-12 tracking-wide"
+          className="font-['EB_Garamond'] text-[18px] md:text-[22px] text-[#F2EDE4]/50 italic mb-8 md:mb-12 tracking-wide px-4"
           style={{
             opacity: 0,
             animation: "fadeIn 0.6s ease-out 3.2s forwards",
@@ -122,10 +122,10 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
         </p>
 
         {/* Botones */}
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto px-6 sm:px-0">
           <button
             onClick={onVerMenu}
-            className="px-10 py-4 bg-primary font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-white hover:bg-primary-container transition-all active:scale-[0.98]"
+            className="w-full sm:w-auto px-8 py-3.5 md:px-10 md:py-4 bg-primary font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-white hover:bg-primary-container transition-all active:scale-[0.98]"
             style={{
               opacity: 0,
               animation: "slideUp 0.5s ease-out 3.4s forwards",
@@ -140,13 +140,13 @@ function Hero({ onVerMenu, heroProgress = 0 }) {
                 .getElementById("info")
                 ?.scrollIntoView({ behavior: "smooth" })
             }
-            className="px-10 py-4 border border-[#D4AF6A]/30 font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-[#D4AF6A]/70 hover:border-[#D4AF6A] hover:text-[#D4AF6A] transition-all"
+            className="w-full sm:w-auto px-8 py-3.5 md:px-10 md:py-4 border border-[#D4AF6A]/30 font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.3em] text-[#D4AF6A]/70 hover:border-[#D4AF6A] hover:text-[#D4AF6A] transition-all"
             style={{
               opacity: 0,
               animation: "slideUp 0.5s ease-out 3.6s forwards",
             }}
           >
-            Más Información
+            Más Info
           </button>
         </div>
       </div>
