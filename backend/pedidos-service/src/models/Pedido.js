@@ -60,6 +60,14 @@ const pedidoSchema = new mongoose.Schema({
         type: String,
         default: 'efectivo',
         trim: true
+    },
+    latitud: {
+        type: Number,
+        default: null
+    },
+    longitud: {
+        type: Number,
+        default: null
     }
 }, {
     timestamps: true,

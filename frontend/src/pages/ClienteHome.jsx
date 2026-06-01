@@ -374,6 +374,8 @@ function ClienteHomeInner() {
               estado: data.estado,
               repartidorId: data.repartidorId,
               ruta: data.ruta,
+              updatedAt: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             };
           }
           return p;
@@ -501,9 +503,9 @@ function ClienteHomeInner() {
     const total = subtotal + servicio;
 
     try {
-      // Coordenadas simuladas del cliente (Cerca de la sucursal Centro de Oaxaca)
-      const latitudCliente = 17.06;
-      const longitudCliente = -96.726;
+      // Coordenadas seleccionadas por el cliente
+      const latitudCliente = ubicacionCliente.latitud;
+      const longitudCliente = ubicacionCliente.longitud;
 
       // 1. Mapear el carrito al formato esperado por el validador del backend
       const productosPedido = carrito.map((item) => ({
