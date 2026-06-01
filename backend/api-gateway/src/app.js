@@ -86,6 +86,8 @@ app.use((req, res, next) => {
 app.use(cors({
     origin: [
         'http://localhost', 'http://127.0.0.1', // Puerto 80 del Frontend Dockerizado
+        'http://equipo1c.itolab.lat',
+        'https://equipo1c.itolab.lat',
         'http://localhost:5173', 'http://127.0.0.1:5173',
         'http://localhost:5174', 'http://127.0.0.1:5174',
         'http://localhost:5175', 'http://127.0.0.1:5175'
@@ -211,6 +213,13 @@ app.use('/api/inventario', (req, res, next) => {
     if (req.method === 'GET') return next();
     return verifyJWT(['admin', 'sucursal'])(req, res, next);
 }, createProxyMiddleware({
+    target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
+    changeOrigin: true,
+    logLevel: 'debug',
+    onProxyRes: cleanCorsHeaders
+}));
+
+app.use('/uploads', createProxyMiddleware({
     target: process.env.INVENTARIO_SERVICE_URL || 'http://localhost:3001',
     changeOrigin: true,
     logLevel: 'debug',

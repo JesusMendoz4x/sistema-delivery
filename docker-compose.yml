@@ -25,6 +25,7 @@ services:
     environment:
       - NODE_ENV=desarrollo
       - PORT=5000
+      - FRONTEND_PUBLIC_URL=https://equipo1c.itolab.lat
       - INVENTARIO_SERVICE_URL=http://inventario-service:3001
       - SUCURSALES_SERVICE_URL=http://sucursales-service:3002
       - PEDIDOS_SERVICE_URL=http://pedidos-service:3003
@@ -53,8 +54,11 @@ services:
     environment:
       - PORT=3001
       - MONGODB_URI=mongodb://mongodb:27017/productosdb
+      - INVENTARIO_PUBLIC_URL=https://equipo1c.itolab.lat
     depends_on:
       - mongodb
+    volumes:
+      - inventario_uploads:/app/uploads
     networks:
       - delivery_network
 
@@ -164,6 +168,8 @@ services:
 
 volumes:
   mongo_data:
+    driver: local
+  inventario_uploads:
     driver: local
 
 networks:

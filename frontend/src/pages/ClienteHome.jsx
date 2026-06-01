@@ -354,7 +354,7 @@ function ClienteHomeInner() {
     if (!isLoggedIn) return undefined;
 
     // Nos conectamos al API Gateway que actúa como proxy WebSocket
-    const socket = io("http://localhost:5000");
+    const socket = io();
 
     socket.on("connect", () => {
       console.log("[WS] Canal activo con el API Gateway en puerto 5000");
