@@ -53,7 +53,7 @@ services:
     depends_on:
       - mongodb
     volumes:
-      - inventario_uploads:/app/uploads
+      - inventario_uploads:/app/backend/inventario-service/uploads
     networks:
       - delivery_network
 
