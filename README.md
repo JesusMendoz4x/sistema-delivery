@@ -23,6 +23,7 @@ Desarrollo de Servicios Web
 
 **Docente:** Alonso Hernández Luis Alberto  
 **Fecha:** 31 de mayo de 2026
+---
 **Equipo:** Equipo1C
 ---
 
