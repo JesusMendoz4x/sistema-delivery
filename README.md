@@ -20,6 +20,7 @@ Desarrollo de Servicios Web
 | Mendoza Durán Juan Francisco | 22161163 |
 | Martinez Miguel Jonathan Eliezer | 22161140 |
 
+**Equipo:** Equipo1C
 **Docente:** Alonso Hernández Luis Alberto  
 **Fecha:** 31 de mayo de 2026
 
