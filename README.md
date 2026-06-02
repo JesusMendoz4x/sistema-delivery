@@ -1,4 +1,31 @@
-# Sistema Delivery
+# Sistema de Pedidos a Domicilio Basado en Microservicios 
+
+**INSTITUTO TECNOLÓGICO DE OAXACA**  
+Tecnológico Nacional de México  
+Ingeniería en Sistemas Computacionales  
+Desarrollo de Servicios Web  
+**PROYECTO INTEGRADOR**
+
+---
+
+## Integrantes del Equipo (Grupo 8SC, Semestre 8.º)
+
+| Nombre | Número de Control |
+|--------|-------------------|
+| Solano Ramos Eduardo | 22161254 |
+| Mendoza Chávez Jesús Abraham | 22161168 |
+| Porras Avendaño Sergio Ezequiel | 22161208 |
+| Plácido Martínez Cristian Gerardo | 22161206 |
+| Franco Matías Uziel | 22161061 |
+| Mendoza Durán Juan Francisco | 22161163 |
+| Martinez Miguel Jonathan Eliezer | 22161140 |
+
+**Docente:** Alonso Hernández Luis Alberto  
+**Fecha:** 31 de mayo de 2026
+
+---
+
+## Descripción del Proyecto
 
 Sistema de **delivery multisucursal** donde los clientes realizan sus pedidos en línea. La plataforma asigna automáticamente la sucursal más cercana, valida y descuenta el inventario, asigna un repartidor disponible y notifica en tiempo real el avance del pedido tanto al cliente como al panel de administración.
 
